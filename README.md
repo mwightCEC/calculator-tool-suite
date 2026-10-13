@@ -42,3 +42,12 @@ for liveness/readiness probes.
 
 pnpm enforces a minimum release age for new package versions. Pin versions that
 satisfy it rather than adding `minimumReleaseAgeExclude` entries.
+
+## Calculation notes
+
+- Storage uses decimal units (1 TB = 10^12 bytes), matching drive labels.
+  Recorders and operating systems may show less because they use binary units.
+- **Bitrate estimates are placeholders.** The coefficients in
+  `packages/calc-core/src/bitrate/placeholder-bitrate-coefficients.ts` come from the
+  prototype and are not validated. Replace them with validated data before presenting
+  estimates as reliable guidance, then set `validated: true` in that file.
