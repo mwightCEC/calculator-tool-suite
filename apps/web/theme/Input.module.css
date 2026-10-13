@@ -1,0 +1,7 @@
+/*
+ * Keep input borders neutral on focus. Mantine sets --input-bd-focus on the
+ * input wrapper; defining it on the input element itself takes precedence.
+ */
+.input {
+  --input-bd-focus: var(--app-input-focus-border);
+}

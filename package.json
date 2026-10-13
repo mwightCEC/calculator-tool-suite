@@ -1,0 +1,29 @@
+{
+  "name": "cctv-tool-suite",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @cctv/web dev",
+    "build": "pnpm --recursive build",
+    "format": "oxfmt -c oxfmt.config.mjs --write .",
+    "format:check": "oxfmt -c oxfmt.config.mjs --check .",
+    "lint": "pnpm lint:js && pnpm lint:css",
+    "lint:js": "oxlint -c oxlint.config.mjs .",
+    "lint:css": "stylelint \"**/*.css\" --cache",
+    "typecheck": "pnpm --recursive typecheck",
+    "test": "pnpm --recursive test",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test"
+  },
+  "devDependencies": {
+    "oxc-config-mantine": "1.0.3",
+    "oxfmt": "0.72.0",
+    "oxlint": "1.87.0",
+    "stylelint": "17.16.0",
+    "stylelint-config-standard-scss": "17.0.0",
+    "typescript": "7.0.2"
+  }
+}

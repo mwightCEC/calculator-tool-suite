@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Caches and logs
+.stylelintcache
+*.log
+
+# Environment
+.env
+.env*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db

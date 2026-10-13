@@ -1,0 +1,4 @@
+/* Neutral keyboard focus ring (theme.focusRing = 'auto'). */
+.mantine-focus-auto:focus-visible {
+  outline-color: var(--app-focus-ring);
+}
