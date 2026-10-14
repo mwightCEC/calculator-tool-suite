@@ -1,0 +1,15 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-md);
+}
+
+.title {
+  font-size: var(--mantine-font-size-md);
+  margin-bottom: 4px;
+}
+
+.select {
+  width: 120px;
+}

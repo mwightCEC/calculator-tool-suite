@@ -1,0 +1,34 @@
+.bar {
+  position: fixed;
+  /* Start after the sidebar when it is visible (AppShell sets the offset per breakpoint). */
+  inset-inline: var(--app-shell-navbar-offset, 0px) 0;
+  bottom: 0;
+  z-index: 100;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  padding-bottom: calc(var(--mantine-spacing-xs) + env(safe-area-inset-bottom));
+  background-color: var(--app-chrome-header-bg);
+  color: var(--mantine-color-white);
+  box-shadow: var(--mantine-shadow-md);
+}
+
+.text {
+  min-width: 0;
+}
+
+.label {
+  color: var(--app-chrome-label);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.value {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.range {
+  color: var(--app-chrome-label);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 400;
+}
