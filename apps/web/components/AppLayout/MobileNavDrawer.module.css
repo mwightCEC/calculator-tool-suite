@@ -1,0 +1,17 @@
+.content {
+  background-color: var(--app-chrome-sidebar-bg);
+}
+
+.header {
+  background-color: var(--app-chrome-header-bg);
+  padding-inline: var(--mantine-spacing-md) var(--mantine-spacing-sm);
+}
+
+.title {
+  color: var(--mantine-color-white);
+  font-weight: 600;
+}
+
+.body {
+  padding: 0;
+}

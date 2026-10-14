@@ -3,11 +3,12 @@ import '@mantine/core/styles.css';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
+import { AppLayout } from '../components/AppLayout/AppLayout';
 import { cssVariablesResolver, theme } from '../theme/theme';
 import './global.css';
 
 export const metadata: Metadata = {
-  title: 'CCTV tool suite',
+  title: { default: 'CCTV tool suite', template: '%s · CCTV tool suite' },
   description: 'Calculators for CCTV installers and system designers.',
 };
 
@@ -28,7 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           cssVariablesResolver={cssVariablesResolver}
           defaultColorScheme="auto"
         >
-          {children}
+          <AppLayout>{children}</AppLayout>
         </MantineProvider>
       </body>
     </html>

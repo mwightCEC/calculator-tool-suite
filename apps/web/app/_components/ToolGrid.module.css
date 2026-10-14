@@ -1,0 +1,23 @@
+.card {
+  height: 100%;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.card[href] {
+  @mixin hover {
+    border-color: var(--mantine-color-brand-6);
+    box-shadow: var(--mantine-shadow-sm);
+  }
+}
+
+/* Unbuilt tools: dashed outline signals "not available yet" in both schemes. */
+.card[data-coming-soon] {
+  border-style: dashed;
+}
+
+.name {
+  font-size: var(--mantine-font-size-lg);
+  margin-bottom: 4px;
+}

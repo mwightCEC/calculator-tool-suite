@@ -1,0 +1,80 @@
+/*
+ * Navigation on the navy sidebar. Rules are scoped under .nav so they take
+ * precedence over Mantine's single-class NavLink defaults.
+ */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--mantine-spacing-xs);
+}
+
+.nav .link {
+  border-radius: var(--mantine-radius-sm);
+  color: var(--app-chrome-text);
+  font-size: var(--mantine-font-size-sm);
+  min-height: 40px;
+}
+
+@media (hover: hover) {
+  .nav .link:not([data-active], [data-disabled]):hover {
+    background-color: var(--app-chrome-hover-bg);
+    color: var(--mantine-color-white);
+  }
+
+  .nav .link:not([data-active], [data-disabled]):hover .section {
+    color: var(--mantine-color-white);
+  }
+}
+
+.nav .link[data-active] {
+  color: var(--mantine-color-white);
+}
+
+/* Unbuilt tools: dimmed, but still hoverable so the collapsed rail shows tooltips. */
+.nav .link[data-disabled] {
+  opacity: 0.55;
+  pointer-events: auto;
+  cursor: not-allowed;
+  background-color: transparent;
+}
+
+.nav .section {
+  color: var(--app-chrome-icon);
+}
+
+.nav .link[data-active] .section {
+  color: inherit;
+}
+
+.nav .label {
+  white-space: nowrap;
+}
+
+.sectionLabel {
+  margin: var(--mantine-spacing-md) var(--mantine-spacing-sm) var(--mantine-spacing-xs);
+  color: var(--app-chrome-label);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sectionDivider {
+  margin: var(--mantine-spacing-xs) var(--mantine-spacing-xs);
+  border-color: var(--app-chrome-hover-bg);
+}
+
+/* Icon-only rail: centre the icon and drop the label body. */
+.nav[data-collapsed] .link {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.nav[data-collapsed] .section {
+  margin: 0;
+}
+
+.nav[data-collapsed] .body {
+  display: none;
+}

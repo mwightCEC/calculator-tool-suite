@@ -1,14 +1,14 @@
 'use client';
 
-import { Card, createTheme, Input, Paper, rem } from '@mantine/core';
+import { ActionIcon, Card, createTheme, Input, Paper, rem } from '@mantine/core';
 import { cssVariablesResolver } from './css-variables';
-import { brand, navy } from './palettes';
+import { amber, brand, navy } from './palettes';
 import inputClasses from './Input.module.css';
 
 export { cssVariablesResolver };
 
 export const theme = createTheme({
-  colors: { brand, navy },
+  colors: { brand, navy, amber },
   primaryColor: 'brand',
   primaryShade: { light: 6, dark: 6 },
   // Picks dark text on light fills (e.g. amber badges). White is still chosen
@@ -28,6 +28,21 @@ export const theme = createTheme({
   defaultRadius: 'sm',
 
   components: {
+    ActionIcon: ActionIcon.extend({
+      // Custom "chrome" variant for icon buttons on navy app chrome.
+      vars: (_theme, props) =>
+        props.variant === 'chrome'
+          ? {
+              root: {
+                '--ai-bg': 'transparent',
+                '--ai-bd': 'none',
+                '--ai-color': 'var(--app-chrome-icon)',
+                '--ai-hover': 'var(--app-chrome-hover-bg)',
+                '--ai-hover-color': 'var(--mantine-color-white)',
+              },
+            }
+          : { root: {} },
+    }),
     Card: Card.extend({ defaultProps: { radius: 'md' } }),
     Paper: Paper.extend({ defaultProps: { radius: 'md' } }),
     Input: Input.extend({ classNames: { input: inputClasses.input } }),
