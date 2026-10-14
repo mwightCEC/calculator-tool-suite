@@ -11,7 +11,7 @@ export const DEFAULT_CAMERA_GROUP_SETTINGS: CameraGroupSettings = {
   recordingMode: 'continuous',
   motionPercent: 30,
   scheduleHours: 12,
-  bitrateOverrideMbps: null,
+  bitrate: { source: 'estimate' },
 };
 
 export const DEFAULT_STORAGE_SETTINGS: StorageSettings = {

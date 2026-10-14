@@ -48,6 +48,9 @@ satisfy it rather than adding `minimumReleaseAgeExclude` entries.
 - Storage uses decimal units (1 TB = 10^12 bytes), matching drive labels.
   Recorders and operating systems may show less because they use binary units.
 - **Bitrate estimates are placeholders.** The coefficients in
-  `packages/calc-core/src/bitrate/placeholder-bitrate-coefficients.ts` come from the
-  prototype and are not validated. Replace them with validated data before presenting
-  estimates as reliable guidance, then set `validated: true` in that file.
+  `packages/calc-core/src/data/bitrate-model.json` come from the prototype and are not
+  validated (`"status": "placeholder"`). See `packages/calc-core/src/data/README.md` for
+  how to replace them; no code changes are needed.
+- Estimates are ranges (typical ± an uncertainty band from the data file). Known
+  averages and bitrate caps are single values. Storage is sized for the high end of the
+  range, and retention from capacity headlines the low (worst-case) end.

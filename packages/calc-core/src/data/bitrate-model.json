@@ -1,0 +1,47 @@
+{
+  "version": "0.1.0",
+  "lastUpdated": "2026-10-14",
+  "status": "placeholder",
+  "notes": "TODO: PLACEHOLDER VALUES. Every coefficient below comes from the prototype and has NOT been validated against real cameras. Replace with measured averages or engineering default stream settings, update each value's provenance, then set status to \"validated\". See README.md in this folder.",
+  "sources": [
+    {
+      "id": "placeholder",
+      "description": "Prototype coefficients. Not validated; do not present as reliable guidance."
+    }
+  ],
+  "reference": {
+    "codec": "h264",
+    "frameRate": 30,
+    "sceneComplexity": "medium"
+  },
+  "baselineMbps": {
+    "1MP": { "value": 2, "provenance": "placeholder" },
+    "2MP": { "value": 4, "provenance": "placeholder" },
+    "3MP": { "value": 5, "provenance": "placeholder" },
+    "4MP": { "value": 6, "provenance": "placeholder" },
+    "5MP": { "value": 7, "provenance": "placeholder" },
+    "6MP": { "value": 8, "provenance": "placeholder" },
+    "8MP": { "value": 12, "provenance": "placeholder" },
+    "12MP": { "value": 16, "provenance": "placeholder" }
+  },
+  "codecMultipliers": {
+    "h264": { "value": 1.0, "provenance": "placeholder" },
+    "h264-smart": { "value": 0.6, "provenance": "placeholder" },
+    "h265": { "value": 0.6, "provenance": "placeholder" },
+    "h265-smart": { "value": 0.35, "provenance": "placeholder" },
+    "mjpeg": { "value": 5.0, "provenance": "placeholder" }
+  },
+  "frameRateScaling": {
+    "exponent": { "value": 0.85, "provenance": "placeholder" }
+  },
+  "sceneComplexityMultipliers": {
+    "low": { "value": 0.6, "provenance": "placeholder" },
+    "medium": { "value": 1.0, "provenance": "placeholder" },
+    "high": { "value": 1.5, "provenance": "placeholder" }
+  },
+  "uncertaintyBand": {
+    "default": { "value": 0.3, "provenance": "placeholder" },
+    "bySceneComplexity": {}
+  },
+  "nightIrMultiplier": null
+}

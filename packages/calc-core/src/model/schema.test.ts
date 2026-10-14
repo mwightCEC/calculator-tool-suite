@@ -28,10 +28,21 @@ describe('cameraGroupSchema', () => {
     expect(cameraGroupSchema.parse({ ...validGroup, name: '  Lobby  ' }).name).toBe('Lobby');
   });
 
-  it('accepts a positive bitrate override', () => {
-    expect(
-      cameraGroupSchema.parse({ ...validGroup, bitrateOverrideMbps: 3.5 }).bitrateOverrideMbps
-    ).toBe(3.5);
+  it.each([
+    [{ source: 'estimate' }],
+    [{ source: 'known-average', mbps: 3.5 }],
+    [{ source: 'bitrate-cap', mbps: 0.1 }],
+    [{ source: 'bitrate-cap', mbps: 100 }],
+  ])('accepts bitrate %o', (bitrate) => {
+    expect(cameraGroupSchema.parse({ ...validGroup, bitrate }).bitrate).toEqual(bitrate);
+  });
+
+  it('drops a stray value from an Estimate bitrate', () => {
+    const parsed = cameraGroupSchema.parse({
+      ...validGroup,
+      bitrate: { source: 'estimate', mbps: 9 },
+    });
+    expect(parsed.bitrate).toEqual({ source: 'estimate' });
   });
 
   it.each([
@@ -48,8 +59,11 @@ describe('cameraGroupSchema', () => {
     ['motion above 100%', { motionPercent: 105 }],
     ['zero schedule hours', { scheduleHours: 0 }],
     ['more than 24 schedule hours', { scheduleHours: 25 }],
-    ['a zero bitrate override', { bitrateOverrideMbps: 0 }],
-    ['a negative bitrate override', { bitrateOverrideMbps: -1 }],
+    ['an unknown bitrate source', { bitrate: { source: 'guess' } }],
+    ['a known average without a value', { bitrate: { source: 'known-average' } }],
+    ['a bitrate cap below 0.1 Mbps', { bitrate: { source: 'bitrate-cap', mbps: 0.05 } }],
+    ['a known average above 100 Mbps', { bitrate: { source: 'known-average', mbps: 101 } }],
+    ['the old override field instead of bitrate', { bitrate: undefined, bitrateOverrideMbps: 4 }],
   ])('rejects %s', (_label, overrides) => {
     expect(cameraGroupSchema.safeParse({ ...validGroup, ...overrides }).success).toBe(false);
   });
