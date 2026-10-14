@@ -1,0 +1,11 @@
+// Cloudflare Workers static-assets deployment of the static export.
+// Build with STATIC_EXPORT=true so `next build` writes the site to ./out.
+// No Worker script: Cloudflare serves the files directly.
+{
+  "name": "cctv-tool-suite",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page",
+  },
+}

@@ -38,6 +38,28 @@ docker run -p 3000:3000 cctv-tool-suite
 The container runs as a non-root user. `GET /api/health` returns `{"status":"ok"}`
 for liveness/readiness probes.
 
+## Static export (Cloudflare)
+
+All calculations run in the browser, so the site can also be built as static files.
+Setting `STATIC_EXPORT=true` switches `next build` from the standalone server (Docker)
+to a static export in `apps/web/out`.
+
+```bash
+STATIC_EXPORT=true npm run build
+```
+
+Cloudflare Workers build settings:
+
+| Setting        | Value                |
+| -------------- | -------------------- |
+| Root directory | `apps/web`           |
+| Build command  | `npm run build`      |
+| Deploy command | `npx wrangler deploy` |
+| Build variable | `STATIC_EXPORT=true` |
+
+`apps/web/wrangler.jsonc` tells Wrangler to serve `out/` as static assets. The health
+route is generated at build time (`force-static`), so it also exists as a static file.
+
 ## Dependency age policy
 
 Dependencies are pinned to exact versions (`save-exact` in `.npmrc`). Avoid versions
