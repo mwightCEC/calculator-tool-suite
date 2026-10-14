@@ -38,6 +38,23 @@ export const navy: MantineColorsTuple = [
   '#091826',
 ];
 
+/**
+ * Amber accent built around #EF9F27 (shade 6): "soon" badges and RAID parity.
+ * With theme.autoContrast, filled amber gets dark text (~9.7:1).
+ */
+export const amber: MantineColorsTuple = [
+  '#fff6e1',
+  '#feebcd',
+  '#f9d6a0',
+  '#f5bf6e',
+  '#f3b358',
+  '#f1ac43',
+  '#ef9f27',
+  '#d48508',
+  '#bd7500',
+  '#a56400',
+];
+
 export interface GroupColor {
   /** Solid colour for dots, bar segments and accents. */
   color: string;

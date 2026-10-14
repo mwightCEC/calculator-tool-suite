@@ -24,6 +24,7 @@ export const cssVariablesResolver: CSSVariablesResolver = (theme) => ({
     '--app-chrome-hover-bg': navy[6],
     '--app-chrome-icon': navy[2],
     '--app-chrome-label': navy[3],
+    '--app-chrome-text': navy[0],
   },
   light: {
     '--app-focus-ring': theme.colors.gray[6],

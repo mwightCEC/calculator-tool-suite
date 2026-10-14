@@ -1,0 +1,12 @@
+/* Light scheme shows the moon (switch to dark); dark scheme shows the sun. */
+.moon {
+  @mixin dark {
+    display: none;
+  }
+}
+
+.sun {
+  @mixin light {
+    display: none;
+  }
+}

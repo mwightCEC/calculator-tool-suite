@@ -1,0 +1,29 @@
+.root {
+  /* Navbar width transition; enabled once the user toggles the sidebar (see AppLayout). */
+  --sidebar-transition: none;
+}
+
+.root[data-sidebar-animated] {
+  --sidebar-transition: 150ms ease;
+}
+
+.header {
+  background-color: var(--app-chrome-header-bg);
+  border-bottom: none;
+}
+
+.navbar {
+  background-color: var(--app-chrome-sidebar-bg);
+  border-inline-end: none;
+  transition: width var(--sidebar-transition);
+}
+
+.main {
+  transition: padding-inline-start var(--sidebar-transition);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root[data-sidebar-animated] {
+    --sidebar-transition: none;
+  }
+}

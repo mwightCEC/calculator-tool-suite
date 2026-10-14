@@ -1,0 +1,18 @@
+.mark {
+  display: block;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.tile {
+  fill: var(--app-chrome-hover-bg);
+}
+
+.body {
+  fill: var(--mantine-color-brand-6);
+}
+
+.lens {
+  fill: var(--app-chrome-icon);
+}
