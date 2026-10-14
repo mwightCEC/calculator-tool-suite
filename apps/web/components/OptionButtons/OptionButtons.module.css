@@ -1,0 +1,14 @@
+/*
+ * Rules are scoped under .group so they take precedence over Chip's
+ * single-class defaults. Selected state (brand fill, white text, check icon,
+ * darker hover) comes from Chip's filled variant and the theme.
+ */
+.group .label:not([data-checked]) {
+  border-color: var(--mantine-color-default-border);
+  color: var(--app-text-secondary);
+}
+
+/* Keyboard focus: neutral ring like the rest of the app (Chip defaults to brand). */
+.group .input:focus-visible + .label {
+  outline-color: var(--app-focus-ring);
+}

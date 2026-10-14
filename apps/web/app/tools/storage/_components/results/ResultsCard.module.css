@@ -1,0 +1,138 @@
+/* Navy results card; colours come from the app chrome tokens. */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+  border-radius: var(--mantine-radius-md);
+  background-color: var(--app-chrome-header-bg);
+  color: var(--mantine-color-white);
+}
+
+.card:focus {
+  outline: none;
+}
+
+.sectionLabel {
+  color: var(--app-chrome-label);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.sourceBadge {
+  flex-shrink: 0;
+  text-transform: none;
+}
+
+.headlineValue {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.headlineRange {
+  color: var(--app-chrome-label);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.drives {
+  font-size: var(--mantine-font-size-sm);
+  color: var(--app-chrome-text);
+}
+
+.sizedNote {
+  color: var(--app-chrome-label);
+}
+
+/* Capacity bar */
+
+.bar {
+  background-color: var(--mantine-color-navy-9);
+  border: 1px solid var(--app-chrome-hover-bg);
+}
+
+.legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px var(--mantine-spacing-md);
+  margin: var(--mantine-spacing-xs) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--mantine-font-size-xs);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.swatch {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  outline: 1px solid var(--app-chrome-hover-bg);
+}
+
+.legendLabel {
+  color: var(--app-chrome-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legendValue {
+  margin-inline-start: auto;
+  color: var(--app-chrome-label);
+  white-space: nowrap;
+}
+
+/* Metric tiles */
+
+.tiles {
+  margin: 0;
+}
+
+.tile {
+  padding: var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  background-color: var(--app-chrome-hover-bg);
+}
+
+.tileLabel {
+  color: var(--app-chrome-label);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.tileValue {
+  margin: 0;
+  font-size: var(--mantine-font-size-lg);
+  font-weight: 600;
+}
+
+.tileDetail {
+  margin: 0;
+  color: var(--app-chrome-label);
+  font-size: var(--mantine-font-size-xs);
+}
+
+/* Status and notes */
+
+.status[data-tone='ok'] {
+  color: var(--app-chrome-status-ok);
+}
+
+.status[data-tone='warn'] {
+  color: var(--app-chrome-status-warn);
+}
+
+.unitsNote {
+  color: var(--app-chrome-label);
+  font-size: var(--mantine-font-size-xs);
+}

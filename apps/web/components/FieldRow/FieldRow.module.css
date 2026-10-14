@@ -1,0 +1,49 @@
+.row {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+}
+
+.labelCell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 36px;
+}
+
+.label {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
+}
+
+/* Controls keep their natural width rather than stretching across the row. */
+.controlCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  min-height: 36px;
+}
+
+.note {
+  color: var(--app-text-secondary);
+}
+
+.row[data-dimmed] .label,
+.row[data-dimmed] .controlCell > :not(.note) {
+  opacity: 0.55;
+}
+
+/* Narrow screens: label above the control. */
+@media (max-width: $mantine-breakpoint-xs) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .labelCell,
+  .controlCell {
+    min-height: 0;
+  }
+}

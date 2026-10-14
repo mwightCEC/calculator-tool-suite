@@ -1,8 +1,10 @@
 import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
 
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 import { AppLayout } from '../components/AppLayout/AppLayout';
 import { cssVariablesResolver, theme } from '../theme/theme';
 import './global.css';
@@ -29,6 +31,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           cssVariablesResolver={cssVariablesResolver}
           defaultColorScheme="auto"
         >
+          <Notifications position="top-right" />
           <AppLayout>{children}</AppLayout>
         </MantineProvider>
       </body>

@@ -1,16 +1,24 @@
 import type { Metadata } from 'next';
-import { Stack, Text, Title } from '@mantine/core';
+import { Text, Title } from '@mantine/core';
+import { StorageCalculator } from './_components/StorageCalculator';
 
 export const metadata: Metadata = {
   title: 'Storage',
+  description:
+    'Estimate recorder storage for a retention target, or retention from drive capacity.',
 };
 
-// Placeholder route so navigation works. The calculator UI arrives in Milestone 4.
 export default function StoragePage() {
   return (
-    <Stack gap="xs">
-      <Title order={1}>Storage calculator</Title>
-      <Text c="dimmed">HDD storage and recording-retention calculator.</Text>
-    </Stack>
+    <StorageCalculator
+      header={
+        <div>
+          <Title order={1}>Storage calculator</Title>
+          <Text c="dimmed">
+            Size recorder drives for a retention target, or estimate retention from capacity.
+          </Text>
+        </div>
+      }
+    />
   );
 }
