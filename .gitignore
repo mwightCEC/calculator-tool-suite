@@ -21,3 +21,6 @@ next-env.d.ts
 # OS / editor
 .DS_Store
 Thumbs.db
+
+# Cloudflare Wrangler local state
+.wrangler/
