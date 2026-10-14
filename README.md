@@ -12,20 +12,20 @@ Web-based calculators for CCTV installers and system designers.
 ## Requirements
 
 - Node.js >= 22.12 (see `.nvmrc`)
-- pnpm 12 (version pinned in `packageManager`)
+- npm 10 or later (npm workspaces; lockfile is `package-lock.json`)
 
 ## Commands (run from the repository root)
 
 ```bash
-pnpm install
-pnpm dev            # start the web app at http://localhost:3000
-pnpm format         # oxfmt --write
-pnpm format:check   # oxfmt --check
-pnpm lint           # oxlint + stylelint (CSS Modules)
-pnpm typecheck      # tsc --noEmit in every package
-pnpm test           # vitest (calc-core)
-pnpm check          # all of the above checks
-pnpm build          # production build (standalone output)
+npm ci                 # install exactly what package-lock.json records
+npm run dev            # start the web app at http://localhost:3000
+npm run format         # oxfmt --write
+npm run format:check   # oxfmt --check
+npm run lint           # oxlint + stylelint (CSS Modules)
+npm run typecheck      # tsc --noEmit in every package
+npm test               # vitest (calc-core)
+npm run check          # all of the above checks
+npm run build          # production build (standalone output)
 ```
 
 ## Docker
@@ -45,7 +45,7 @@ Setting `STATIC_EXPORT=true` switches `next build` from the standalone server (D
 to a static export in `apps/web/out`.
 
 ```bash
-STATIC_EXPORT=true pnpm build
+STATIC_EXPORT=true npm run build
 ```
 
 Cloudflare Workers build settings:
@@ -53,7 +53,7 @@ Cloudflare Workers build settings:
 | Setting        | Value                |
 | -------------- | -------------------- |
 | Root directory | `apps/web`           |
-| Build command  | `pnpm build`         |
+| Build command  | `npm run build`      |
 | Deploy command | `npx wrangler deploy` |
 | Build variable | `STATIC_EXPORT=true` |
 
@@ -62,8 +62,13 @@ route is generated at build time (`force-static`), so it also exists as a static
 
 ## Dependency age policy
 
-pnpm enforces a minimum release age for new package versions. Pin versions that
-satisfy it rather than adding `minimumReleaseAgeExclude` entries.
+Dependencies are pinned to exact versions (`save-exact` in `.npmrc`). Avoid versions
+published in the last 24 hours: when adding or updating packages, resolve against a
+cutoff so transitive dependencies follow the same rule, for example:
+
+```bash
+npm install <package>@<version> --before="$(date -u -d '1 day ago' +%Y-%m-%dT%H:%M:%SZ)"
+```
 
 ## Calculation notes
 

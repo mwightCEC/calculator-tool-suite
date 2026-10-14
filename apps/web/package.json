@@ -9,7 +9,7 @@
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@cctv/calc-core": "workspace:*",
+    "@cctv/calc-core": "*",
     "@mantine/core": "9.7.2",
     "@mantine/hooks": "9.7.2",
     "@mantine/notifications": "9.7.2",
