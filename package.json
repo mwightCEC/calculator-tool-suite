@@ -2,21 +2,25 @@
   "name": "cctv-tool-suite",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@12.11.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.12.0",
+    "npm": ">=10"
   },
   "scripts": {
-    "dev": "pnpm --filter @cctv/web dev",
-    "build": "pnpm --recursive build",
+    "dev": "npm run dev -w @cctv/web",
+    "build": "npm run build --workspaces --if-present",
     "format": "oxfmt -c oxfmt.config.mjs --write .",
     "format:check": "oxfmt -c oxfmt.config.mjs --check .",
-    "lint": "pnpm lint:js && pnpm lint:css",
+    "lint": "npm run lint:js && npm run lint:css",
     "lint:js": "oxlint -c oxlint.config.mjs .",
     "lint:css": "stylelint \"**/*.css\" --cache",
-    "typecheck": "pnpm --recursive typecheck",
-    "test": "pnpm --recursive test",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test"
   },
   "devDependencies": {
     "oxc-config-mantine": "1.0.3",

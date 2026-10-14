@@ -40,4 +40,4 @@ Every value carries a `provenance` string saying where it came from, for example
 2. Update each `value` and its `provenance`, and add entries to `sources`.
 3. Bump `version`, set `lastUpdated`, and set `status` to `"validated"`.
    The schema rejects `"validated"` while any value is still marked `placeholder`.
-4. Run `pnpm test`.
+4. Run `npm test`.
