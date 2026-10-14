@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import {
+  BITRATE_INPUT_MAX_MBPS,
+  BITRATE_INPUT_MIN_MBPS,
   CALCULATION_MODES,
   CODECS,
   DRIVE_SIZES_TB,
@@ -21,6 +23,18 @@ export const MAX_RETENTION_DAYS = 3650;
 export const MAX_DRIVE_COUNT = 1000;
 export const MAX_GROUP_NAME_LENGTH = 60;
 
+/** A bitrate the user supplies: a measured average or a configured cap. */
+export const enteredBitrateMbpsSchema = z
+  .number()
+  .min(BITRATE_INPUT_MIN_MBPS)
+  .max(BITRATE_INPUT_MAX_MBPS);
+
+export const groupBitrateSchema = z.discriminatedUnion('source', [
+  z.object({ source: z.literal('estimate') }),
+  z.object({ source: z.literal('known-average'), mbps: enteredBitrateMbpsSchema }),
+  z.object({ source: z.literal('bitrate-cap'), mbps: enteredBitrateMbpsSchema }),
+]);
+
 export const cameraGroupSchema = z.object({
   id: z.string().min(1),
   name: z.string().trim().min(1).max(MAX_GROUP_NAME_LENGTH),
@@ -38,8 +52,8 @@ export const cameraGroupSchema = z.object({
     .multipleOf(MOTION_PERCENT_STEP),
   /** Used when recordingMode is "schedule". */
   scheduleHours: z.int().min(SCHEDULE_HOURS_MIN).max(SCHEDULE_HOURS_MAX),
-  /** Known per-camera stream bitrate in Mbps; null means use the estimate. */
-  bitrateOverrideMbps: z.number().positive().max(1000).nullable(),
+  /** Per-camera bitrate: estimated from the model, or entered by the user. */
+  bitrate: groupBitrateSchema,
 });
 
 export const storageSettingsSchema = z.object({
@@ -58,6 +72,7 @@ export const storageCalculationInputSchema = z.object({
   storage: storageSettingsSchema,
 });
 
+export type GroupBitrate = z.infer<typeof groupBitrateSchema>;
 export type CameraGroup = z.infer<typeof cameraGroupSchema>;
 export type StorageSettings = z.infer<typeof storageSettingsSchema>;
 export type StorageCalculationInput = z.infer<typeof storageCalculationInputSchema>;

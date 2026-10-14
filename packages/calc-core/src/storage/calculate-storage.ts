@@ -1,3 +1,4 @@
+import type { BitrateModel } from '../bitrate/bitrate-model-schema';
 import type { StorageCalculationInput, StorageSettings } from '../model/schema';
 import type { CalculationMode, DriveSizeTb, RaidLevel } from '../options';
 import {
@@ -5,6 +6,7 @@ import {
   normalizeDriveCount,
   usableCapacityTb,
 } from '../raid/raid-levels';
+import { pointRange, scaleRange, sumRanges, type ValueRange } from '../range';
 import { floorTolerant } from '../rounding';
 import { GB_PER_TB } from '../units';
 import { calculateCameraGroupUsage, type CameraGroupUsage } from './camera-group-usage';
@@ -18,7 +20,8 @@ export interface DriveArray {
 }
 
 /**
- * How the raw drive capacity is used, in TB. Segments sum to `rawTb`.
+ * How the raw drive capacity is used, in TB, at the HIGH bitrate estimate
+ * (the conservative case the drives are sized for). Segments sum to `rawTb`.
  * Reserve is a share of usable capacity; parity is raw minus usable.
  */
 export interface CapacityBreakdown {
@@ -32,15 +35,23 @@ export interface CapacityBreakdown {
 export interface StorageCalculationResult {
   mode: CalculationMode;
   groups: CameraGroupUsage[];
+  /** True when any group uses the bitrate model's estimate rather than entered data. */
+  isEstimated: boolean;
   /** Sum of all groups' stream bitrates in Mbps (while recording). */
-  totalBitrateMbps: number;
+  totalBitrateMbps: ValueRange;
   /** Footage written per day across all groups, in decimal TB. */
-  dailyWriteTb: number;
-  /** Retention the result is based on: the target, or the estimate from capacity. */
-  retentionDays: number;
+  dailyWriteTb: ValueRange;
+  /**
+   * Retention in days. Storage-needed mode: the target (a single value).
+   * Days-from-capacity mode: `low` is the worst case (high bitrate) and is the
+   * conservative headline; `high` comes from the low bitrate.
+   */
+  retentionDays: ValueRange;
   /** Capacity needed for the retention target including reserve (storage-needed mode only). */
-  requiredCapacityTb: number | null;
+  requiredCapacityTb: ValueRange | null;
+  /** Storage-needed mode sizes the drives for the HIGH end of requiredCapacityTb. */
   drives: DriveArray;
+  /** Whether the worst-case retention meets the retention target. */
   meetsRetentionTarget: boolean;
   breakdown: CapacityBreakdown;
 }
@@ -63,7 +74,7 @@ function buildCapacityBreakdown(
 ): CapacityBreakdown {
   const footageTbByGroup = groups.map((group) => ({
     groupId: group.groupId,
-    tb: (group.gbPerDay / GB_PER_TB) * retentionDays,
+    tb: (group.gbPerDay.high / GB_PER_TB) * retentionDays,
   }));
   const footageTb = footageTbByGroup.reduce((sum, group) => sum + group.tb, 0);
   const reserveTb = drives.usableCapacityTb * reserveFraction;
@@ -77,45 +88,60 @@ function buildCapacityBreakdown(
   };
 }
 
+/** Days of footage that fit, per bitrate scenario. Higher bitrate → fewer days. */
+function retentionDaysForCapacity(recordableTb: number, dailyWriteTb: ValueRange): ValueRange {
+  const days = (dailyTb: number) => floorTolerant(recordableTb / dailyTb);
+  return {
+    low: days(dailyWriteTb.high),
+    typical: days(dailyWriteTb.typical),
+    high: days(dailyWriteTb.low),
+  };
+}
+
 /**
  * Sizes storage for a retention target, or estimates retention from a drive count.
  * Expects input that has passed `storageCalculationInputSchema`.
+ * Sizing is conservative: running out of storage is worse than having spare.
  */
-export function calculateStorage(input: StorageCalculationInput): StorageCalculationResult {
+export function calculateStorage(
+  input: StorageCalculationInput,
+  model?: BitrateModel
+): StorageCalculationResult {
   const { storage } = input;
-  const groups = input.cameraGroups.map(calculateCameraGroupUsage);
-  const totalBitrateMbps = groups.reduce((sum, group) => sum + group.totalBitrateMbps, 0);
-  const dailyWriteTb = groups.reduce((sum, group) => sum + group.gbPerDay, 0) / GB_PER_TB;
+  const groups = input.cameraGroups.map((group) => calculateCameraGroupUsage(group, model));
+  const totalBitrateMbps = sumRanges(groups.map((group) => group.totalBitrateMbps));
+  const dailyWriteTb = scaleRange(sumRanges(groups.map((group) => group.gbPerDay)), 1 / GB_PER_TB);
   const reserveFraction = storage.reservePercent / 100;
 
   let drives: DriveArray;
-  let retentionDays: number;
-  let requiredCapacityTb: number | null = null;
+  let retentionDays: ValueRange;
+  let requiredCapacityTb: ValueRange | null = null;
 
   if (input.mode === 'storage-needed') {
-    retentionDays = storage.retentionDays;
-    requiredCapacityTb = (dailyWriteTb * retentionDays) / (1 - reserveFraction);
+    retentionDays = pointRange(storage.retentionDays);
+    requiredCapacityTb = scaleRange(dailyWriteTb, storage.retentionDays / (1 - reserveFraction));
     const driveCount = minimumDrivesForCapacity(
       storage.raidLevel,
-      requiredCapacityTb,
+      requiredCapacityTb.high,
       storage.driveSizeTb
     );
     drives = buildDriveArray(storage, driveCount);
   } else {
     drives = buildDriveArray(storage, normalizeDriveCount(storage.raidLevel, storage.driveCount));
     const recordableTb = drives.usableCapacityTb * (1 - reserveFraction);
-    retentionDays = floorTolerant(recordableTb / dailyWriteTb);
+    retentionDays = retentionDaysForCapacity(recordableTb, dailyWriteTb);
   }
 
   return {
     mode: input.mode,
     groups,
+    isEstimated: groups.some((group) => group.bitrateSource === 'estimate'),
     totalBitrateMbps,
     dailyWriteTb,
     retentionDays,
     requiredCapacityTb,
     drives,
-    meetsRetentionTarget: retentionDays >= storage.retentionDays,
-    breakdown: buildCapacityBreakdown(groups, drives, retentionDays, reserveFraction),
+    meetsRetentionTarget: retentionDays.low >= storage.retentionDays,
+    breakdown: buildCapacityBreakdown(groups, drives, retentionDays.low, reserveFraction),
   };
 }

@@ -25,6 +25,19 @@ export const MOTION_PERCENT_STEP = 5;
 export const SCHEDULE_HOURS_MIN = 1;
 export const SCHEDULE_HOURS_MAX = 24;
 
+/**
+ * Where a group's bitrate comes from:
+ * - `estimate`: the bitrate model's planning range (early design, cameras not chosen).
+ * - `known-average`: a measured average from an existing system's stream statistics.
+ * - `bitrate-cap`: the CBR / max-bitrate limit configured on the camera (reliable worst case).
+ */
+export const BITRATE_SOURCES = ['estimate', 'known-average', 'bitrate-cap'] as const;
+export type BitrateSource = (typeof BITRATE_SOURCES)[number];
+
+/** Limits for a bitrate the user enters (known average or cap). */
+export const BITRATE_INPUT_MIN_MBPS = 0.1;
+export const BITRATE_INPUT_MAX_MBPS = 100;
+
 export const DRIVE_SIZES_TB = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24] as const;
 export type DriveSizeTb = (typeof DRIVE_SIZES_TB)[number];
 
