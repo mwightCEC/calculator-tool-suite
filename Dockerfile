@@ -4,27 +4,20 @@
 # Build from the repository root:  docker build -t cctv-tool-suite .
 
 ARG NODE_VERSION=22.13.1
-ARG PNPM_VERSION=12.11.2
-
-# ---- base: Node + pnpm ----
-FROM node:${NODE_VERSION}-alpine AS base
-ARG PNPM_VERSION
-# Installed with npm rather than corepack so the pinned version is used as-is.
-RUN npm install --global pnpm@${PNPM_VERSION}
-WORKDIR /repo
 
 # ---- deps: install workspace dependencies from the lockfile only ----
-FROM base AS deps
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+FROM node:${NODE_VERSION}-alpine AS deps
+WORKDIR /repo
+COPY package.json package-lock.json .npmrc ./
 COPY apps/web/package.json apps/web/
 COPY packages/calc-core/package.json packages/calc-core/
-RUN pnpm install --frozen-lockfile
+RUN npm ci
 
 # ---- build: compile the Next.js app ----
 FROM deps AS build
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN pnpm --filter @cctv/web build
+RUN npm run build -w @cctv/web
 
 # ---- runner: minimal runtime image as a non-root user ----
 FROM node:${NODE_VERSION}-alpine AS runner
