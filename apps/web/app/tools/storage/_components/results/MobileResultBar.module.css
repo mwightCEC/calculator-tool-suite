@@ -6,8 +6,8 @@
   z-index: 100;
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
   padding-bottom: calc(var(--mantine-spacing-xs) + env(safe-area-inset-bottom));
-  background-color: var(--app-chrome-header-bg);
-  color: var(--mantine-color-white);
+  border-top: 3px solid var(--mantine-color-brand-6);
+  background-color: var(--mantine-color-body);
   box-shadow: var(--mantine-shadow-md);
 }
 
@@ -16,11 +16,12 @@
 }
 
 .label {
-  color: var(--app-chrome-label);
+  color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-xs);
 }
 
 .value {
+  color: var(--app-accent-text);
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -28,7 +29,7 @@
 }
 
 .range {
-  color: var(--app-chrome-label);
+  color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-sm);
   font-weight: 400;
 }

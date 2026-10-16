@@ -5,14 +5,15 @@
   flex-shrink: 0;
 }
 
+/* Darker blue tile with a white camera, so the mark reads on the blue header. */
 .tile {
-  fill: var(--app-chrome-hover-bg);
+  fill: var(--app-header-hover-bg);
 }
 
 .body {
-  fill: var(--mantine-color-brand-6);
+  fill: var(--app-header-fg);
 }
 
 .lens {
-  fill: var(--app-chrome-icon);
+  fill: var(--mantine-color-brand-6);
 }

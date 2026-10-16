@@ -1,14 +1,16 @@
 .content {
-  background-color: var(--app-chrome-sidebar-bg);
+  background-color: var(--app-sidebar-bg);
 }
 
 .header {
-  background-color: var(--app-chrome-header-bg);
+  --app-focus-ring: var(--app-header-fg);
+
+  background-color: var(--app-header-bg);
   padding-inline: var(--mantine-spacing-md) var(--mantine-spacing-sm);
 }
 
 .title {
-  color: var(--mantine-color-white);
+  color: var(--app-header-fg);
   font-weight: 600;
 }
 

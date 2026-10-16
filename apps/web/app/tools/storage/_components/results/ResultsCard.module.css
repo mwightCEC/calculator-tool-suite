@@ -1,13 +1,14 @@
-/* Navy results card; colours come from the app chrome tokens. */
+/* White results card with brand-blue accents. */
 
 .card {
   display: flex;
   flex-direction: column;
   gap: var(--mantine-spacing-md);
   padding: var(--mantine-spacing-lg);
+  border: 1px solid var(--mantine-color-default-border);
+  border-top: 4px solid var(--mantine-color-brand-6);
   border-radius: var(--mantine-radius-md);
-  background-color: var(--app-chrome-header-bg);
-  color: var(--mantine-color-white);
+  background-color: var(--mantine-color-body);
 }
 
 .card:focus {
@@ -15,7 +16,7 @@
 }
 
 .sectionLabel {
-  color: var(--app-chrome-label);
+  color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -28,31 +29,35 @@
   text-transform: none;
 }
 
+/* "From known bitrates": light green badge with AA-contrast text. */
+.sourceBadge[data-source='known'] {
+  color: var(--app-status-ok);
+}
+
 .headlineValue {
+  color: var(--app-accent-text);
   font-size: 2rem;
   font-weight: 700;
   line-height: 1.15;
 }
 
 .headlineRange {
-  color: var(--app-chrome-label);
+  color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-sm);
 }
 
 .drives {
   font-size: var(--mantine-font-size-sm);
-  color: var(--app-chrome-text);
 }
 
 .sizedNote {
-  color: var(--app-chrome-label);
+  color: var(--app-text-secondary);
 }
 
 /* Capacity bar */
 
 .bar {
-  background-color: var(--mantine-color-navy-9);
-  border: 1px solid var(--app-chrome-hover-bg);
+  background-color: var(--app-capacity-unused);
 }
 
 .legend {
@@ -77,11 +82,10 @@
   width: 10px;
   height: 10px;
   border-radius: 2px;
-  outline: 1px solid var(--app-chrome-hover-bg);
+  outline: 1px solid var(--mantine-color-default-border);
 }
 
 .legendLabel {
-  color: var(--app-chrome-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -89,7 +93,7 @@
 
 .legendValue {
   margin-inline-start: auto;
-  color: var(--app-chrome-label);
+  color: var(--app-text-secondary);
   white-space: nowrap;
 }
 
@@ -102,37 +106,38 @@
 .tile {
   padding: var(--mantine-spacing-sm);
   border-radius: var(--mantine-radius-sm);
-  background-color: var(--app-chrome-hover-bg);
+  background-color: var(--app-surface-subtle);
 }
 
 .tileLabel {
-  color: var(--app-chrome-label);
+  color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-xs);
 }
 
 .tileValue {
   margin: 0;
+  color: var(--app-accent-text);
   font-size: var(--mantine-font-size-lg);
   font-weight: 600;
 }
 
 .tileDetail {
   margin: 0;
-  color: var(--app-chrome-label);
+  color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-xs);
 }
 
 /* Status and notes */
 
 .status[data-tone='ok'] {
-  color: var(--app-chrome-status-ok);
+  color: var(--app-status-ok);
 }
 
 .status[data-tone='warn'] {
-  color: var(--app-chrome-status-warn);
+  color: var(--app-status-warn);
 }
 
 .unitsNote {
-  color: var(--app-chrome-label);
+  color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-xs);
 }

@@ -30,7 +30,7 @@ function buildSegments(breakdown: CapacityBreakdown, groups: CameraGroupState[])
       key: 'reserve',
       label: 'Reserve',
       tb: breakdown.reserveTb,
-      color: 'var(--mantine-color-gray-5)',
+      color: 'var(--app-capacity-reserve)',
     },
     {
       key: 'parity',
@@ -42,7 +42,7 @@ function buildSegments(breakdown: CapacityBreakdown, groups: CameraGroupState[])
       key: 'unused',
       label: 'Unused',
       tb: breakdown.unusedTb,
-      color: 'var(--mantine-color-navy-9)',
+      color: 'var(--app-capacity-unused)',
     },
   ];
 }
