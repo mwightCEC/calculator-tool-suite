@@ -36,10 +36,11 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
       <Group justify="space-between" align="center" wrap="nowrap">
         <Text className={classes.sectionLabel}>{headline.label}</Text>
         <Badge
-          variant="light"
+          variant={result.isEstimated ? 'filled' : 'light'}
           color={result.isEstimated ? 'amber' : 'green'}
           radius="sm"
           className={classes.sourceBadge}
+          data-source={result.isEstimated ? 'estimated' : 'known'}
         >
           {result.isEstimated ? 'Estimated' : 'From known bitrates'}
         </Badge>

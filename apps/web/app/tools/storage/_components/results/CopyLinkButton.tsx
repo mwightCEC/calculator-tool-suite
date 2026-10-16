@@ -39,7 +39,6 @@ export function CopyLinkButton({ state }: { state: StorageCalculatorState }) {
   return (
     <Button
       variant="outline"
-      color="navy.2"
       leftSection={copied ? <IconCheck size={16} /> : <IconLink size={16} />}
       onClick={copyLink}
       aria-live="polite"

@@ -1,5 +1,5 @@
 /*
- * Navigation on the navy sidebar. Rules are scoped under .nav so they take
+ * Navigation on the light gray sidebar. Rules are scoped under .nav so they take
  * precedence over Mantine's single-class NavLink defaults.
  */
 .nav {
@@ -11,19 +11,18 @@
 
 .nav .link {
   border-radius: var(--mantine-radius-sm);
-  color: var(--app-chrome-text);
+  color: var(--app-sidebar-text);
   font-size: var(--mantine-font-size-sm);
   min-height: 40px;
 }
 
 @media (hover: hover) {
   .nav .link:not([data-active], [data-disabled]):hover {
-    background-color: var(--app-chrome-hover-bg);
-    color: var(--mantine-color-white);
+    background-color: var(--app-sidebar-hover-bg);
   }
 
   .nav .link:not([data-active], [data-disabled]):hover .section {
-    color: var(--mantine-color-white);
+    color: var(--app-sidebar-text);
   }
 }
 
@@ -40,7 +39,7 @@
 }
 
 .nav .section {
-  color: var(--app-chrome-icon);
+  color: var(--app-sidebar-icon);
 }
 
 .nav .link[data-active] .section {
@@ -53,7 +52,7 @@
 
 .sectionLabel {
   margin: var(--mantine-spacing-md) var(--mantine-spacing-sm) var(--mantine-spacing-xs);
-  color: var(--app-chrome-label);
+  color: var(--app-sidebar-label);
   font-size: var(--mantine-font-size-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -62,7 +61,7 @@
 
 .sectionDivider {
   margin: var(--mantine-spacing-xs) var(--mantine-spacing-xs);
-  border-color: var(--app-chrome-hover-bg);
+  border-color: var(--app-sidebar-border);
 }
 
 /* Icon-only rail: centre the icon and drop the label body. */

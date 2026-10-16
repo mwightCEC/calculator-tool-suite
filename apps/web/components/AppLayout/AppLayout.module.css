@@ -8,13 +8,16 @@
 }
 
 .header {
-  background-color: var(--app-chrome-header-bg);
+  /* Keyboard focus ring must stay visible on the blue bar. */
+  --app-focus-ring: var(--app-header-fg);
+
+  background-color: var(--app-header-bg);
   border-bottom: none;
 }
 
 .navbar {
-  background-color: var(--app-chrome-sidebar-bg);
-  border-inline-end: none;
+  background-color: var(--app-sidebar-bg);
+  border-inline-end: 1px solid var(--app-sidebar-border);
   transition: width var(--sidebar-transition);
 }
 

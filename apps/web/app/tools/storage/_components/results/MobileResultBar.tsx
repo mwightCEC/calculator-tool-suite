@@ -28,7 +28,7 @@ export function MobileResultBar({ result }: { result: StorageCalculationResult }
             )}
           </Text>
         </div>
-        <Button variant="outline" color="navy.2" size="compact-sm" onClick={showDetails}>
+        <Button variant="outline" size="compact-sm" onClick={showDetails}>
           Details
         </Button>
       </Group>
