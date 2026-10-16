@@ -31,7 +31,13 @@ export const cameraGroupStateSchema = cameraGroupSchema.extend({
 });
 
 export const storageCalculatorStateSchema = storageCalculationInputSchema.extend({
-  cameraGroups: z.array(cameraGroupStateSchema).min(1).max(MAX_CAMERA_GROUPS),
+  cameraGroups: z
+    .array(cameraGroupStateSchema)
+    .min(1)
+    .max(MAX_CAMERA_GROUPS)
+    .refine((groups) => new Set(groups.map((group) => group.id)).size === groups.length, {
+      message: 'Camera group ids must be unique',
+    }),
 });
 
 export type CameraGroupState = z.infer<typeof cameraGroupStateSchema>;
@@ -41,6 +47,7 @@ export type StorageCalculatorState = z.infer<typeof storageCalculatorStateSchema
 export type CameraGroupChanges = Partial<Omit<CameraGroupState, 'id' | 'colorIndex'>>;
 
 export type StorageCalculatorAction =
+  | { type: 'load-state'; state: StorageCalculatorState }
   | { type: 'set-mode'; mode: CalculationMode }
   | { type: 'update-group'; id: string; changes: CameraGroupChanges }
   | { type: 'set-bitrate-source'; id: string; source: BitrateSource }
@@ -123,6 +130,10 @@ export function storageCalculatorReducer(
   const groups = state.cameraGroups;
 
   switch (action.type) {
+    case 'load-state':
+      // Restored state is already schema-valid; keep the drive count valid for its RAID level.
+      return { ...action.state, storage: updateStorage(action.state.storage, {}) };
+
     case 'set-mode':
       return { ...state, mode: action.mode };
 
