@@ -75,11 +75,7 @@ export function StorageCalculator({ header }: StorageCalculatorProps) {
       </Stack>
 
       <div className={classes.results}>
-        <ResultsCard
-          result={result}
-          groups={state.cameraGroups}
-          retentionTargetDays={state.storage.retentionDays}
-        />
+        <ResultsCard result={result} state={state} />
       </div>
 
       <MobileResultBar result={result} />

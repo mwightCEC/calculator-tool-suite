@@ -1,0 +1,4 @@
+/* Long share links have no spaces; let them wrap anywhere. */
+.url {
+  word-break: break-all;
+}

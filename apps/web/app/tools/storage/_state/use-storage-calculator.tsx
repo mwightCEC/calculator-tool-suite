@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useReducer } from 'react';
+import { useCallback, useMemo, useReducer } from 'react';
 import {
   calculateStorage,
   type BitrateSource,
@@ -13,7 +13,9 @@ import {
   createInitialStorageCalculatorState,
   storageCalculatorReducer,
   type CameraGroupChanges,
+  type StorageCalculatorState,
 } from './storage-calculator-state';
+import { useUrlStateSync } from './use-url-state-sync';
 
 const UNDO_TIMEOUT_MS = 6000;
 
@@ -28,6 +30,12 @@ export function useStorageCalculator() {
     createInitialStorageCalculatorState
   );
   const result = useMemo(() => calculateStorage(state), [state]);
+
+  const loadState = useCallback(
+    (restored: StorageCalculatorState) => dispatch({ type: 'load-state', state: restored }),
+    []
+  );
+  useUrlStateSync(state, loadState);
 
   const removeGroup = (id: string) => {
     const index = state.cameraGroups.findIndex((group) => group.id === id);

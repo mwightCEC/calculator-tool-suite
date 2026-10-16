@@ -1,12 +1,13 @@
 'use client';
 
 import type { StorageCalculationResult } from '@cctv/calc-core';
-import { IconAlertTriangle, IconCircleCheck, IconDownload, IconLink } from '@tabler/icons-react';
+import { IconAlertTriangle, IconCircleCheck, IconDownload } from '@tabler/icons-react';
 import { Badge, Box, Button, Group, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { describeDrives, describeHeadline, describeStatus } from '../../_lib/result-summary';
-import type { CameraGroupState } from '../../_state/storage-calculator-state';
+import type { StorageCalculatorState } from '../../_state/storage-calculator-state';
 import { CapacityBar } from './CapacityBar';
+import { CopyLinkButton } from './CopyLinkButton';
 import { MetricTiles } from './MetricTiles';
 import classes from './ResultsCard.module.css';
 
@@ -14,13 +15,13 @@ export const RESULTS_CARD_ID = 'storage-results';
 
 interface ResultsCardProps {
   result: StorageCalculationResult;
-  groups: CameraGroupState[];
-  retentionTargetDays: number;
+  /** The inputs behind the result: group names and colours, retention target, share link. */
+  state: StorageCalculatorState;
 }
 
-export function ResultsCard({ result, groups, retentionTargetDays }: ResultsCardProps) {
+export function ResultsCard({ result, state }: ResultsCardProps) {
   const headline = describeHeadline(result);
-  const status = describeStatus(result, retentionTargetDays);
+  const status = describeStatus(result, state.storage.retentionDays);
   const sizedForHigh = result.mode === 'storage-needed' && result.isEstimated;
   const StatusIcon = status.tone === 'ok' ? IconCircleCheck : IconAlertTriangle;
 
@@ -57,7 +58,7 @@ export function ResultsCard({ result, groups, retentionTargetDays }: ResultsCard
         {sizedForHigh && <span className={classes.sizedNote}> · Sized for the high estimate</span>}
       </Text>
 
-      <CapacityBar breakdown={result.breakdown} groups={groups} />
+      <CapacityBar breakdown={result.breakdown} groups={state.cameraGroups} />
       <MetricTiles result={result} />
 
       <Group gap={6} wrap="nowrap" className={classes.status} data-tone={status.tone}>
@@ -71,14 +72,7 @@ export function ResultsCard({ result, groups, retentionTargetDays }: ResultsCard
       </Text>
 
       <Group gap="xs" grow>
-        <Button
-          variant="outline"
-          color="navy.2"
-          leftSection={<IconLink size={16} />}
-          onClick={() => notifications.show({ message: 'Shareable links are not available yet.' })}
-        >
-          Copy link
-        </Button>
+        <CopyLinkButton state={state} />
         <Button
           leftSection={<IconDownload size={16} />}
           onClick={() => notifications.show({ message: 'Export is not available yet.' })}
