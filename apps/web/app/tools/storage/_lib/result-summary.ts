@@ -29,35 +29,24 @@ export function describeHeadline(result: StorageCalculationResult): ResultHeadli
   };
 }
 
-function raidPhrase(result: StorageCalculationResult): string {
-  return result.drives.raidLevel === 'none' ? 'no RAID' : RAID_LABELS[result.drives.raidLevel];
-}
-
-/** "3 × 14 TB drives, RAID 5". */
-export function describeDrives(result: StorageCalculationResult): string {
+/** "3 × 14 TB drives". */
+export function describeDriveCount(result: StorageCalculationResult): string {
   const { driveCount, driveSizeTb } = result.drives;
-  return `${driveCount} × ${driveSizeTb} TB ${driveCount === 1 ? 'drive' : 'drives'}, ${raidPhrase(result)}`;
+  return `${driveCount} × ${driveSizeTb} TB ${driveCount === 1 ? 'drive' : 'drives'}`;
 }
 
-export interface ResultStatus {
-  tone: 'ok' | 'warn';
-  text: string;
+/** "RAID 5", or "No RAID". */
+export function describeRaid(result: StorageCalculationResult): string {
+  return result.drives.raidLevel === 'none' ? 'No RAID' : RAID_LABELS[result.drives.raidLevel];
 }
 
-export function describeStatus(
-  result: StorageCalculationResult,
-  retentionTargetDays: number
-): ResultStatus {
-  if (result.mode === 'storage-needed') {
-    return { tone: 'ok', text: `Meets ${retentionTargetDays}-day target, ${raidPhrase(result)}` };
+/**
+ * Warning for the results card, or null when there is nothing to warn about.
+ * Only Days-from-capacity mode can warn: Storage needed always meets its target.
+ */
+export function describeWarning(result: StorageCalculationResult): string | null {
+  if (result.mode === 'days-from-capacity' && result.retentionDays.low < 1) {
+    return 'Less than one day of footage fits on these drives';
   }
-  const worstCaseDays = result.retentionDays.low;
-  if (worstCaseDays < 1) {
-    return { tone: 'warn', text: 'Less than one day of footage fits on these drives' };
-  }
-  const days = formatDays(worstCaseDays);
-  return {
-    tone: 'ok',
-    text: isPointRange(result.retentionDays) ? `Keeps ${days}` : `Keeps at least ${days}`,
-  };
+  return null;
 }

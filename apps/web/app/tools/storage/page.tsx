@@ -13,10 +13,8 @@ export default function StoragePage() {
     <StorageCalculator
       header={
         <div>
-          <Title order={1}>Storage calculator</Title>
-          <Text c="dimmed">
-            Size recorder drives for a retention target, or estimate retention from capacity.
-          </Text>
+          <Title order={1}>Storage Calculator</Title>
+          <Text c="dimmed">Calculate based on storage needed or with a designated capacity.</Text>
         </div>
       }
     />

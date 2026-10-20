@@ -1,0 +1,51 @@
+'use client';
+
+import type { StorageCalculationResult } from '@cctv/calc-core';
+import { IconInfoCircle } from '@tabler/icons-react';
+import { ActionIcon, Group, Popover, Text } from '@mantine/core';
+import { describeDriveCount, describeRaid } from '../../_lib/result-summary';
+import classes from './ResultsCard.module.css';
+
+const HELP = {
+  'storage-needed': {
+    label: 'Required drives',
+    text: 'The fewest drives of the selected size that hold the required storage, after RAID redundancy and the reserve. When bitrates are estimated, the drives are sized for the high end of the likely range so footage isn’t lost early.',
+  },
+  'days-from-capacity': {
+    label: 'Drives',
+    text: 'The drives you entered, rounded up to a valid count for the RAID level if needed. Retention is estimated from their usable capacity after RAID redundancy and the reserve.',
+  },
+} as const;
+
+/** Drive count and RAID level, with an explanation of how the drives were chosen. */
+export function DrivesSummary({ result }: { result: StorageCalculationResult }) {
+  const help = HELP[result.mode];
+  const sizedForHigh = result.mode === 'storage-needed' && result.isEstimated;
+
+  return (
+    <div>
+      <Group gap={2} align="center" wrap="nowrap" className={classes.labelRow}>
+        <Text className={classes.sectionLabel}>{help.label}</Text>
+        <Popover width={280} position="bottom-start" withArrow shadow="md">
+          <Popover.Target>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size="sm"
+              aria-label={`About ${help.label.toLowerCase()}`}
+              className={classes.infoButton}
+            >
+              <IconInfoCircle size={16} stroke={1.75} />
+            </ActionIcon>
+          </Popover.Target>
+          <Popover.Dropdown>
+            <Text size="sm">{help.text}</Text>
+          </Popover.Dropdown>
+        </Popover>
+      </Group>
+      <Text className={classes.drivesValue}>{describeDriveCount(result)}</Text>
+      <Text className={classes.drivesDetail}>{describeRaid(result)}</Text>
+      {sizedForHigh && <Text className={classes.sizedNote}>Sized for the high estimate</Text>}
+    </div>
+  );
+}

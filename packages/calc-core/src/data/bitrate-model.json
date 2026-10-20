@@ -1,6 +1,6 @@
 {
-  "version": "0.1.0",
-  "lastUpdated": "2026-10-14",
+  "version": "0.2.0",
+  "lastUpdated": "2026-10-20",
   "status": "placeholder",
   "notes": "TODO: PLACEHOLDER VALUES. Every coefficient below comes from the prototype and has NOT been validated against real cameras. Replace with measured averages or engineering default stream settings, update each value's provenance, then set status to \"validated\". See README.md in this folder.",
   "sources": [
@@ -26,9 +26,7 @@
   },
   "codecMultipliers": {
     "h264": { "value": 1.0, "provenance": "placeholder" },
-    "h264-smart": { "value": 0.6, "provenance": "placeholder" },
     "h265": { "value": 0.6, "provenance": "placeholder" },
-    "h265-smart": { "value": 0.35, "provenance": "placeholder" },
     "mjpeg": { "value": 5.0, "provenance": "placeholder" }
   },
   "frameRateScaling": {

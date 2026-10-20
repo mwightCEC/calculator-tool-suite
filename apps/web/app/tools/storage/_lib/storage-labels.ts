@@ -38,9 +38,7 @@ export const RESOLUTION_LABELS: Record<Resolution, string> = {
 
 export const CODEC_LABELS: Record<Codec, string> = {
   h264: 'H.264',
-  'h264-smart': 'H.264 smart',
   h265: 'H.265',
-  'h265-smart': 'H.265 smart',
   mjpeg: 'MJPEG',
 };
 

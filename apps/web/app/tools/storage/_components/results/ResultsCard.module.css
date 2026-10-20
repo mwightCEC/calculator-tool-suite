@@ -21,7 +21,22 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+/* Row holding a section label and its control (info button, switch, badge). */
+.labelRow {
   margin-bottom: 6px;
+  min-height: 22px;
+}
+
+.infoButton {
+  color: var(--app-text-secondary);
+}
+
+.switchLabel {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+  padding-inline-start: 6px;
 }
 
 .sourceBadge {
@@ -46,12 +61,17 @@
   font-size: var(--mantine-font-size-sm);
 }
 
-.drives {
+.drivesValue {
+  font-weight: 600;
+}
+
+.drivesDetail {
   font-size: var(--mantine-font-size-sm);
 }
 
 .sizedNote {
   color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
 }
 
 /* Capacity bar */
@@ -127,13 +147,9 @@
   font-size: var(--mantine-font-size-xs);
 }
 
-/* Status and notes */
+/* Warning and notes */
 
-.status[data-tone='ok'] {
-  color: var(--app-status-ok);
-}
-
-.status[data-tone='warn'] {
+.warning {
   color: var(--app-status-warn);
 }
 

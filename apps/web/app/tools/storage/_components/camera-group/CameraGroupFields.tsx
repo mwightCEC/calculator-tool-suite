@@ -82,7 +82,7 @@ export function CameraGroupFields({ group, usage, actions }: CameraGroupFieldsPr
 
       <FieldRow
         label="Codec"
-        help="Video compression. H.265 usually needs less bitrate than H.264 for similar quality. “Smart” means vendor smart-codec modes such as H.265+, which can lower bitrate further on quiet scenes."
+        help="Video compression. H.265 usually needs less bitrate than H.264 for similar quality."
         controlId={`${id}-codec`}
       >
         <Select

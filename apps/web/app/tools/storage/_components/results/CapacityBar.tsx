@@ -1,10 +1,13 @@
 'use client';
 
 import type { CapacityBreakdown } from '@cctv/calc-core';
-import { Progress, Text, Tooltip } from '@mantine/core';
+import { Group, Progress, Switch, Text, Tooltip } from '@mantine/core';
+import { useLocalStorage } from '@mantine/hooks';
 import { formatTb } from '../../_lib/format';
 import type { CameraGroupState } from '../../_state/storage-calculator-state';
 import classes from './ResultsCard.module.css';
+
+const SIMPLIFIED_STORAGE_KEY = 'cctv-tool-suite:capacity-bar-simplified';
 
 interface Segment {
   key: string;
@@ -14,8 +17,9 @@ interface Segment {
   color: string;
 }
 
-function buildSegments(breakdown: CapacityBreakdown, groups: CameraGroupState[]): Segment[] {
-  const groupSegments = breakdown.footageTbByGroup.map(({ groupId, tb }) => {
+/** One segment per camera group, in group colours. */
+function groupSegments(breakdown: CapacityBreakdown, groups: CameraGroupState[]): Segment[] {
+  return breakdown.footageTbByGroup.map(({ groupId, tb }) => {
     const group = groups.find((candidate) => candidate.id === groupId);
     return {
       key: groupId,
@@ -24,8 +28,25 @@ function buildSegments(breakdown: CapacityBreakdown, groups: CameraGroupState[])
       color: `var(--group-color-${group?.colorIndex ?? 0})`,
     };
   });
+}
+
+/** All camera groups combined into a single footage segment. */
+function combinedFootageSegment(breakdown: CapacityBreakdown): Segment {
+  return {
+    key: 'footage',
+    label: 'Camera footage',
+    tb: breakdown.footageTbByGroup.reduce((sum, group) => sum + group.tb, 0),
+    color: 'var(--mantine-color-brand-6)',
+  };
+}
+
+function buildSegments(
+  breakdown: CapacityBreakdown,
+  groups: CameraGroupState[],
+  simplified: boolean
+): Segment[] {
   return [
-    ...groupSegments,
+    ...(simplified ? [combinedFootageSegment(breakdown)] : groupSegments(breakdown, groups)),
     {
       key: 'reserve',
       label: 'Reserve',
@@ -36,7 +57,7 @@ function buildSegments(breakdown: CapacityBreakdown, groups: CameraGroupState[])
       key: 'parity',
       label: 'RAID parity',
       tb: breakdown.parityTb,
-      color: 'var(--mantine-color-amber-6)',
+      color: 'var(--app-capacity-parity)',
     },
     {
       key: 'unused',
@@ -52,14 +73,37 @@ interface CapacityBarProps {
   groups: CameraGroupState[];
 }
 
-/** Raw drive capacity split into footage per group, reserve, parity and unused space. */
+/**
+ * Raw drive capacity split into footage, reserve, parity and unused space.
+ * "Simplified" combines all camera groups into one footage segment; the choice
+ * is remembered per browser.
+ */
 export function CapacityBar({ breakdown, groups }: CapacityBarProps) {
-  const segments = buildSegments(breakdown, groups);
+  const [simplified, setSimplified] = useLocalStorage({
+    key: SIMPLIFIED_STORAGE_KEY,
+    defaultValue: false,
+  });
+  const segments = buildSegments(breakdown, groups, simplified);
   const visible = segments.filter((segment) => segment.tb > 0);
 
   return (
     <div>
-      <Text className={classes.sectionLabel}>Raw capacity · {formatTb(breakdown.rawTb)}</Text>
+      <Group
+        justify="space-between"
+        align="center"
+        wrap="nowrap"
+        gap="sm"
+        className={classes.labelRow}
+      >
+        <Text className={classes.sectionLabel}>Raw capacity · {formatTb(breakdown.rawTb)}</Text>
+        <Switch
+          size="xs"
+          label="Simplified"
+          checked={simplified}
+          onChange={(event) => setSimplified(event.currentTarget.checked)}
+          classNames={{ label: classes.switchLabel }}
+        />
+      </Group>
       <Progress.Root size={18} className={classes.bar}>
         {visible.map((segment) => (
           <Tooltip key={segment.key} label={`${segment.label}: ${formatTb(segment.tb)}`} withArrow>
