@@ -75,7 +75,9 @@ config or routing changes.
   in that folder).
 - Storage-needed mode sizes drives for the high estimate; days-from-capacity headlines the
   worst-case (low) days.
-- Shared links: `?v=1&s=<base64url JSON>`, validated against the state schema. Change the
-  format with a new version, keeping old links decodable where practical.
+- Shared links: `?v=2&s=<base64url of a compact positional array>` (see
+  `_state/share-format-v2.ts`); `v=1` (full JSON) links still open. All decoded state is
+  validated against the state schema. The v2 index tables are append-only: reordering or
+  removing an option breaks existing links and needs a new format version.
 - Camera presets (the `CameraModel` type in calc-core) and the bitrate measurement campaign
   are shelved; don't build on them unless asked.

@@ -1,3 +1,4 @@
+import { stateToV2Payload, v2PayloadToState } from './share-format-v2';
 import {
   storageCalculatorStateSchema,
   type StorageCalculatorState,
@@ -7,12 +8,17 @@ import {
  * Shareable links: the whole calculator state lives in the query string as
  * ?v=<format version>&s=<base64url-encoded JSON>. Links are untrusted input, so
  * decoded state is always validated against storageCalculatorStateSchema.
+ *
+ * - v=2 (written now): compact positional array, see share-format-v2.ts.
+ * - v=1 (still read): the full state object as JSON.
  */
 
 export const SHARE_VERSION_PARAM = 'v';
 export const SHARE_STATE_PARAM = 's';
-/** Bump when the encoded shape changes incompatibly, and decode older versions if needed. */
-export const SHARE_FORMAT_VERSION = '1';
+/** Version written to new links. Bump when the encoded shape changes, and keep decoding older versions. */
+export const SHARE_FORMAT_VERSION = '2';
+/** The original full-JSON format; links using it still open. */
+export const LEGACY_SHARE_FORMAT_VERSION = '1';
 
 /** Base64url (URL-safe, unpadded) of UTF-8 text, so group names can use any characters. */
 function toBase64Url(text: string): string {
@@ -31,13 +37,23 @@ function fromBase64Url(encoded: string): string {
 }
 
 /**
- * Encoded state. Parsing through the schema first gives a canonical key order,
- * so the same calculation always produces the same link.
+ * Encoded state in the current format. Positional, so the same calculation
+ * always produces the same link (group ids aren't stored).
  */
 export function encodeState(state: StorageCalculatorState): string {
-  const canonical = storageCalculatorStateSchema.safeParse(state);
-  // The reducer keeps state valid; encode it as-is rather than throw if that ever slips.
-  return toBase64Url(JSON.stringify(canonical.success ? canonical.data : state));
+  return toBase64Url(JSON.stringify(stateToV2Payload(state)));
+}
+
+/** Turns decoded JSON into a state-shaped object for the given format version. */
+function payloadToState(version: string | null, payload: unknown): unknown {
+  switch (version) {
+    case SHARE_FORMAT_VERSION:
+      return v2PayloadToState(payload);
+    case LEGACY_SHARE_FORMAT_VERSION:
+      return payload;
+    default:
+      return null;
+  }
 }
 
 export function encodeShareParams(state: StorageCalculatorState): URLSearchParams {
@@ -58,11 +74,10 @@ export function decodeShareParams(params: URLSearchParams): SharedStateResult {
   if (encoded === null) {
     return { status: 'none' };
   }
-  if (params.get(SHARE_VERSION_PARAM) !== SHARE_FORMAT_VERSION) {
-    return { status: 'invalid' };
-  }
   try {
-    const parsed = storageCalculatorStateSchema.safeParse(JSON.parse(fromBase64Url(encoded)));
+    const payload = JSON.parse(fromBase64Url(encoded));
+    const candidate = payloadToState(params.get(SHARE_VERSION_PARAM), payload);
+    const parsed = storageCalculatorStateSchema.safeParse(candidate);
     return parsed.success ? { status: 'loaded', state: parsed.data } : { status: 'invalid' };
   } catch {
     // Not base64, not UTF-8 or not JSON.
