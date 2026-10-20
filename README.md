@@ -23,7 +23,7 @@ npm run format         # oxfmt --write
 npm run format:check   # oxfmt --check
 npm run lint           # oxlint + stylelint (CSS Modules)
 npm run typecheck      # tsc --noEmit in every package
-npm test               # vitest (calc-core)
+npm test               # vitest (calc-core and web)
 npm run check          # all of the above checks
 npm run build          # production build (standalone output)
 ```
