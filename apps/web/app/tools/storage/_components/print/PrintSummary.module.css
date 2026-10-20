@@ -1,0 +1,154 @@
+/*
+ * Print-only summary. Colours are fixed (not theme variables) on purpose: the
+ * printout is always dark text on white, whatever colour scheme is on screen.
+ */
+.summary {
+  display: none;
+}
+
+@media print {
+  .summary {
+    display: block;
+    color: #111;
+    background: #fff;
+    font-size: 10pt;
+    line-height: 1.4;
+  }
+
+  .header {
+    border-bottom: 2pt solid var(--mantine-color-brand-6);
+    padding-bottom: 6pt;
+    margin-bottom: 10pt;
+  }
+
+  .title {
+    margin: 0;
+    font-size: 16pt;
+  }
+
+  .meta {
+    margin: 2pt 0 0;
+    color: #555;
+  }
+
+  .result {
+    margin-bottom: 8pt;
+  }
+
+  .result p {
+    margin: 0;
+  }
+
+  .resultLabel {
+    color: #555;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .source {
+    margin-inline-start: 6pt;
+    padding: 0 4pt;
+    border: 0.75pt solid #999;
+    border-radius: 2pt;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .resultValue {
+    color: var(--mantine-color-brand-6);
+    font-size: 20pt;
+    font-weight: 700;
+    print-color-adjust: exact;
+  }
+
+  .resultRange {
+    color: #555;
+  }
+
+  .drives {
+    margin-top: 2pt;
+    font-weight: 600;
+  }
+
+  .figures,
+  .settings {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4pt 16pt;
+    margin: 0 0 10pt;
+  }
+
+  .figures dt,
+  .settings dt {
+    color: #555;
+    font-size: 8.5pt;
+  }
+
+  .figures dd,
+  .settings dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .heading {
+    margin: 12pt 0 4pt;
+    font-size: 11pt;
+    break-after: avoid;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+  }
+
+  .table th,
+  .table td {
+    padding: 3pt 4pt;
+    border-bottom: 0.75pt solid #ccc;
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .table th {
+    border-bottom-color: #888;
+    font-weight: 600;
+  }
+
+  .table tr {
+    break-inside: avoid;
+  }
+
+  .table .total td {
+    border-top: 0.75pt solid #888;
+    font-weight: 600;
+  }
+
+  .number {
+    text-align: end;
+    white-space: nowrap;
+  }
+
+  .table th.number,
+  .table td.number {
+    text-align: end;
+  }
+
+  .notes {
+    margin: 0;
+    padding-inline-start: 14pt;
+    color: #333;
+    font-size: 9pt;
+  }
+
+  .link {
+    margin-top: 10pt;
+    font-size: 8.5pt;
+    color: #555;
+  }
+
+  .url {
+    word-break: break-all;
+  }
+}

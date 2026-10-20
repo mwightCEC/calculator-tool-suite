@@ -25,6 +25,18 @@
   transition: padding-inline-start var(--sidebar-transition);
 }
 
+/* Print only the page content, full width. */
+@media print {
+  .header,
+  .navbar {
+    display: none;
+  }
+
+  .root .main {
+    padding: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .root[data-sidebar-animated] {
     --sidebar-transition: none;
