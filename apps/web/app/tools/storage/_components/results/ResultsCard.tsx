@@ -1,13 +1,16 @@
 'use client';
 
-import type { StorageCalculationResult } from '@cctv/calc-core';
-import { IconAlertTriangle, IconCircleCheck, IconDownload } from '@tabler/icons-react';
+import type { CalculationMode, StorageCalculationResult } from '@cctv/calc-core';
+import { IconAlertTriangle, IconDownload } from '@tabler/icons-react';
 import { Badge, Box, Button, Group, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { describeDrives, describeHeadline, describeStatus } from '../../_lib/result-summary';
+import { OptionButtons } from '../../../../../components/OptionButtons/OptionButtons';
+import { describeHeadline, describeWarning } from '../../_lib/result-summary';
+import { CALCULATION_MODE_OPTIONS } from '../../_lib/storage-labels';
 import type { StorageCalculatorState } from '../../_state/storage-calculator-state';
 import { CapacityBar } from './CapacityBar';
 import { CopyLinkButton } from './CopyLinkButton';
+import { DrivesSummary } from './DrivesSummary';
 import { MetricTiles } from './MetricTiles';
 import classes from './ResultsCard.module.css';
 
@@ -15,15 +18,14 @@ export const RESULTS_CARD_ID = 'storage-results';
 
 interface ResultsCardProps {
   result: StorageCalculationResult;
-  /** The inputs behind the result: group names and colours, retention target, share link. */
+  /** The inputs behind the result: group names and colours, share link. */
   state: StorageCalculatorState;
+  onModeChange: (mode: CalculationMode) => void;
 }
 
-export function ResultsCard({ result, state }: ResultsCardProps) {
+export function ResultsCard({ result, state, onModeChange }: ResultsCardProps) {
   const headline = describeHeadline(result);
-  const status = describeStatus(result, state.storage.retentionDays);
-  const sizedForHigh = result.mode === 'storage-needed' && result.isEstimated;
-  const StatusIcon = status.tone === 'ok' ? IconCircleCheck : IconAlertTriangle;
+  const warning = describeWarning(result);
 
   return (
     <Box
@@ -33,39 +35,46 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
       aria-label="Results"
       className={classes.card}
     >
-      <Group justify="space-between" align="center" wrap="nowrap">
-        <Text className={classes.sectionLabel}>{headline.label}</Text>
-        <Badge
-          variant={result.isEstimated ? 'filled' : 'light'}
-          color={result.isEstimated ? 'amber' : 'green'}
-          radius="sm"
-          className={classes.sourceBadge}
-          data-source={result.isEstimated ? 'estimated' : 'known'}
-        >
-          {result.isEstimated ? 'Estimated' : 'From known bitrates'}
-        </Badge>
-      </Group>
+      <OptionButtons
+        value={state.mode}
+        onChange={onModeChange}
+        options={CALCULATION_MODE_OPTIONS}
+        aria-label="Calculation mode"
+      />
 
-      {/* Polite live region so screen readers hear the headline update as inputs change. */}
-      <div aria-live="polite" aria-atomic="true">
-        <Text className={classes.headlineValue}>{headline.value}</Text>
-        {headline.likelyRange && (
-          <Text className={classes.headlineRange}>{headline.likelyRange}</Text>
-        )}
+      <div>
+        <Group justify="space-between" align="center" wrap="nowrap" className={classes.labelRow}>
+          <Text className={classes.sectionLabel}>{headline.label}</Text>
+          <Badge
+            variant={result.isEstimated ? 'filled' : 'light'}
+            color={result.isEstimated ? 'amber' : 'green'}
+            radius="sm"
+            className={classes.sourceBadge}
+            data-source={result.isEstimated ? 'estimated' : 'known'}
+          >
+            {result.isEstimated ? 'Estimated' : 'From known bitrates'}
+          </Badge>
+        </Group>
+
+        {/* Polite live region so screen readers hear the headline update as inputs change. */}
+        <div aria-live="polite" aria-atomic="true">
+          <Text className={classes.headlineValue}>{headline.value}</Text>
+          {headline.likelyRange && (
+            <Text className={classes.headlineRange}>{headline.likelyRange}</Text>
+          )}
+        </div>
       </div>
 
-      <Text className={classes.drives}>
-        {describeDrives(result)}
-        {sizedForHigh && <span className={classes.sizedNote}> · Sized for the high estimate</span>}
-      </Text>
-
+      <DrivesSummary result={result} />
       <CapacityBar breakdown={result.breakdown} groups={state.cameraGroups} />
       <MetricTiles result={result} />
 
-      <Group gap={6} wrap="nowrap" className={classes.status} data-tone={status.tone}>
-        <StatusIcon size={18} stroke={1.75} aria-hidden="true" />
-        <Text size="sm">{status.text}</Text>
-      </Group>
+      {warning && (
+        <Group gap={6} wrap="nowrap" className={classes.warning} role="status">
+          <IconAlertTriangle size={18} stroke={1.75} aria-hidden="true" />
+          <Text size="sm">{warning}</Text>
+        </Group>
+      )}
 
       <Text className={classes.unitsNote}>
         Capacities are decimal TB (10¹² bytes), as printed on drives. Recorders and operating

@@ -3,8 +3,6 @@
 import type { ReactNode } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Stack } from '@mantine/core';
-import { OptionButtons } from '../../../../components/OptionButtons/OptionButtons';
-import { CALCULATION_MODE_OPTIONS } from '../_lib/storage-labels';
 import { MAX_CAMERA_GROUPS } from '../_state/storage-calculator-state';
 import { useStorageCalculator } from '../_state/use-storage-calculator';
 import { CameraGroupCard } from './camera-group/CameraGroupCard';
@@ -29,15 +27,7 @@ export function StorageCalculator({ header }: StorageCalculatorProps) {
   return (
     <div className={classes.layout}>
       <Stack gap="md" className={classes.inputs}>
-        <Stack gap="sm">
-          {header}
-          <OptionButtons
-            value={state.mode}
-            onChange={actions.setMode}
-            options={CALCULATION_MODE_OPTIONS}
-            aria-label="Calculation mode"
-          />
-        </Stack>
+        {header}
 
         {state.cameraGroups.map((group) => {
           const usage = usageByGroupId.get(group.id);
@@ -75,7 +65,7 @@ export function StorageCalculator({ header }: StorageCalculatorProps) {
       </Stack>
 
       <div className={classes.results}>
-        <ResultsCard result={result} state={state} />
+        <ResultsCard result={result} state={state} onModeChange={actions.setMode} />
       </div>
 
       <MobileResultBar result={result} />

@@ -3,8 +3,7 @@
 export const RESOLUTIONS = ['1MP', '2MP', '3MP', '4MP', '5MP', '6MP', '8MP', '12MP'] as const;
 export type Resolution = (typeof RESOLUTIONS)[number];
 
-/** "Smart" variants are vendor smart-codec modes such as H.265+. */
-export const CODECS = ['h264', 'h264-smart', 'h265', 'h265-smart', 'mjpeg'] as const;
+export const CODECS = ['h264', 'h265', 'mjpeg'] as const;
 export type Codec = (typeof CODECS)[number];
 
 export const FRAME_RATES = [1, 5, 10, 15, 20, 25, 30] as const;

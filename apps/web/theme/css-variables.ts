@@ -5,6 +5,10 @@ import { amber, brand, clintonGray, groupColors } from './palettes';
 const DARK_TINT_ALPHA = 0.18;
 
 /** Status text dark enough for AA on white (Mantine's greens are too light). */
+// Capacity bar overhead colours: outside the camera-group palette so footage stays distinct.
+const CAPACITY_RESERVE = { light: '#64748B', dark: '#8A9AB0' }; // slate
+const CAPACITY_PARITY = { light: '#2F5D62', dark: '#4E8F94' }; // dark teal-gray
+
 const STATUS_OK_ON_LIGHT = '#237032';
 
 function groupColorVariables(tintFor: (color: string, tint: string) => string) {
@@ -47,7 +51,8 @@ export const cssVariablesResolver: CSSVariablesResolver = (theme) => ({
     '--app-accent-text': brand[6],
     '--app-status-ok': STATUS_OK_ON_LIGHT,
     '--app-status-warn': amber[9],
-    '--app-capacity-reserve': theme.colors.gray[5],
+    '--app-capacity-reserve': CAPACITY_RESERVE.light,
+    '--app-capacity-parity': CAPACITY_PARITY.light,
     '--app-capacity-unused': theme.colors.gray[2],
     ...groupColorVariables((_color, tint) => tint),
   },
@@ -68,7 +73,8 @@ export const cssVariablesResolver: CSSVariablesResolver = (theme) => ({
     '--app-accent-text': theme.colors.dark[0],
     '--app-status-ok': theme.colors.green[3],
     '--app-status-warn': amber[3],
-    '--app-capacity-reserve': theme.colors.dark[2],
+    '--app-capacity-reserve': CAPACITY_RESERVE.dark,
+    '--app-capacity-parity': CAPACITY_PARITY.dark,
     '--app-capacity-unused': theme.colors.dark[4],
     ...groupColorVariables((color) => rgba(color, DARK_TINT_ALPHA)),
   },
