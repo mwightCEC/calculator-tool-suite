@@ -2,3 +2,14 @@
 .mantine-focus-auto:focus-visible {
   outline-color: var(--app-focus-ring);
 }
+
+@page {
+  margin: 12mm;
+}
+
+/* Toasts are screen-only. */
+@media print {
+  .mantine-Notifications-root {
+    display: none;
+  }
+}

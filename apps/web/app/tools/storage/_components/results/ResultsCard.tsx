@@ -1,9 +1,8 @@
 'use client';
 
 import type { CalculationMode, StorageCalculationResult } from '@cctv/calc-core';
-import { IconAlertTriangle, IconDownload } from '@tabler/icons-react';
+import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
 import { Badge, Box, Button, Group, Text } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
 import { OptionButtons } from '../../../../../components/OptionButtons/OptionButtons';
 import { describeHeadline, describeWarning } from '../../_lib/result-summary';
 import { CALCULATION_MODE_OPTIONS } from '../../_lib/storage-labels';
@@ -83,10 +82,8 @@ export function ResultsCard({ result, state, onModeChange }: ResultsCardProps) {
 
       <Group gap="xs" grow>
         <CopyLinkButton state={state} />
-        <Button
-          leftSection={<IconDownload size={16} />}
-          onClick={() => notifications.show({ message: 'Export is not available yet.' })}
-        >
+        {/* Opens the print dialog with the printable summary (PrintSummary); "Save as PDF" gives a file. */}
+        <Button leftSection={<IconPrinter size={16} />} onClick={() => window.print()}>
           Export
         </Button>
       </Group>
