@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { createBandwidthCameraGroup } from '../bandwidth/schema';
 import { createCameraGroup } from '../model/defaults';
 import type { CameraGroup, GroupBitrate } from '../model/schema';
 import { BITRATE_INPUT_MAX_MBPS, BITRATE_INPUT_MIN_MBPS } from '../options';
@@ -67,6 +68,14 @@ describe('changeBitrateSource', () => {
     ).toEqual({
       source: 'known-average',
       mbps: BITRATE_INPUT_MIN_MBPS,
+    });
+  });
+
+  it('accepts a Bandwidth group, which has no recording fields', () => {
+    const bandwidthGroup = createBandwidthCameraGroup('g', 'Group');
+    expect(changeBitrateSource(bandwidthGroup, 'known-average')).toEqual({
+      source: 'known-average',
+      mbps: Math.round(estimateTypicalBitrateMbps(bandwidthGroup) * 10) / 10,
     });
   });
 

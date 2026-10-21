@@ -3,17 +3,24 @@ import {
   changeBitrateSource,
   createDefaultStorageCalculationInput,
   DEFAULT_CAMERA_GROUP_SETTINGS,
-  MAX_GROUP_NAME_LENGTH,
   normalizeDriveCount,
   storageCalculationInputSchema,
   type BitrateSource,
   type CalculationMode,
-  type CameraGroup,
   type StorageSettings,
 } from '@cctv/calc-core';
 import { z } from 'zod';
+import { repairGroupColors } from '../../../../lib/camera-groups/group-colors';
+import {
+  addGroup,
+  colorIndexSchema,
+  duplicateGroup,
+  groupListSchema,
+  removeGroup,
+  restoreGroup,
+  updateGroup,
+} from '../../../../lib/camera-groups/group-list';
 import { groupColors } from '../../../../theme/palettes';
-import { pickColorForInsert, repairGroupColors } from './group-colors';
 
 /*
  * The storage calculator's whole state: calc-core's calculation input plus
@@ -21,24 +28,12 @@ import { pickColorForInsert, repairGroupColors } from './group-colors';
  * be restored from a shared link.
  */
 
-export const MAX_CAMERA_GROUPS = 20;
-
 export const cameraGroupStateSchema = cameraGroupSchema.extend({
-  /** Index into the theme's group colours; assigned when the group is created. */
-  colorIndex: z
-    .int()
-    .min(0)
-    .max(groupColors.length - 1),
+  colorIndex: colorIndexSchema,
 });
 
 export const storageCalculatorStateSchema = storageCalculationInputSchema.extend({
-  cameraGroups: z
-    .array(cameraGroupStateSchema)
-    .min(1)
-    .max(MAX_CAMERA_GROUPS)
-    .refine((groups) => new Set(groups.map((group) => group.id)).size === groups.length, {
-      message: 'Camera group ids must be unique',
-    }),
+  cameraGroups: groupListSchema(cameraGroupStateSchema),
 });
 
 export type CameraGroupState = z.infer<typeof cameraGroupStateSchema>;
@@ -70,58 +65,12 @@ export function createInitialStorageCalculatorState(): StorageCalculatorState {
   };
 }
 
-/** Next unused numeric id, e.g. g4 after g1–g3. Short ids keep shared links compact. */
-function nextGroupNumber(groups: readonly CameraGroupState[]): number {
-  const numbers = groups.map((group) => Number(group.id.replace(/^g/, '')) || 0);
-  return Math.max(0, ...numbers) + 1;
-}
-
-/** A new group appended at the end, coloured to differ from the group above it. */
-function createGroup(groups: readonly CameraGroupState[]): CameraGroupState {
-  const number = nextGroupNumber(groups);
-  return {
-    id: `g${number}`,
-    name: `Camera group ${number}`,
-    colorIndex: pickColorForInsert(groups, groups.length),
-    ...DEFAULT_CAMERA_GROUP_SETTINGS,
-  };
-}
-
-/** A copy inserted after `source` (at `insertAt`), coloured to differ from both neighbours. */
-function duplicateGroup(
-  groups: readonly CameraGroupState[],
-  source: CameraGroupState,
-  insertAt: number
-): CameraGroupState {
-  return {
-    ...source,
-    id: `g${nextGroupNumber(groups)}`,
-    name: `${source.name} copy`.slice(0, MAX_GROUP_NAME_LENGTH),
-    colorIndex: pickColorForInsert(groups, insertAt),
-  };
-}
-
-/** Undo puts a group back with its own colour, unless that would now clash with a neighbour. */
-function restoredGroup(
-  groups: readonly CameraGroupState[],
-  group: CameraGroupState,
-  index: number
-): CameraGroupState {
-  const clashes =
-    groups[index - 1]?.colorIndex === group.colorIndex ||
-    groups[index]?.colorIndex === group.colorIndex;
-  return clashes ? { ...group, colorIndex: pickColorForInsert(groups, index) } : group;
-}
-
-function updateGroup(
+/** Swaps in a new group list, keeping the same state object when the list is unchanged. */
+function withGroups(
   state: StorageCalculatorState,
-  id: string,
-  update: (group: CameraGroupState) => CameraGroupState
+  cameraGroups: CameraGroupState[]
 ): StorageCalculatorState {
-  return {
-    ...state,
-    cameraGroups: state.cameraGroups.map((group) => (group.id === id ? update(group) : group)),
-  };
+  return cameraGroups === state.cameraGroups ? state : { ...state, cameraGroups };
 }
 
 function updateStorage(
@@ -153,49 +102,34 @@ export function storageCalculatorReducer(
       return { ...state, mode: action.mode };
 
     case 'update-group':
-      return updateGroup(state, action.id, (group) => ({ ...group, ...action.changes }));
+      return withGroups(
+        state,
+        updateGroup(groups, action.id, (group) => ({ ...group, ...action.changes }))
+      );
 
     case 'set-bitrate-source':
-      return updateGroup(state, action.id, (group) => ({
-        ...group,
-        bitrate: changeBitrateSource(group satisfies CameraGroup, action.source),
-      }));
+      return withGroups(
+        state,
+        updateGroup(groups, action.id, (group) => ({
+          ...group,
+          bitrate: changeBitrateSource(group, action.source),
+        }))
+      );
 
     case 'add-group':
-      if (groups.length >= MAX_CAMERA_GROUPS) {
-        return state;
-      }
-      return { ...state, cameraGroups: [...groups, createGroup(groups)] };
+      return withGroups(
+        state,
+        addGroup(groups, (fields) => ({ ...fields, ...DEFAULT_CAMERA_GROUP_SETTINGS }))
+      );
 
-    case 'duplicate-group': {
-      const index = groups.findIndex((group) => group.id === action.id);
-      const source = groups[index];
-      if (!source || groups.length >= MAX_CAMERA_GROUPS) {
-        return state;
-      }
-      const copy = duplicateGroup(groups, source, index + 1);
-      return { ...state, cameraGroups: groups.toSpliced(index + 1, 0, copy) };
-    }
+    case 'duplicate-group':
+      return withGroups(state, duplicateGroup(groups, action.id));
 
     case 'remove-group':
-      if (groups.length <= 1) {
-        return state;
-      }
-      // Removing a group can bring two same-coloured groups together.
-      return {
-        ...state,
-        cameraGroups: repairGroupColors(groups.filter((group) => group.id !== action.id)),
-      };
+      return withGroups(state, removeGroup(groups, action.id));
 
-    case 'restore-group': {
-      const alreadyPresent = groups.some((group) => group.id === action.group.id);
-      if (alreadyPresent || groups.length >= MAX_CAMERA_GROUPS) {
-        return state;
-      }
-      const index = Math.min(action.index, groups.length);
-      const group = restoredGroup(groups, action.group, index);
-      return { ...state, cameraGroups: groups.toSpliced(index, 0, group) };
-    }
+    case 'restore-group':
+      return withGroups(state, restoreGroup(groups, action.group, action.index));
 
     case 'update-storage':
       return { ...state, storage: updateStorage(state.storage, action.changes) };

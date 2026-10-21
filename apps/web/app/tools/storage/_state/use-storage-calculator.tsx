@@ -7,8 +7,7 @@ import {
   type CalculationMode,
   type StorageSettings,
 } from '@cctv/calc-core';
-import { Button, Group, Text } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notifyGroupRemoved } from '../../../../components/CameraGroupCard/notify-group-removed';
 import {
   createInitialStorageCalculatorState,
   storageCalculatorReducer,
@@ -16,8 +15,6 @@ import {
   type StorageCalculatorState,
 } from './storage-calculator-state';
 import { useUrlStateSync } from './use-url-state-sync';
-
-const UNDO_TIMEOUT_MS = 6000;
 
 /**
  * Storage calculator state, live results and actions.
@@ -44,25 +41,7 @@ export function useStorageCalculator() {
       return;
     }
     dispatch({ type: 'remove-group', id });
-
-    // Deleting is immediate; offer Undo instead of a confirmation dialog.
-    const notificationId = `group-removed-${id}-${Date.now()}`;
-    const undo = () => {
-      dispatch({ type: 'restore-group', group, index });
-      notifications.hide(notificationId);
-    };
-    notifications.show({
-      id: notificationId,
-      autoClose: UNDO_TIMEOUT_MS,
-      message: (
-        <Group justify="space-between" wrap="nowrap" gap="sm">
-          <Text size="sm">Deleted “{group.name}”</Text>
-          <Button variant="subtle" size="compact-sm" onClick={undo}>
-            Undo
-          </Button>
-        </Group>
-      ),
-    });
+    notifyGroupRemoved(group, () => dispatch({ type: 'restore-group', group, index }));
   };
 
   const actions = {

@@ -1,4 +1,4 @@
-import { groupColors } from '../../../../theme/palettes';
+import { groupColors } from '../../theme/palettes';
 
 /*
  * Camera group colours. Rule: two neighbouring groups never share a colour, so

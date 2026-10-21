@@ -29,7 +29,7 @@ function toEnteredBitrate(mbps: number, maxMbps: number): number {
  * switching between Known average and Bitrate cap keeps the entered value.
  */
 export function changeBitrateSource(
-  group: CameraGroup,
+  group: BitrateGroupFields,
   source: BitrateSource,
   options: { maxMbps?: number; model?: BitrateModel } = {}
 ): GroupBitrate {
