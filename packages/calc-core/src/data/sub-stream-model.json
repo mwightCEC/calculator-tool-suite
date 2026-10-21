@@ -1,0 +1,17 @@
+{
+  "version": "0.1.0",
+  "lastUpdated": "2026-10-21",
+  "status": "placeholder",
+  "notes": "TODO: PLACEHOLDER VALUES. Per-camera sub-stream bitrate ranges for the Bandwidth calculator, kept apart from the main bitrate model. Sub-streams are usually configured at a low fixed bitrate, so the range does not depend on codec or frame rate here. Replace with measured or vendor-default values, update each provenance, then set status to \"validated\".",
+  "sources": [
+    {
+      "id": "placeholder",
+      "description": "Planning assumptions for typical sub-stream settings. Not validated."
+    }
+  ],
+  "mbpsByResolution": {
+    "d1": { "low": 0.25, "typical": 0.5, "high": 0.75, "provenance": "placeholder" },
+    "720p": { "low": 0.5, "typical": 1.0, "high": 1.5, "provenance": "placeholder" },
+    "1080p": { "low": 1.0, "typical": 2.0, "high": 3.0, "provenance": "placeholder" }
+  }
+}

@@ -17,7 +17,11 @@ export {
   uncertaintyBandFor,
   type BitrateEstimateInput,
 } from './bitrate/estimate-bitrate';
-export { cameraBitrateRange, changeBitrateSource } from './bitrate/group-bitrate';
+export {
+  cameraBitrateRange,
+  changeBitrateSource,
+  type BitrateGroupFields,
+} from './bitrate/group-bitrate';
 
 export { dutyCycle, type DutyCycleInput } from './recording/duty-cycle';
 
@@ -70,3 +74,42 @@ export {
   typicalBitrateMbpsFor,
   type CameraModel,
 } from './camera-models/camera-model';
+
+// Bandwidth calculator
+export * from './bandwidth/options';
+export {
+  bandwidthCameraGroupSchema,
+  bandwidthInputSchema,
+  createBandwidthCameraGroup,
+  createDefaultBandwidthInput,
+  networkLinksSchema,
+  remoteViewingSchema,
+  type BandwidthCameraGroup,
+  type BandwidthInput,
+  type NetworkLinks,
+  type RemoteViewing,
+} from './bandwidth/schema';
+export {
+  isSubStreamModelValidated,
+  SUB_STREAM_MODEL,
+  subStreamBitrateRange,
+  subStreamModelSchema,
+  type SubStreamModel,
+} from './bandwidth/sub-stream-model';
+export {
+  checkLink,
+  LINK_CAUTION_ABOVE,
+  LINK_KINDS,
+  LINK_OVER_CAPACITY_ABOVE,
+  LINK_STATUSES,
+  linkStatus,
+  type LinkCheck,
+  type LinkKind,
+  type LinkStatus,
+} from './bandwidth/link-checks';
+export {
+  calculateBandwidth,
+  type BandwidthGroupUsage,
+  type BandwidthModels,
+  type BandwidthResult,
+} from './bandwidth/calculate-bandwidth';

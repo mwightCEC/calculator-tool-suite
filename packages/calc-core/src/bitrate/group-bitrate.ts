@@ -4,8 +4,14 @@ import { pointRange, type ValueRange } from '../range';
 import type { BitrateModel } from './bitrate-model-schema';
 import { estimateBitrateRange, estimateTypicalBitrateMbps } from './estimate-bitrate';
 
+/** The camera group fields that determine bitrate (shared by Storage and Bandwidth groups). */
+export type BitrateGroupFields = Pick<
+  CameraGroup,
+  'resolution' | 'codec' | 'frameRate' | 'sceneComplexity' | 'bitrate'
+>;
+
 /** Per-camera bitrate range in Mbps. Entered bitrates collapse to a single value. */
-export function cameraBitrateRange(group: CameraGroup, model?: BitrateModel): ValueRange {
+export function cameraBitrateRange(group: BitrateGroupFields, model?: BitrateModel): ValueRange {
   return group.bitrate.source === 'estimate'
     ? estimateBitrateRange(group, model)
     : pointRange(group.bitrate.mbps);
