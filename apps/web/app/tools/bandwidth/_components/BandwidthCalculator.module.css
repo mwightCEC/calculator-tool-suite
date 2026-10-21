@@ -1,0 +1,90 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mantine-spacing-lg);
+  align-items: start;
+}
+
+.inputs {
+  min-width: 0;
+}
+
+.addGroup {
+  border-style: dashed;
+}
+
+/* System settings cards (Recording, Remote viewing, Network checks, Overhead). */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-md);
+}
+
+.cardTitle {
+  font-size: var(--mantine-font-size-md);
+  margin-bottom: 4px;
+}
+
+.secondaryText {
+  color: var(--app-text-secondary);
+}
+
+.mbpsInput {
+  width: 120px;
+}
+
+.unitSection {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}
+
+/* Interim results card, styled like Storage's: white with a brand-blue top border. */
+.resultsCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+  border: 1px solid var(--mantine-color-default-border);
+  border-top: 4px solid var(--mantine-color-brand-6);
+  border-radius: var(--mantine-radius-md);
+  background-color: var(--mantine-color-body);
+}
+
+.resultFigures {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+}
+
+.sectionLabel {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.resultValue {
+  color: var(--app-accent-text);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.resultRange {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-sm);
+}
+
+@media (min-width: $mantine-breakpoint-lg) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 380px;
+  }
+
+  /* Results stay in view while the inputs scroll. */
+  .results {
+    position: sticky;
+    top: calc(var(--app-shell-header-height) + var(--mantine-spacing-md));
+  }
+}

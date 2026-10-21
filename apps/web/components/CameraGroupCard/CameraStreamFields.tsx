@@ -24,6 +24,9 @@ import { OptionButtons } from '../OptionButtons/OptionButtons';
 import { BitrateField } from './BitrateField';
 import classes from './CameraGroupCard.module.css';
 
+const SCENE_COMPLEXITY_HELP =
+  'How much detail and movement the scene has, which affects how well it compresses. Busy scenes such as traffic, foliage or crowds need more bitrate.';
+
 /** The camera group fields every calculator shares. */
 export interface CameraStreamGroup extends BitrateGroupFields {
   id: string;
@@ -38,6 +41,8 @@ interface CameraStreamFieldsProps {
   perCameraMbps: ValueRange;
   onChange: (changes: CameraStreamChanges) => void;
   onBitrateSourceChange: (source: BitrateSource) => void;
+  /** Sentence added to the scene complexity help, e.g. to set it apart from a calculator's own fields. */
+  sceneComplexityHelpNote?: string;
   /** Calculator-specific rows, placed between scene complexity and bitrate. */
   children?: ReactNode;
 }
@@ -48,6 +53,7 @@ export function CameraStreamFields({
   perCameraMbps,
   onChange,
   onBitrateSourceChange,
+  sceneComplexityHelpNote,
   children,
 }: CameraStreamFieldsProps) {
   const id = group.id;
@@ -132,7 +138,7 @@ export function CameraStreamFields({
 
       <FieldRow
         label="Scene complexity"
-        help="How much detail and movement the scene has, which affects how well it compresses. Busy scenes such as traffic, foliage or crowds need more bitrate. This is separate from how many hours are recorded."
+        help={[SCENE_COMPLEXITY_HELP, sceneComplexityHelpNote].filter(Boolean).join(' ')}
         controlId={`${id}-complexity`}
         dimmed={!usesEstimate}
         note={usesEstimate ? undefined : 'Not used with a known bitrate'}

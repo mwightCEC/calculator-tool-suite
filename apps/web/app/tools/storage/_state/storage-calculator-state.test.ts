@@ -1,9 +1,9 @@
 import { MAX_GROUP_NAME_LENGTH } from '@cctv/calc-core';
 import { describe, expect, it } from 'vitest';
+import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
 import { groupColors } from '../../../../theme/palettes';
 import {
   createInitialStorageCalculatorState,
-  MAX_CAMERA_GROUPS,
   storageCalculatorReducer as reduce,
   storageCalculatorStateSchema,
   type StorageCalculatorAction,
@@ -208,6 +208,18 @@ describe('load-state', () => {
     const state = reduce(initial(), { type: 'load-state', state: loaded });
     expect(state.mode).toBe('days-from-capacity');
     expect(state.storage.driveCount).toBe(6);
+  });
+
+  it('repairs clashing colours when loading a shared state', () => {
+    const base = apply({ type: 'add-group' }, { type: 'add-group' });
+    const shared: StorageCalculatorState = {
+      ...base,
+      cameraGroups: base.cameraGroups.map((group) => ({ ...group, colorIndex: 4 })),
+    };
+    const colors = reduce(base, { type: 'load-state', state: shared }).cameraGroups.map(
+      (group) => group.colorIndex
+    );
+    expect(colors.some((color, index) => index > 0 && color === colors[index - 1])).toBe(false);
   });
 });
 

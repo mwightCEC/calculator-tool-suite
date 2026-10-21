@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Stack } from '@mantine/core';
-import { MAX_CAMERA_GROUPS } from '../_state/storage-calculator-state';
+import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
 import { useStorageCalculator } from '../_state/use-storage-calculator';
 import { StorageCameraGroupCard } from './camera-group/StorageCameraGroupCard';
 import { HowCalculated } from './HowCalculated';

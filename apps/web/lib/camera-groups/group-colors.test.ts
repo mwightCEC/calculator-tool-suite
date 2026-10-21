@@ -1,25 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { groupColors } from '../../../../theme/palettes';
+import { groupColors } from '../../theme/palettes';
 import { pickColorForInsert, pickGroupColor, repairGroupColors } from './group-colors';
 import {
-  createInitialStorageCalculatorState,
+  addGroup,
+  duplicateGroup,
   MAX_CAMERA_GROUPS,
-  storageCalculatorReducer as reduce,
-  type StorageCalculatorAction,
-  type StorageCalculatorState,
-} from './storage-calculator-state';
+  removeGroup,
+  restoreGroup,
+  type ListedGroup,
+} from './group-list';
 
 const PALETTE_SIZE = groupColors.length;
-const colors = (state: StorageCalculatorState) =>
-  state.cameraGroups.map((group) => group.colorIndex);
+const colors = (groups: readonly ListedGroup[]) => groups.map((group) => group.colorIndex);
 const withColors = (...indexes: number[]) => indexes.map((colorIndex) => ({ colorIndex }));
 
 function hasNeighbourClash(list: readonly number[]): boolean {
   return list.some((color, index) => index > 0 && color === list[index - 1]);
 }
 
-function apply(...actions: StorageCalculatorAction[]): StorageCalculatorState {
-  return actions.reduce(reduce, createInitialStorageCalculatorState());
+const initial = (): ListedGroup[] => [{ id: 'g1', name: 'Camera group 1', colorIndex: 0 }];
+const add = (groups: ListedGroup[]) => addGroup(groups, (fields) => fields);
+
+/** Starts from one group and adds `count` more. */
+function withAdded(count: number): ListedGroup[] {
+  return Array.from({ length: count }).reduce<ListedGroup[]>((groups) => add(groups), initial());
 }
 
 describe('pickGroupColor', () => {
@@ -71,73 +75,49 @@ describe('repairGroupColors', () => {
   });
 });
 
-describe('reducer colour rules', () => {
+describe('group list colour rules', () => {
   it('gives each duplicate of the same group a different colour (reported bug)', () => {
-    const state = apply(
-      { type: 'add-group' },
-      { type: 'duplicate-group', id: 'g1' },
-      { type: 'duplicate-group', id: 'g1' },
-      { type: 'duplicate-group', id: 'g1' }
+    const groups = ['g1', 'g1', 'g1'].reduce(
+      (current, id) => duplicateGroup(current, id),
+      withAdded(1)
     );
-    expect(hasNeighbourClash(colors(state))).toBe(false);
-    expect(new Set(colors(state)).size).toBe(state.cameraGroups.length);
+    expect(hasNeighbourClash(colors(groups))).toBe(false);
+    expect(new Set(colors(groups)).size).toBe(groups.length);
   });
 
   it('re-colours a group that meets a same-coloured neighbour after a deletion', () => {
     // Seven groups wrap the palette: colours 0–5, then 0 again.
-    const seven = apply(...Array.from({ length: 6 }, () => ({ type: 'add-group' }) as const));
+    const seven = withAdded(6);
     expect(colors(seven)).toEqual([0, 1, 2, 3, 4, 5, 0]);
-    const state = [2, 3, 4, 5, 6].reduce<StorageCalculatorState>(
-      (current, number) => reduce(current, { type: 'remove-group', id: `g${number}` }),
+    const groups = [2, 3, 4, 5, 6].reduce(
+      (current, number) => removeGroup(current, `g${number}`),
       seven
     );
-    expect(state.cameraGroups.map((group) => group.id)).toEqual(['g1', 'g7']);
-    expect(colors(state)[0]).toBe(0);
-    expect(colors(state)[1]).not.toBe(0);
+    expect(groups.map((group) => group.id)).toEqual(['g1', 'g7']);
+    expect(colors(groups)[0]).toBe(0);
+    expect(colors(groups)[1]).not.toBe(0);
   });
 
   it('keeps a restored group’s colour when it fits', () => {
-    const three = apply({ type: 'add-group' }, { type: 'add-group' });
-    const removed = three.cameraGroups[1]!;
-    const afterUndo = reduce(reduce(three, { type: 'remove-group', id: removed.id }), {
-      type: 'restore-group',
-      group: removed,
-      index: 1,
-    });
-    expect(afterUndo).toEqual(three);
+    const three = withAdded(2);
+    const removed = three[1]!;
+    expect(restoreGroup(removeGroup(three, removed.id), removed, 1)).toEqual(three);
   });
 
   it('re-colours a restored group that would clash', () => {
     // g1(0) g2(1) g3(2): delete g2, re-colour g3 to 1 via a manual clash, then undo g2.
-    const three = apply({ type: 'add-group' }, { type: 'add-group' });
-    const removed = three.cameraGroups[1]!;
-    const afterDelete = reduce(three, { type: 'remove-group', id: removed.id });
-    const clashing: StorageCalculatorState = {
-      ...afterDelete,
-      cameraGroups: afterDelete.cameraGroups.map((group) =>
-        group.id === 'g3' ? { ...group, colorIndex: removed.colorIndex } : group
-      ),
-    };
-    const restored = reduce(clashing, { type: 'restore-group', group: removed, index: 1 });
+    const three = withAdded(2);
+    const removed = three[1]!;
+    const clashing = removeGroup(three, removed.id).map((group) =>
+      group.id === 'g3' ? { ...group, colorIndex: removed.colorIndex } : group
+    );
+    const restored = restoreGroup(clashing, removed, 1);
     expect(hasNeighbourClash(colors(restored))).toBe(false);
-    expect(restored.cameraGroups.find((group) => group.id === 'g3')?.colorIndex).toBe(
-      removed.colorIndex
-    );
-  });
-
-  it('repairs clashing colours when loading a shared state', () => {
-    const base = apply({ type: 'add-group' }, { type: 'add-group' });
-    const shared: StorageCalculatorState = {
-      ...base,
-      cameraGroups: base.cameraGroups.map((group) => ({ ...group, colorIndex: 4 })),
-    };
-    expect(hasNeighbourClash(colors(reduce(base, { type: 'load-state', state: shared })))).toBe(
-      false
-    );
+    expect(restored.find((group) => group.id === 'g3')?.colorIndex).toBe(removed.colorIndex);
   });
 });
 
-describe('reducer colour invariant (randomised)', () => {
+describe('group list colour invariant (randomised)', () => {
   /** Small deterministic generator so failures are reproducible. */
   function random(seed: number) {
     let value = seed;
@@ -153,30 +133,28 @@ describe('reducer colour invariant (randomised)', () => {
     let largest = 0;
     for (let seed = 1; seed <= 40; seed++) {
       const next = random(seed);
-      let state = createInitialStorageCalculatorState();
-      const removed: { group: StorageCalculatorState['cameraGroups'][number]; index: number }[] =
-        [];
+      let groups = initial();
+      const removed: { group: ListedGroup; index: number }[] = [];
 
       for (let step = 0; step < 60; step++) {
-        const groups = state.cameraGroups;
         const pick = groups[Math.floor(next() * groups.length)]!;
         const roll = next();
         if (roll < 0.3) {
-          state = reduce(state, { type: 'add-group' });
+          groups = add(groups);
         } else if (roll < 0.6) {
-          state = reduce(state, { type: 'duplicate-group', id: pick.id });
+          groups = duplicateGroup(groups, pick.id);
         } else if (roll < 0.85 && groups.length > 1) {
           removed.push({ group: pick, index: groups.indexOf(pick) });
-          state = reduce(state, { type: 'remove-group', id: pick.id });
+          groups = removeGroup(groups, pick.id);
         } else if (removed.length > 0) {
           const undo = removed.pop()!;
-          state = reduce(state, { type: 'restore-group', group: undo.group, index: undo.index });
+          groups = restoreGroup(groups, undo.group, undo.index);
         }
 
-        if (hasNeighbourClash(colors(state))) {
-          clashes.push(`seed ${seed}, step ${step}: ${colors(state).join(',')}`);
+        if (hasNeighbourClash(colors(groups))) {
+          clashes.push(`seed ${seed}, step ${step}: ${colors(groups).join(',')}`);
         }
-        largest = Math.max(largest, state.cameraGroups.length);
+        largest = Math.max(largest, groups.length);
       }
     }
     expect(clashes).toEqual([]);
@@ -187,17 +165,13 @@ describe('reducer colour invariant (randomised)', () => {
     const repeats: string[] = [];
     for (let seed = 1; seed <= 40; seed++) {
       const next = random(seed);
-      let state = createInitialStorageCalculatorState();
-      while (state.cameraGroups.length < PALETTE_SIZE) {
-        const groups = state.cameraGroups;
+      let groups = initial();
+      while (groups.length < PALETTE_SIZE) {
         const pick = groups[Math.floor(next() * groups.length)]!;
-        state =
-          next() < 0.5
-            ? reduce(state, { type: 'add-group' })
-            : reduce(state, { type: 'duplicate-group', id: pick.id });
+        groups = next() < 0.5 ? add(groups) : duplicateGroup(groups, pick.id);
       }
-      if (new Set(colors(state)).size !== PALETTE_SIZE) {
-        repeats.push(`seed ${seed}: ${colors(state).join(',')}`);
+      if (new Set(colors(groups)).size !== PALETTE_SIZE) {
+        repeats.push(`seed ${seed}: ${colors(groups).join(',')}`);
       }
     }
     expect(repeats).toEqual([]);

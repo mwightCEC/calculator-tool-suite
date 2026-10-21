@@ -56,6 +56,7 @@ export function StorageCameraGroupCard({
         perCameraMbps={usage.bitratePerCameraMbps}
         onChange={update}
         onBitrateSourceChange={(source) => actions.setBitrateSource(id, source)}
+        sceneComplexityHelpNote="This is separate from how many hours are recorded."
       >
         <RecordingFields group={group} onChange={update} />
       </CameraStreamFields>
