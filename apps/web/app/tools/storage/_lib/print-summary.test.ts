@@ -70,6 +70,17 @@ describe('buildPrintSummary', () => {
     expect(summary.groups[0]?.camera).toBe('4MP (1440p) · H.265 · 15 fps');
   });
 
+  it('gives rows unique keys even when duplicated groups look identical', () => {
+    const summary = summarize(
+      stateAfter({ type: 'duplicate-group', id: 'g1' }, { type: 'duplicate-group', id: 'g1' })
+    );
+    const groupKeys = summary.groups.map((group) => group.key);
+    const capacityKeys = summary.capacity.map((row) => row.key);
+    expect(new Set(summary.groups.map((group) => group.name)).size).toBeLessThan(groupKeys.length);
+    expect(new Set(groupKeys).size).toBe(groupKeys.length);
+    expect(new Set(capacityKeys).size).toBe(capacityKeys.length);
+  });
+
   it('breaks raw capacity down by group, reserve, parity and unused, plus the total', () => {
     const summary = summarize(KNOWN_ONLY);
     expect(summary.capacity.map((row) => row.label)).toEqual([
@@ -80,6 +91,7 @@ describe('buildPrintSummary', () => {
       'Raw capacity',
     ]);
     expect(summary.capacity.at(-1)).toEqual({
+      key: 'total',
       label: 'Raw capacity',
       tb: '42 TB',
       share: '100%',

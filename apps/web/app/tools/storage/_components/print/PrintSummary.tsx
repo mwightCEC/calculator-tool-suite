@@ -92,7 +92,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
         </thead>
         <tbody>
           {summary.capacity.map((row) => (
-            <tr key={row.label} className={row.isTotal ? classes.total : undefined}>
+            <tr key={row.key} className={row.isTotal ? classes.total : undefined}>
               <td>{row.label}</td>
               <td className={classes.number}>{row.tb}</td>
               <td className={classes.number}>{row.share}</td>
@@ -123,7 +123,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
         </thead>
         <tbody>
           {summary.groups.map((group) => (
-            <tr key={group.name + group.camera}>
+            <tr key={group.key}>
               <td>{group.name}</td>
               <td className={classes.number}>{group.cameras}</td>
               <td>{group.camera}</td>

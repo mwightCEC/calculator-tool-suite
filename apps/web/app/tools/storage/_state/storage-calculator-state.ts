@@ -13,6 +13,7 @@ import {
 } from '@cctv/calc-core';
 import { z } from 'zod';
 import { groupColors } from '../../../../theme/palettes';
+import { pickColorForInsert, repairGroupColors } from './group-colors';
 
 /*
  * The storage calculator's whole state: calc-core's calculation input plus
@@ -75,32 +76,41 @@ function nextGroupNumber(groups: readonly CameraGroupState[]): number {
   return Math.max(0, ...numbers) + 1;
 }
 
-/** New groups take the palette colour after the last group's. */
-function nextColorIndex(groups: readonly CameraGroupState[]): number {
-  const last = groups.at(-1);
-  return last ? (last.colorIndex + 1) % groupColors.length : 0;
-}
-
+/** A new group appended at the end, coloured to differ from the group above it. */
 function createGroup(groups: readonly CameraGroupState[]): CameraGroupState {
   const number = nextGroupNumber(groups);
   return {
     id: `g${number}`,
     name: `Camera group ${number}`,
-    colorIndex: nextColorIndex(groups),
+    colorIndex: pickColorForInsert(groups, groups.length),
     ...DEFAULT_CAMERA_GROUP_SETTINGS,
   };
 }
 
+/** A copy inserted after `source` (at `insertAt`), coloured to differ from both neighbours. */
 function duplicateGroup(
   groups: readonly CameraGroupState[],
-  source: CameraGroupState
+  source: CameraGroupState,
+  insertAt: number
 ): CameraGroupState {
   return {
     ...source,
     id: `g${nextGroupNumber(groups)}`,
     name: `${source.name} copy`.slice(0, MAX_GROUP_NAME_LENGTH),
-    colorIndex: nextColorIndex(groups),
+    colorIndex: pickColorForInsert(groups, insertAt),
   };
+}
+
+/** Undo puts a group back with its own colour, unless that would now clash with a neighbour. */
+function restoredGroup(
+  groups: readonly CameraGroupState[],
+  group: CameraGroupState,
+  index: number
+): CameraGroupState {
+  const clashes =
+    groups[index - 1]?.colorIndex === group.colorIndex ||
+    groups[index]?.colorIndex === group.colorIndex;
+  return clashes ? { ...group, colorIndex: pickColorForInsert(groups, index) } : group;
 }
 
 function updateGroup(
@@ -131,8 +141,13 @@ export function storageCalculatorReducer(
 
   switch (action.type) {
     case 'load-state':
-      // Restored state is already schema-valid; keep the drive count valid for its RAID level.
-      return { ...action.state, storage: updateStorage(action.state.storage, {}) };
+      // Restored state is already schema-valid; keep the drive count valid for its RAID
+      // level and fix any neighbouring groups that share a colour (e.g. older links).
+      return {
+        ...action.state,
+        cameraGroups: repairGroupColors(action.state.cameraGroups),
+        storage: updateStorage(action.state.storage, {}),
+      };
 
     case 'set-mode':
       return { ...state, mode: action.mode };
@@ -158,7 +173,7 @@ export function storageCalculatorReducer(
       if (!source || groups.length >= MAX_CAMERA_GROUPS) {
         return state;
       }
-      const copy = duplicateGroup(groups, source);
+      const copy = duplicateGroup(groups, source, index + 1);
       return { ...state, cameraGroups: groups.toSpliced(index + 1, 0, copy) };
     }
 
@@ -166,7 +181,11 @@ export function storageCalculatorReducer(
       if (groups.length <= 1) {
         return state;
       }
-      return { ...state, cameraGroups: groups.filter((group) => group.id !== action.id) };
+      // Removing a group can bring two same-coloured groups together.
+      return {
+        ...state,
+        cameraGroups: repairGroupColors(groups.filter((group) => group.id !== action.id)),
+      };
 
     case 'restore-group': {
       const alreadyPresent = groups.some((group) => group.id === action.group.id);
@@ -174,7 +193,8 @@ export function storageCalculatorReducer(
         return state;
       }
       const index = Math.min(action.index, groups.length);
-      return { ...state, cameraGroups: groups.toSpliced(index, 0, action.group) };
+      const group = restoredGroup(groups, action.group, index);
+      return { ...state, cameraGroups: groups.toSpliced(index, 0, group) };
     }
 
     case 'update-storage':
