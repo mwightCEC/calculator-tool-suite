@@ -3,7 +3,7 @@
 import type { CapacityBreakdown } from '@cctv/calc-core';
 import { Group, Progress, Switch, Text, Tooltip } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
-import { formatTb } from '../../_lib/format';
+import { formatTb } from '../../../../../lib/format';
 import type { CameraGroupState } from '../../_state/storage-calculator-state';
 import classes from './ResultsCard.module.css';
 

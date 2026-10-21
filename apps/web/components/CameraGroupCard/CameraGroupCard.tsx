@@ -1,41 +1,54 @@
 'use client';
 
-import { useState, type CSSProperties } from 'react';
-import type { CameraGroupUsage } from '@cctv/calc-core';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import { Collapse, Group, Paper, Text } from '@mantine/core';
-import { formatGb, formatMbps } from '../../_lib/format';
-import { summarizeGroup } from '../../_lib/group-summary';
-import type { CameraGroupState } from '../../_state/storage-calculator-state';
-import type { StorageCalculatorActions } from '../../_state/use-storage-calculator';
-import { CameraGroupFields } from './CameraGroupFields';
 import { CameraGroupHeader } from './CameraGroupHeader';
 import classes from './CameraGroupCard.module.css';
 
 interface CameraGroupCardProps {
-  group: CameraGroupState;
-  usage: CameraGroupUsage;
+  groupId: string;
+  name: string;
+  cameraCount: number;
+  /** Index into the group colour palette (--group-color-N). */
+  colorIndex: number;
   canDuplicate: boolean;
   canDelete: boolean;
-  actions: StorageCalculatorActions;
+  onRename: (name: string) => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+  /** One-line description of the group, shown while collapsed. */
+  collapsedSummary: string;
+  /** Headline value shown beside the summary while collapsed. */
+  collapsedValue: string;
+  /** Value in the "Group total" footer. */
+  totalValue: ReactNode;
+  /** The group's fields, shown while expanded. */
+  children: ReactNode;
 }
 
+/** A collapsible, colour-coded camera group card. Each calculator supplies its fields and totals. */
 export function CameraGroupCard({
-  group,
-  usage,
+  groupId,
+  name,
+  cameraCount,
+  colorIndex,
   canDuplicate,
   canDelete,
-  actions,
+  onRename,
+  onDuplicate,
+  onDelete,
+  collapsedSummary,
+  collapsedValue,
+  totalValue,
+  children,
 }: CameraGroupCardProps) {
   const [expanded, setExpanded] = useState(true);
-  const bodyId = `${group.id}-body`;
-  // "~" marks values that come from the bitrate estimate.
-  const approx = group.bitrate.source === 'estimate' ? '~' : '';
-  const gbPerDay = `${approx}${formatGb(usage.gbPerDay.typical)}/day`;
+  const bodyId = `${groupId}-body`;
 
   // Group colour as CSS variables so the stylesheet can tint the dot, badge and footer.
   const colorVariables = {
-    '--group-color': `var(--group-color-${group.colorIndex})`,
-    '--group-tint': `var(--group-tint-${group.colorIndex})`,
+    '--group-color': `var(--group-color-${colorIndex})`,
+    '--group-tint': `var(--group-tint-${colorIndex})`,
   } as CSSProperties;
 
   return (
@@ -44,41 +57,40 @@ export function CameraGroupCard({
       withBorder
       className={classes.card}
       style={colorVariables}
-      aria-label={group.name}
+      aria-label={name}
     >
       <CameraGroupHeader
-        name={group.name}
-        cameraCount={group.cameraCount}
+        name={name}
+        cameraCount={cameraCount}
         expanded={expanded}
         bodyId={bodyId}
         canDuplicate={canDuplicate}
         canDelete={canDelete}
         onToggleExpanded={() => setExpanded((value) => !value)}
-        onRename={(name) => actions.updateGroup(group.id, { name })}
-        onDuplicate={() => actions.duplicateGroup(group.id)}
-        onDelete={() => actions.removeGroup(group.id)}
+        onRename={onRename}
+        onDuplicate={onDuplicate}
+        onDelete={onDelete}
       />
 
       {!expanded && (
         <Group justify="space-between" wrap="nowrap" gap="md" className={classes.summary}>
           <Text size="sm" className={classes.summaryText}>
-            {summarizeGroup(group, usage)}
+            {collapsedSummary}
           </Text>
           <Text size="sm" fw={600} className={classes.nowrap}>
-            {gbPerDay}
+            {collapsedValue}
           </Text>
         </Group>
       )}
 
       <Collapse expanded={expanded} id={bodyId}>
-        <CameraGroupFields group={group} usage={usage} actions={actions} />
+        <div className={classes.fields}>{children}</div>
       </Collapse>
 
       <Group justify="space-between" gap="md" className={classes.footer}>
         <Text size="sm">Group total</Text>
         <Text size="sm" fw={600}>
-          {approx}
-          {formatMbps(usage.totalBitrateMbps.typical)} · {gbPerDay}
+          {totalValue}
         </Text>
       </Group>
     </Paper>

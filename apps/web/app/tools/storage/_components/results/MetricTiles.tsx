@@ -6,7 +6,7 @@ import {
   formatRangeBounds,
   formatTb,
   formatTbPerDay,
-} from '../../_lib/format';
+} from '../../../../../lib/format';
 import { RAID_LABELS } from '../../_lib/storage-labels';
 import classes from './ResultsCard.module.css';
 

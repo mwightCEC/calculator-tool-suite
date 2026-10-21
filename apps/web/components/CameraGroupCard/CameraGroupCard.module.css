@@ -91,18 +91,6 @@
   width: 120px;
 }
 
-.slider {
-  width: 180px;
-}
-
-.sliderValue {
-  white-space: nowrap;
-}
-
-.hoursInput {
-  width: 90px;
-}
-
 .estimate {
   color: var(--app-text-secondary);
 }
@@ -124,9 +112,5 @@
 @media (max-width: $mantine-breakpoint-xs) {
   .summary {
     padding-inline-start: var(--mantine-spacing-md);
-  }
-
-  .slider {
-    width: 140px;
   }
 }

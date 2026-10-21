@@ -14,9 +14,9 @@ import {
 import { Paper, Select, Title } from '@mantine/core';
 import { FieldRow } from '../../../../components/FieldRow/FieldRow';
 import { NumberStepper } from '../../../../components/NumberStepper/NumberStepper';
+import { parseOption } from '../../../../lib/camera-labels';
 import {
   DRIVE_SIZE_SELECT_DATA,
-  parseOption,
   RAID_SELECT_DATA,
   RESERVE_SELECT_DATA,
 } from '../_lib/storage-labels';
