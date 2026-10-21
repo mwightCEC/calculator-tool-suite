@@ -24,8 +24,7 @@ export const TOOLS: readonly ToolDefinition[] = [
   {
     id: 'storage',
     name: 'Storage',
-    description:
-      'Calculate based on storage needed or with a designated capacity.',
+    description: 'Calculate based on storage needed or with a designated capacity.',
     icon: IconDatabase,
     route: '/tools/storage',
     status: 'available',
