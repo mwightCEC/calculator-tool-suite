@@ -1,0 +1,17 @@
+.slider {
+  width: 180px;
+}
+
+.sliderValue {
+  white-space: nowrap;
+}
+
+.hoursInput {
+  width: 90px;
+}
+
+@media (max-width: $mantine-breakpoint-xs) {
+  .slider {
+    width: 140px;
+  }
+}

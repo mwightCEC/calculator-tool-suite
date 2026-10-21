@@ -5,15 +5,15 @@ import {
   BITRATE_INPUT_MIN_MBPS,
   isBitrateModelValidated,
   type BitrateSource,
-  type CameraGroupUsage,
+  type GroupBitrate,
+  type ValueRange,
 } from '@cctv/calc-core';
 import { NumberInput, Text } from '@mantine/core';
-import { FieldRow, fieldLabelId } from '../../../../../components/FieldRow/FieldRow';
-import { OptionButtons } from '../../../../../components/OptionButtons/OptionButtons';
-import { useNumberDraft } from '../../../../../hooks/use-number-draft';
-import { describeEstimate } from '../../_lib/group-summary';
-import { BITRATE_SOURCE_OPTIONS } from '../../_lib/storage-labels';
-import type { CameraGroupState } from '../../_state/storage-calculator-state';
+import { useNumberDraft } from '../../hooks/use-number-draft';
+import { describeEstimate } from '../../lib/bitrate-text';
+import { BITRATE_SOURCE_OPTIONS } from '../../lib/camera-labels';
+import { FieldRow, fieldLabelId } from '../FieldRow/FieldRow';
+import { OptionButtons } from '../OptionButtons/OptionButtons';
 import classes from './CameraGroupCard.module.css';
 
 const BITRATE_HELP = (
@@ -32,8 +32,9 @@ const roundToTenth = (mbps: number) =>
 
 interface BitrateFieldProps {
   idPrefix: string;
-  group: CameraGroupState;
-  usage: CameraGroupUsage;
+  bitrate: GroupBitrate;
+  /** Per-camera bitrate range, used to describe the estimate. */
+  perCameraMbps: ValueRange;
   onSourceChange: (source: BitrateSource) => void;
   onMbpsChange: (mbps: number) => void;
 }
@@ -41,8 +42,8 @@ interface BitrateFieldProps {
 /** Bitrate source selector plus the estimate text or an Mbps input. */
 export function BitrateField({
   idPrefix,
-  group,
-  usage,
+  bitrate,
+  perCameraMbps,
   onSourceChange,
   onMbpsChange,
 }: BitrateFieldProps) {
@@ -52,22 +53,20 @@ export function BitrateField({
     <FieldRow label="Bitrate" help={BITRATE_HELP} controlId={sourceId}>
       <OptionButtons
         id={sourceId}
-        value={group.bitrate.source}
+        value={bitrate.source}
         onChange={onSourceChange}
         options={BITRATE_SOURCE_OPTIONS}
         aria-labelledby={fieldLabelId(sourceId)}
       />
-      {group.bitrate.source === 'estimate' ? (
+      {bitrate.source === 'estimate' ? (
         <Text size="sm" className={classes.estimate}>
-          {describeEstimate(usage)}
+          {describeEstimate(perCameraMbps)}
         </Text>
       ) : (
         <EnteredBitrateInput
           id={`${idPrefix}-bitrate-mbps`}
-          label={
-            group.bitrate.source === 'bitrate-cap' ? 'Bitrate cap (Mbps)' : 'Known average (Mbps)'
-          }
-          value={group.bitrate.mbps}
+          label={bitrate.source === 'bitrate-cap' ? 'Bitrate cap (Mbps)' : 'Known average (Mbps)'}
+          value={bitrate.mbps}
           onChange={onMbpsChange}
         />
       )}

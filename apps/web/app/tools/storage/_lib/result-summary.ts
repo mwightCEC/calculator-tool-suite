@@ -1,5 +1,5 @@
 import { isPointRange, type StorageCalculationResult } from '@cctv/calc-core';
-import { formatDays, formatLikelyRange, formatRangeBounds, formatTb } from './format';
+import { formatDays, formatLikelyRange, formatRangeBounds, formatTb } from '../../../../lib/format';
 import { RAID_LABELS } from './storage-labels';
 
 export interface ResultHeadline {

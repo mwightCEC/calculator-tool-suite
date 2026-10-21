@@ -5,7 +5,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, Stack } from '@mantine/core';
 import { MAX_CAMERA_GROUPS } from '../_state/storage-calculator-state';
 import { useStorageCalculator } from '../_state/use-storage-calculator';
-import { CameraGroupCard } from './camera-group/CameraGroupCard';
+import { StorageCameraGroupCard } from './camera-group/StorageCameraGroupCard';
 import { HowCalculated } from './HowCalculated';
 import { PrintSummary } from './print/PrintSummary';
 import { MobileResultBar } from './results/MobileResultBar';
@@ -35,7 +35,7 @@ export function StorageCalculator({ header }: StorageCalculatorProps) {
             const usage = usageByGroupId.get(group.id);
             return (
               usage && (
-                <CameraGroupCard
+                <StorageCameraGroupCard
                   key={group.id}
                   group={group}
                   usage={usage}

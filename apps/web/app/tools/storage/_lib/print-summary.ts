@@ -5,7 +5,11 @@ import {
   type StorageCalculationResult,
   type ValueRange,
 } from '@cctv/calc-core';
-import type { CameraGroupState, StorageCalculatorState } from '../_state/storage-calculator-state';
+import {
+  CODEC_LABELS,
+  RESOLUTION_LABELS,
+  SCENE_COMPLEXITY_LABELS,
+} from '../../../../lib/camera-labels';
 import {
   formatDays,
   formatFixed,
@@ -16,7 +20,8 @@ import {
   formatTb,
   formatTbPerDay,
   rangeDigits,
-} from './format';
+} from '../../../../lib/format';
+import type { CameraGroupState, StorageCalculatorState } from '../_state/storage-calculator-state';
 import { describeRecording } from './group-summary';
 import {
   describeDriveCount,
@@ -24,13 +29,7 @@ import {
   describeRaid,
   type ResultHeadline,
 } from './result-summary';
-import {
-  CALCULATION_MODE_LABELS,
-  CODEC_LABELS,
-  RAID_LABELS,
-  RESOLUTION_LABELS,
-  SCENE_COMPLEXITY_LABELS,
-} from './storage-labels';
+import { CALCULATION_MODE_LABELS, RAID_LABELS } from './storage-labels';
 
 /*
  * Content for the printable summary (Export). Pure, so it can be unit tested;
