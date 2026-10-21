@@ -43,6 +43,8 @@ export interface LabelledValue {
 }
 
 export interface CapacityRow {
+  /** Unique React key: the group id for footage rows, a fixed name otherwise. */
+  key: string;
   label: string;
   tb: string;
   share: string;
@@ -51,6 +53,8 @@ export interface CapacityRow {
 }
 
 export interface GroupRow {
+  /** The group id: unique even when names and settings are identical (e.g. duplicates). */
+  key: string;
   name: string;
   cameras: string;
   camera: string;
@@ -119,6 +123,7 @@ function groupRows(state: StorageCalculatorState, result: StorageCalculationResu
     const approx = group.bitrate.source === 'estimate' ? '~' : '';
     return [
       {
+        key: group.id,
         name: group.name,
         cameras: formatNumber(group.cameraCount, 0),
         camera: `${RESOLUTION_LABELS[group.resolution]} · ${CODEC_LABELS[group.codec]} · ${group.frameRate} fps`,
@@ -142,18 +147,23 @@ function capacityRows(
   const { breakdown } = result;
   const share = (tb: number) =>
     breakdown.rawTb > 0 ? `${formatNumber((tb / breakdown.rawTb) * 100, 0)}%` : '0%';
-  const row = (label: string, tb: number) => ({ label, tb: formatTb(tb), share: share(tb) });
+  const row = (key: string, label: string, tb: number) => ({
+    key,
+    label,
+    tb: formatTb(tb),
+    share: share(tb),
+  });
 
   const footage = breakdown.footageTbByGroup.map(({ groupId, tb }) => {
     const name = state.cameraGroups.find((group) => group.id === groupId)?.name ?? groupId;
-    return row(`Footage: ${name}`, tb);
+    return row(groupId, `Footage: ${name}`, tb);
   });
   return [
     ...footage,
-    row('Reserve', breakdown.reserveTb),
-    row('RAID parity', breakdown.parityTb),
-    row('Unused', breakdown.unusedTb),
-    { ...row('Raw capacity', breakdown.rawTb), isTotal: true },
+    row('reserve', 'Reserve', breakdown.reserveTb),
+    row('parity', 'RAID parity', breakdown.parityTb),
+    row('unused', 'Unused', breakdown.unusedTb),
+    { ...row('total', 'Raw capacity', breakdown.rawTb), isTotal: true },
   ];
 }
 

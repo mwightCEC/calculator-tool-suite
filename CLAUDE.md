@@ -79,5 +79,7 @@ config or routing changes.
   `_state/share-format-v2.ts`); `v=1` (full JSON) links still open. All decoded state is
   validated against the state schema. The v2 index tables are append-only: reordering or
   removing an option breaks existing links and needs a new format version.
+- Camera group colours: neighbouring groups never share a colour (`_state/group-colors.ts`,
+  enforced in the reducer for add, duplicate, delete, undo and loading a link).
 - Camera presets (the `CameraModel` type in calc-core) and the bitrate measurement campaign
   are shelved; don't build on them unless asked.
