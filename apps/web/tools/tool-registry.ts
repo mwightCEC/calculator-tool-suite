@@ -25,7 +25,7 @@ export const TOOLS: readonly ToolDefinition[] = [
     id: 'storage',
     name: 'Storage',
     description:
-      'Size recorder drives for a retention target, or estimate retention from capacity.',
+      'Calculate based on storage needed or with a designated capacity.',
     icon: IconDatabase,
     route: '/tools/storage',
     status: 'available',
