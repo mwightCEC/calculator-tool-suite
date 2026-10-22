@@ -35,7 +35,7 @@ export const TOOLS: readonly ToolDefinition[] = [
     description: 'Estimate network throughput for camera streams and remote viewing.',
     icon: IconNetwork,
     route: '/tools/bandwidth',
-    status: 'coming-soon',
+    status: 'available',
   },
   {
     id: 'poe-budget',

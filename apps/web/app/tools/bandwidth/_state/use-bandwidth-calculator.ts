@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useReducer } from 'react';
+import { useCallback, useMemo, useReducer } from 'react';
 import {
   calculateBandwidth,
   type BitrateSource,
@@ -10,11 +10,17 @@ import {
   type RemoteViewing,
 } from '@cctv/calc-core';
 import { notifyGroupRemoved } from '../../../../components/CameraGroupCard/notify-group-removed';
+import { useUrlStateSync } from '../../../../lib/share/use-url-state-sync';
 import {
   bandwidthCalculatorReducer,
   createInitialBandwidthCalculatorState,
+  type BandwidthCalculatorState,
   type BandwidthGroupChanges,
 } from './bandwidth-calculator-state';
+import { bandwidthShareCodec, encodeState } from './share-link';
+
+/** The default calculation keeps a clean URL with no share parameters. */
+const DEFAULT_STATE_ENCODED = encodeState(createInitialBandwidthCalculatorState());
 
 /**
  * Bandwidth calculator state, live results and actions.
@@ -27,6 +33,12 @@ export function useBandwidthCalculator() {
     createInitialBandwidthCalculatorState
   );
   const result = useMemo(() => calculateBandwidth(state), [state]);
+
+  const loadState = useCallback(
+    (restored: BandwidthCalculatorState) => dispatch({ type: 'load-state', state: restored }),
+    []
+  );
+  useUrlStateSync(state, loadState, bandwidthShareCodec, DEFAULT_STATE_ENCODED);
 
   const removeGroup = (id: string) => {
     const index = state.cameraGroups.findIndex((group) => group.id === id);

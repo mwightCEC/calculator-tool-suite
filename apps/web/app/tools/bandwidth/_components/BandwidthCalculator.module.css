@@ -11,6 +11,13 @@
   min-width: 0;
 }
 
+/* Printing shows PrintSummary instead of the interactive page. */
+@media print {
+  .layout {
+    display: none;
+  }
+}
+
 .addGroup {
   border-style: dashed;
 }

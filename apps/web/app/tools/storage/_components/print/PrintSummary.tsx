@@ -1,59 +1,31 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import type { StorageCalculationResult } from '@cctv/calc-core';
-import { flushSync } from 'react-dom';
+import {
+  PrintLayout,
+  printClasses as classes,
+} from '../../../../../components/PrintLayout/PrintLayout';
 import { buildPrintSummary } from '../../_lib/print-summary';
 import { buildShareUrl } from '../../_state/share-link';
 import type { StorageCalculatorState } from '../../_state/storage-calculator-state';
-import classes from './PrintSummary.module.css';
-
-interface PrintContext {
-  printedAt: string;
-  url: string;
-}
 
 interface PrintSummaryProps {
   state: StorageCalculatorState;
   result: StorageCalculationResult;
 }
 
-/**
- * Printable summary of the calculation (the Export feature). Hidden on screen and
- * shown only when printing, while the interactive page is hidden. Plain HTML with
- * its own stylesheet so the printout is always light, whatever the colour scheme.
- */
+/** Printable Storage summary (the Export feature), shown only when printing. */
 export function PrintSummary({ state, result }: PrintSummaryProps) {
-  const [context, setContext] = useState<PrintContext | null>(null);
   const summary = buildPrintSummary(state, result);
-
-  // The date and link are only known in the browser at print time (Export button or Ctrl+P).
-  useEffect(() => {
-    const capturePrintContext = () => {
-      flushSync(() =>
-        setContext({
-          printedAt: new Date().toLocaleString(undefined, {
-            dateStyle: 'medium',
-            timeStyle: 'short',
-          }),
-          url: buildShareUrl(state, window.location.href),
-        })
-      );
-    };
-    window.addEventListener('beforeprint', capturePrintContext);
-    return () => window.removeEventListener('beforeprint', capturePrintContext);
-  }, [state]);
+  const getShareUrl = useCallback(() => buildShareUrl(state, window.location.href), [state]);
 
   return (
-    <article className={classes.summary}>
-      <header className={classes.header}>
-        <h1 className={classes.title}>Storage calculation summary</h1>
-        <p className={classes.meta}>
-          CCTV tool suite · {summary.modeLabel}
-          {context && ` · ${context.printedAt}`}
-        </p>
-      </header>
-
+    <PrintLayout
+      title="Storage calculation summary"
+      meta={`CCTV tool suite · ${summary.modeLabel}`}
+      getShareUrl={getShareUrl}
+    >
       <section className={classes.result}>
         <p className={classes.resultLabel}>
           {summary.headline.label} <span className={classes.source}>{summary.sourceLabel}</span>
@@ -153,12 +125,6 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
           <li key={note}>{note}</li>
         ))}
       </ul>
-
-      {context && (
-        <p className={classes.link}>
-          Open this calculation online: <span className={classes.url}>{context.url}</span>
-        </p>
-      )}
-    </article>
+    </PrintLayout>
   );
 }

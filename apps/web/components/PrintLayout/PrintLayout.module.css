@@ -142,6 +142,11 @@
     font-size: 9pt;
   }
 
+  .warning {
+    margin: 4pt 0 0;
+    font-weight: 600;
+  }
+
   .link {
     margin-top: 10pt;
     font-size: 8.5pt;
