@@ -40,8 +40,9 @@ npm ci               # install from package-lock.json
 npm run dev          # web app on http://localhost:3000
 npm run check        # format check, oxlint + Stylelint, typecheck, all tests
 npm test             # calc-core (100% coverage enforced) and web tests
-npm run build        # standalone server build (Docker)
+npm run build        # standalone server build (Docker, Ubuntu server)
 STATIC_EXPORT=true npm run build   # static export to apps/web/out (Cloudflare)
+DEPLOY_HOST=<user>@<server> npm run deploy   # release origin/main to the Ubuntu server (deploy/, see README)
 ```
 
 Run `npm run format` and `npm run check` before staging. Both builds should pass when

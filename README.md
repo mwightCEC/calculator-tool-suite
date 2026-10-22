@@ -60,32 +60,45 @@ Cloudflare Workers build settings:
 `apps/web/wrangler.jsonc` tells Wrangler to serve `out/` as static assets. The health
 route is generated at build time (`force-static`), so it also exists as a static file.
 
-## Ubuntu server (nginx)
+## Ubuntu server (nginx + Node)
 
-The static export can also be served by nginx on an Ubuntu server, with a free
-Let's Encrypt certificate from certbot.
+The Next.js server can run on an Ubuntu server as a systemd service behind nginx, with
+a free Let's Encrypt certificate from certbot. Scripts are in `deploy/`.
 
-**One-time setup.** Point the domain's DNS A record at the server, then copy the setup
-script over and run it there:
-
-```bash
-scp deploy/setup-server.sh <user>@<server>:~
-ssh <user>@<server> 'sudo bash ~/setup-server.sh tools.example.com you@example.com'
-```
-
-The script installs nginx and certbot, creates `/var/www/cctv-tools` (owned by your
-user), adds an nginx site for the domain, opens HTTP/HTTPS if ufw is active, and gets
-the certificate with an HTTP→HTTPS redirect. Certificates renew automatically. It only
-touches its own nginx site and is safe to re-run.
-
-**Each release.** Build the static export locally and upload it:
+**One-time setup.** Point the domain's DNS A record at the server, then copy the
+`deploy/` folder over and run the setup script there, as the account you will deploy
+from:
 
 ```bash
-STATIC_EXPORT=true npm run build
-rsync -avz --delete apps/web/out/ <user>@<server>:/var/www/cctv-tools/
+scp -r deploy <user>@<server>:~
+ssh -t <user>@<server> 'sudo bash ~/deploy/setup-server.sh tools.example.com you@example.com'
 ```
 
-nginx serves the new files straight away; no restart is needed.
+It installs nginx, certbot and Node.js (official build, checksum-verified), then sets up:
+
+- `cctv-tools.service`, running the app as an unprivileged user on `127.0.0.1:3000`
+- `/opt/cctv-tools`, where releases are built (owned by your account)
+- `cctv-tools-release`, the server side of a deploy, plus a sudo rule that lets your
+  account restart that one service
+- an nginx site proxying the domain to the app (with `/_next/image` blocked, since the
+  app doesn't use it), then HTTPS with an HTTP→HTTPS redirect; certificates renew
+  automatically
+
+It only touches its own nginx site and is safe to re-run.
+
+**Each release.** From your machine:
+
+```bash
+DEPLOY_HOST=<user>@<server> npm run deploy
+```
+
+This sends `origin/main` (never local changes) to the server, which installs
+dependencies, builds, swaps the new release in, restarts the service and checks
+`/api/health`. If the check fails, the previous release is restored. The build runs on
+the server because the standalone output contains platform-specific binaries. Servers
+with less than 2 GB of RAM may need swap for the build.
+
+Logs: `journalctl -u cctv-tools`.
 
 ## Dependency age policy
 
