@@ -4,6 +4,8 @@ import {
   SUB_STREAM_RESOLUTIONS,
   UPLINK_SPEEDS_MBPS,
   VIEWING_STREAMS,
+  type LinkKind,
+  type LinkStatus,
   type RecordedStreams,
   type SubStreamResolution,
   type UplinkSpeedMbps,
@@ -52,3 +54,15 @@ export const OVERHEAD_OPTIONS = OVERHEAD_PERCENTS.map((percent) => ({
   value: String(percent),
   label: `${percent}%`,
 }));
+
+export const LINK_LABELS: Record<LinkKind, string> = {
+  'recorder-limit': 'Recorder limit',
+  uplink: 'Uplink',
+  'site-upload': 'Site upload',
+};
+
+export const LINK_STATUS_LABELS: Record<LinkStatus, string> = {
+  ok: 'OK',
+  caution: 'Caution',
+  'over-capacity': 'Over capacity',
+};

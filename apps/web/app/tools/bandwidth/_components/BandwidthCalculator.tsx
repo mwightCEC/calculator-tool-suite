@@ -3,14 +3,17 @@
 import type { ReactNode } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Stack } from '@mantine/core';
+import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
+import { describeIngest } from '../_lib/result-summary';
 import { useBandwidthCalculator } from '../_state/use-bandwidth-calculator';
 import { BandwidthCameraGroupCard } from './BandwidthCameraGroupCard';
+import { HowCalculated } from './HowCalculated';
 import { NetworkChecksCard } from './NetworkChecksCard';
 import { OverheadCard } from './OverheadCard';
 import { RecordingCard } from './RecordingCard';
 import { RemoteViewingCard } from './RemoteViewingCard';
-import { ResultsPlaceholderCard } from './ResultsPlaceholderCard';
+import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
 import classes from './BandwidthCalculator.module.css';
 
 interface BandwidthCalculatorProps {
@@ -24,6 +27,7 @@ export function BandwidthCalculator({ header }: BandwidthCalculatorProps) {
   const groupCount = state.cameraGroups.length;
   const atGroupLimit = groupCount >= MAX_CAMERA_GROUPS;
   const usageByGroupId = new Map(result.groups.map((usage) => [usage.groupId, usage]));
+  const ingest = describeIngest(result);
 
   return (
     <div className={classes.layout}>
@@ -67,11 +71,20 @@ export function BandwidthCalculator({ header }: BandwidthCalculatorProps) {
         />
         <NetworkChecksCard network={state.network} onChange={actions.updateNetwork} />
         <OverheadCard overheadPercent={state.overheadPercent} onChange={actions.setOverhead} />
+
+        <HowCalculated />
       </Stack>
 
       <div className={classes.results}>
-        <ResultsPlaceholderCard result={result} />
+        <ResultsCard result={result} state={state} />
       </div>
+
+      <MobileResultBar
+        label="Recorder ingest"
+        value={ingest.value}
+        detail={ingest.likelyRange}
+        resultsId={RESULTS_CARD_ID}
+      />
     </div>
   );
 }
