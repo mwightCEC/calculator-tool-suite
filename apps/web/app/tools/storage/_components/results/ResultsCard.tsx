@@ -3,12 +3,13 @@
 import type { CalculationMode, StorageCalculationResult } from '@cctv/calc-core';
 import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
 import { Badge, Box, Button, Group, Text } from '@mantine/core';
+import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
 import { OptionButtons } from '../../../../../components/OptionButtons/OptionButtons';
 import { describeHeadline, describeWarning } from '../../_lib/result-summary';
 import { CALCULATION_MODE_OPTIONS } from '../../_lib/storage-labels';
+import { buildShareUrl } from '../../_state/share-link';
 import type { StorageCalculatorState } from '../../_state/storage-calculator-state';
 import { CapacityBar } from './CapacityBar';
-import { CopyLinkButton } from './CopyLinkButton';
 import { DrivesSummary } from './DrivesSummary';
 import { MetricTiles } from './MetricTiles';
 import classes from './ResultsCard.module.css';
@@ -81,7 +82,7 @@ export function ResultsCard({ result, state, onModeChange }: ResultsCardProps) {
       </Text>
 
       <Group gap="xs" grow>
-        <CopyLinkButton state={state} />
+        <CopyLinkButton getShareUrl={() => buildShareUrl(state, window.location.href)} />
         {/* Opens the print dialog with the printable summary (PrintSummary); "Save as PDF" gives a file. */}
         <Button leftSection={<IconPrinter size={16} />} onClick={() => window.print()}>
           Export

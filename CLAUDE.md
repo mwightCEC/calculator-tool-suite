@@ -1,8 +1,8 @@
 # CCTV tool suite
 
 Web calculators for CCTV installers and system designers, aimed at a general audience
-(not tied to one manufacturer's products). The storage and retention calculator is built;
-Bandwidth, PoE budget, Voltage drop and Lens / FOV are listed as "coming soon".
+(not tied to one manufacturer's products). The Storage and Bandwidth calculators are built;
+PoE budget, Voltage drop and Lens / FOV are listed as "coming soon".
 
 ## Working agreements
 
@@ -23,9 +23,13 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV are listed as "coming soon".
 | `apps/web`           | Next.js 16 (App Router) + Mantine 9 UI. All calculations run client-side. |
 
 - calc-core is consumed as TypeScript source (`transpilePackages` in `next.config.ts`).
-- Storage calculator: `apps/web/app/tools/storage/` with `_components/`, `_lib/` (labels,
-  formatting, result text) and `_state/` (reducer, schema, URL sync, share links).
-- Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`).
+- Each calculator lives in `apps/web/app/tools/<tool>/` (`storage`, `bandwidth`) with
+  `_components/`, `_lib/` (labels, result and print-summary text) and `_state/` (reducer,
+  schema, share-link format).
+- Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`,
+  `CameraGroupCard`, `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export).
+- Shared logic: `apps/web/lib/` (`camera-groups/` group list and colours, `share/` link codec
+  and URL sync hook, `format.ts`, camera and bitrate labels).
 - Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts`.
 - Theme: `apps/web/theme/` (palettes, `--app-*` CSS variables, Mantine overrides).
 
@@ -70,16 +74,21 @@ config or routing changes.
 
 - Storage uses decimal units (1 TB = 10¹² bytes), matching drive labels.
 - Bitrate estimates are ranges from `packages/calc-core/src/data/bitrate-model.json`, which
-  holds **unvalidated placeholder** coefficients. Keep the user-facing "estimate /
+  holds **unvalidated placeholder** coefficients; Bandwidth's sub-stream rates
+  (`sub-stream-model.json`) are placeholders too. Keep the user-facing "estimate /
   placeholder" wording honest. Updating the numbers needs no code changes (see the README
   in that folder).
 - Storage-needed mode sizes drives for the high estimate; days-from-capacity headlines the
   worst-case (low) days.
-- Shared links: `?v=2&s=<base64url of a compact positional array>` (see
-  `_state/share-format-v2.ts`); `v=1` (full JSON) links still open. All decoded state is
-  validated against the state schema. The v2 index tables are append-only: reordering or
-  removing an option breaks existing links and needs a new format version.
-- Camera group colours: neighbouring groups never share a colour (`_state/group-colors.ts`,
+- Bandwidth headlines typical recorder ingest; network checks use the high estimate
+  (OK up to 70%, caution up to 90%, then over capacity; thresholds in calc-core).
+- Shared links: `?v=<version>&s=<base64url of a compact positional array>`, built with
+  `lib/share/share-codec.ts`. Each tool owns its own versions: Storage writes `v=2`
+  (`share-format-v2.ts`) and still opens `v=1` full-JSON links; Bandwidth writes `v=1`
+  (`share-format-v1.ts`). All decoded state is validated against the tool's state schema.
+  The index tables are append-only: reordering or removing an option breaks existing links
+  and needs a new format version.
+- Camera group colours: neighbouring groups never share a colour (`lib/camera-groups/group-colors.ts`,
   enforced in the reducer for add, duplicate, delete, undo and loading a link).
 - Camera presets (the `CameraModel` type in calc-core) and the bitrate measurement campaign
   are shelved; don't build on them unless asked.

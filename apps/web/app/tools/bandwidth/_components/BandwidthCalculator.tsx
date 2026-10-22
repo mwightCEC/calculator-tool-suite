@@ -11,6 +11,7 @@ import { BandwidthCameraGroupCard } from './BandwidthCameraGroupCard';
 import { HowCalculated } from './HowCalculated';
 import { NetworkChecksCard } from './NetworkChecksCard';
 import { OverheadCard } from './OverheadCard';
+import { PrintSummary } from './PrintSummary';
 import { RecordingCard } from './RecordingCard';
 import { RemoteViewingCard } from './RemoteViewingCard';
 import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
@@ -30,61 +31,64 @@ export function BandwidthCalculator({ header }: BandwidthCalculatorProps) {
   const ingest = describeIngest(result);
 
   return (
-    <div className={classes.layout}>
-      <Stack gap="md" className={classes.inputs}>
-        {header}
+    <>
+      <div className={classes.layout}>
+        <Stack gap="md" className={classes.inputs}>
+          {header}
 
-        {state.cameraGroups.map((group) => {
-          const usage = usageByGroupId.get(group.id);
-          return (
-            usage && (
-              <BandwidthCameraGroupCard
-                key={group.id}
-                group={group}
-                usage={usage}
-                canDuplicate={!atGroupLimit}
-                canDelete={groupCount > 1}
-                actions={actions}
-              />
-            )
-          );
-        })}
+          {state.cameraGroups.map((group) => {
+            const usage = usageByGroupId.get(group.id);
+            return (
+              usage && (
+                <BandwidthCameraGroupCard
+                  key={group.id}
+                  group={group}
+                  usage={usage}
+                  canDuplicate={!atGroupLimit}
+                  canDelete={groupCount > 1}
+                  actions={actions}
+                />
+              )
+            );
+          })}
 
-        <Button
-          variant="default"
-          leftSection={<IconPlus size={16} />}
-          onClick={actions.addGroup}
-          disabled={atGroupLimit}
-          className={classes.addGroup}
-        >
-          {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} camera groups` : 'Add camera group'}
-        </Button>
+          <Button
+            variant="default"
+            leftSection={<IconPlus size={16} />}
+            onClick={actions.addGroup}
+            disabled={atGroupLimit}
+            className={classes.addGroup}
+          >
+            {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} camera groups` : 'Add camera group'}
+          </Button>
 
-        <RecordingCard
-          recordedStreams={state.recordedStreams}
-          onChange={actions.setRecordedStreams}
+          <RecordingCard
+            recordedStreams={state.recordedStreams}
+            onChange={actions.setRecordedStreams}
+          />
+          <RemoteViewingCard
+            remoteViewing={state.remoteViewing}
+            viewedCamerasPerViewer={result.viewedCamerasPerViewer}
+            onChange={actions.updateRemoteViewing}
+          />
+          <NetworkChecksCard network={state.network} onChange={actions.updateNetwork} />
+          <OverheadCard overheadPercent={state.overheadPercent} onChange={actions.setOverhead} />
+
+          <HowCalculated />
+        </Stack>
+
+        <div className={classes.results}>
+          <ResultsCard result={result} state={state} />
+        </div>
+
+        <MobileResultBar
+          label="Recorder ingest"
+          value={ingest.value}
+          detail={ingest.likelyRange}
+          resultsId={RESULTS_CARD_ID}
         />
-        <RemoteViewingCard
-          remoteViewing={state.remoteViewing}
-          viewedCamerasPerViewer={result.viewedCamerasPerViewer}
-          onChange={actions.updateRemoteViewing}
-        />
-        <NetworkChecksCard network={state.network} onChange={actions.updateNetwork} />
-        <OverheadCard overheadPercent={state.overheadPercent} onChange={actions.setOverhead} />
-
-        <HowCalculated />
-      </Stack>
-
-      <div className={classes.results}>
-        <ResultsCard result={result} state={state} />
       </div>
-
-      <MobileResultBar
-        label="Recorder ingest"
-        value={ingest.value}
-        detail={ingest.likelyRange}
-        resultsId={RESULTS_CARD_ID}
-      />
-    </div>
+      <PrintSummary state={state} result={result} />
+    </>
   );
 }

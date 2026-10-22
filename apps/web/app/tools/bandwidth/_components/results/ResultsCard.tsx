@@ -5,8 +5,9 @@ import {
   isSubStreamModelValidated,
   type BandwidthResult,
 } from '@cctv/calc-core';
-import { IconAlertTriangle } from '@tabler/icons-react';
-import { Badge, Box, Group, Text } from '@mantine/core';
+import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
+import { Badge, Box, Button, Group, Text } from '@mantine/core';
+import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
 import {
   describeIngest,
   describeViewing,
@@ -15,6 +16,7 @@ import {
   ingestSegments,
 } from '../../_lib/result-summary';
 import type { BandwidthCalculatorState } from '../../_state/bandwidth-calculator-state';
+import { buildShareUrl } from '../../_state/share-link';
 import { IngestBar } from './IngestBar';
 import { LinkChecks } from './LinkChecks';
 import { MetricTiles } from './MetricTiles';
@@ -103,6 +105,14 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
           {!modelsValidated && ' Bitrate estimates use preliminary placeholder values.'}
         </Text>
       )}
+
+      <Group gap="xs" grow>
+        <CopyLinkButton getShareUrl={() => buildShareUrl(state, window.location.href)} />
+        {/* Opens the print dialog with the printable summary (PrintSummary); "Save as PDF" gives a file. */}
+        <Button leftSection={<IconPrinter size={16} />} onClick={() => window.print()}>
+          Export
+        </Button>
+      </Group>
     </Box>
   );
 }
