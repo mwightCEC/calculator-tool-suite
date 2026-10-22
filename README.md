@@ -60,6 +60,33 @@ Cloudflare Workers build settings:
 `apps/web/wrangler.jsonc` tells Wrangler to serve `out/` as static assets. The health
 route is generated at build time (`force-static`), so it also exists as a static file.
 
+## Ubuntu server (nginx)
+
+The static export can also be served by nginx on an Ubuntu server, with a free
+Let's Encrypt certificate from certbot.
+
+**One-time setup.** Point the domain's DNS A record at the server, then copy the setup
+script over and run it there:
+
+```bash
+scp deploy/setup-server.sh <user>@<server>:~
+ssh <user>@<server> 'sudo bash ~/setup-server.sh tools.example.com you@example.com'
+```
+
+The script installs nginx and certbot, creates `/var/www/cctv-tools` (owned by your
+user), adds an nginx site for the domain, opens HTTP/HTTPS if ufw is active, and gets
+the certificate with an HTTP→HTTPS redirect. Certificates renew automatically. It only
+touches its own nginx site and is safe to re-run.
+
+**Each release.** Build the static export locally and upload it:
+
+```bash
+STATIC_EXPORT=true npm run build
+rsync -avz --delete apps/web/out/ <user>@<server>:/var/www/cctv-tools/
+```
+
+nginx serves the new files straight away; no restart is needed.
+
 ## Dependency age policy
 
 Dependencies are pinned to exact versions (`save-exact` in `.npmrc`). Avoid versions
