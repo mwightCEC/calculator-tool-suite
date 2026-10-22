@@ -1,0 +1,176 @@
+/* White results card with brand-blue accents, matching Storage's. */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+  border: 1px solid var(--mantine-color-default-border);
+  border-top: 4px solid var(--mantine-color-brand-6);
+  border-radius: var(--mantine-radius-md);
+  background-color: var(--mantine-color-body);
+}
+
+.card:focus {
+  outline: none;
+}
+
+.sectionLabel {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Row holding a section label and its badge. */
+.labelRow {
+  margin-bottom: 6px;
+  min-height: 22px;
+}
+
+.sourceBadge {
+  flex-shrink: 0;
+  text-transform: none;
+}
+
+/* "From known bitrates": light green badge with AA-contrast text. */
+.sourceBadge[data-source='known'] {
+  color: var(--app-status-ok);
+}
+
+.headlineValue {
+  color: var(--app-accent-text);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.figureValue {
+  color: var(--app-accent-text);
+  font-size: var(--mantine-font-size-xl);
+  font-weight: 700;
+}
+
+.secondaryText {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.note {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}
+
+/* Ingest bar */
+
+.bar {
+  background-color: var(--app-capacity-unused);
+}
+
+.legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px var(--mantine-spacing-md);
+  margin: var(--mantine-spacing-xs) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--mantine-font-size-xs);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.swatch {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  outline: 1px solid var(--mantine-color-default-border);
+}
+
+.legendLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legendValue {
+  margin-inline-start: auto;
+  color: var(--app-text-secondary);
+  white-space: nowrap;
+}
+
+/* Link checks */
+
+.linkList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linkName {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+}
+
+.statusBadge {
+  flex-shrink: 0;
+  text-transform: none;
+}
+
+/* Status text in the theme's AA-contrast status colours. */
+.statusBadge[data-status='ok'] {
+  color: var(--app-status-ok);
+}
+
+.statusBadge[data-status='caution'] {
+  color: var(--app-status-warn);
+}
+
+.statusBadge[data-status='over-capacity'] {
+  color: var(--app-status-danger);
+}
+
+.linkMeter {
+  margin-block: 6px 4px;
+  background-color: var(--app-capacity-unused);
+}
+
+/* Metric tiles */
+
+.tiles {
+  margin: 0;
+}
+
+.tile {
+  padding: var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  background-color: var(--app-surface-subtle);
+}
+
+.tileLabel {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.tileValue {
+  margin: 0;
+  color: var(--app-accent-text);
+  font-size: var(--mantine-font-size-lg);
+  font-weight: 600;
+}
+
+.tileDetail {
+  margin: 0;
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.warning {
+  color: var(--app-status-danger);
+}

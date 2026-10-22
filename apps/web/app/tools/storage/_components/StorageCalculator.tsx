@@ -3,13 +3,14 @@
 import type { ReactNode } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Stack } from '@mantine/core';
+import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
+import { describeHeadline } from '../_lib/result-summary';
 import { useStorageCalculator } from '../_state/use-storage-calculator';
 import { StorageCameraGroupCard } from './camera-group/StorageCameraGroupCard';
 import { HowCalculated } from './HowCalculated';
 import { PrintSummary } from './print/PrintSummary';
-import { MobileResultBar } from './results/MobileResultBar';
-import { ResultsCard } from './results/ResultsCard';
+import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
 import { StorageSettingsCard } from './StorageSettingsCard';
 import classes from './StorageCalculator.module.css';
 
@@ -24,6 +25,7 @@ export function StorageCalculator({ header }: StorageCalculatorProps) {
   const groupCount = state.cameraGroups.length;
   const atGroupLimit = groupCount >= MAX_CAMERA_GROUPS;
   const usageByGroupId = new Map(result.groups.map((usage) => [usage.groupId, usage]));
+  const headline = describeHeadline(result);
 
   return (
     <>
@@ -70,7 +72,12 @@ export function StorageCalculator({ header }: StorageCalculatorProps) {
           <ResultsCard result={result} state={state} onModeChange={actions.setMode} />
         </div>
 
-        <MobileResultBar result={result} />
+        <MobileResultBar
+          label={headline.label}
+          value={headline.value}
+          detail={headline.likelyRange}
+          resultsId={RESULTS_CARD_ID}
+        />
       </div>
       <PrintSummary state={state} result={result} />
     </>
