@@ -14,6 +14,8 @@ import {
 // calc-core owns the values; the UI owns the words.
 
 export const RESOLUTION_LABELS: Record<Resolution, string> = {
+  nHD: '640×360 (nHD)',
+  '960H': '960×480 (960H)',
   '1MP': '1MP (720p)',
   '2MP': '2MP (1080p)',
   '3MP': '3MP',

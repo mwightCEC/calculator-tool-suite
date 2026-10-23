@@ -42,6 +42,9 @@ export const V1_RESOLUTIONS = [
   '6MP',
   '8MP',
   '12MP',
+  // Added after the format was published, so they go at the end.
+  'nHD',
+  '960H',
 ] as const satisfies readonly Resolution[];
 export const V1_CODECS = ['h264', 'h265', 'mjpeg'] as const satisfies readonly Codec[];
 export const V1_SCENE_COMPLEXITIES = [

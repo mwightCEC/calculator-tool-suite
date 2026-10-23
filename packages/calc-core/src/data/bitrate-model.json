@@ -1,6 +1,6 @@
 {
-  "version": "0.2.0",
-  "lastUpdated": "2026-10-20",
+  "version": "0.3.0",
+  "lastUpdated": "2026-10-23",
   "status": "placeholder",
   "notes": "TODO: PLACEHOLDER VALUES. Every coefficient below comes from the prototype and has NOT been validated against real cameras. Replace with measured averages or engineering default stream settings, update each value's provenance, then set status to \"validated\". See README.md in this folder.",
   "sources": [
@@ -15,6 +15,8 @@
     "sceneComplexity": "medium"
   },
   "baselineMbps": {
+    "nHD": { "value": 0.5, "provenance": "placeholder" },
+    "960H": { "value": 1, "provenance": "placeholder" },
     "1MP": { "value": 2, "provenance": "placeholder" },
     "2MP": { "value": 4, "provenance": "placeholder" },
     "3MP": { "value": 5, "provenance": "placeholder" },

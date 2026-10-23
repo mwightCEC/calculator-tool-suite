@@ -29,15 +29,21 @@ import { buildShareUrl, decodeShareParams, encodeState, SHARE_FORMAT_VERSION } f
 
 const PAGE = 'https://example.test/tools/bandwidth';
 
-/** A non-default state touching every section, with a non-ASCII group name. */
+/** A non-default state touching every section, with a non-ASCII group name and the late-added resolutions. */
 function sampleState(): BandwidthCalculatorState {
   const actions: BandwidthCalculatorAction[] = [
     { type: 'add-group' },
     { type: 'set-bitrate-source', id: 'g1', source: 'bitrate-cap' },
+    { type: 'update-group', id: 'g1', changes: { resolution: '960H' } },
     {
       type: 'update-group',
       id: 'g2',
-      changes: { name: 'Lobby – Café 東', cameraCount: 3, subStreamResolution: '720p' },
+      changes: {
+        name: 'Lobby – Café 東',
+        cameraCount: 3,
+        resolution: 'nHD',
+        subStreamResolution: '720p',
+      },
     },
     { type: 'set-recorded-streams', recordedStreams: 'main-and-sub' },
     { type: 'update-remote-viewing', changes: { viewers: 3, camerasPerViewer: 9, stream: 'main' } },
@@ -112,7 +118,7 @@ describe('v1 index tables', () => {
     }).toEqual({
       recorded: ['main', 'main-and-sub'],
       viewing: ['sub', 'main'],
-      resolutions: ['1MP', '2MP', '3MP', '4MP', '5MP', '6MP', '8MP', '12MP'],
+      resolutions: ['1MP', '2MP', '3MP', '4MP', '5MP', '6MP', '8MP', '12MP', 'nHD', '960H'],
       codecs: ['h264', 'h265', 'mjpeg'],
       complexities: ['low', 'medium', 'high'],
       subStreams: ['d1', '720p', '1080p'],

@@ -1,6 +1,18 @@
 // Allowed values for every calculator input. Display labels live in the UI.
 
-export const RESOLUTIONS = ['1MP', '2MP', '3MP', '4MP', '5MP', '6MP', '8MP', '12MP'] as const;
+/** Lowest first. nHD is 640×360 and 960H is 960×480; the rest are megapixel tiers. */
+export const RESOLUTIONS = [
+  'nHD',
+  '960H',
+  '1MP',
+  '2MP',
+  '3MP',
+  '4MP',
+  '5MP',
+  '6MP',
+  '8MP',
+  '12MP',
+] as const;
 export type Resolution = (typeof RESOLUTIONS)[number];
 
 export const CODECS = ['h264', 'h265', 'mjpeg'] as const;
