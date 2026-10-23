@@ -71,19 +71,21 @@ function buildSegments(
 interface CapacityBarProps {
   breakdown: CapacityBreakdown;
   groups: CameraGroupState[];
+  /** Simple mode has one camera setup, so footage is always one segment. */
+  singleSetup: boolean;
 }
 
 /**
  * Raw drive capacity split into footage, reserve, parity and unused space.
  * "Simplified" combines all camera groups into one footage segment; the choice
- * is remembered per browser.
+ * is remembered per browser. Simple mode always shows one footage segment.
  */
-export function CapacityBar({ breakdown, groups }: CapacityBarProps) {
+export function CapacityBar({ breakdown, groups, singleSetup }: CapacityBarProps) {
   const [simplified, setSimplified] = useLocalStorage({
     key: SIMPLIFIED_STORAGE_KEY,
     defaultValue: false,
   });
-  const segments = buildSegments(breakdown, groups, simplified);
+  const segments = buildSegments(breakdown, groups, simplified || singleSetup);
   const visible = segments.filter((segment) => segment.tb > 0);
 
   return (
@@ -96,13 +98,15 @@ export function CapacityBar({ breakdown, groups }: CapacityBarProps) {
         className={classes.labelRow}
       >
         <Text className={classes.sectionLabel}>Raw capacity · {formatTb(breakdown.rawTb)}</Text>
-        <Switch
-          size="xs"
-          label="Simplified"
-          checked={simplified}
-          onChange={(event) => setSimplified(event.currentTarget.checked)}
-          classNames={{ label: classes.switchLabel }}
-        />
+        {!singleSetup && (
+          <Switch
+            size="xs"
+            label="Simplified"
+            checked={simplified}
+            onChange={(event) => setSimplified(event.currentTarget.checked)}
+            classNames={{ label: classes.switchLabel }}
+          />
+        )}
       </Group>
       <Progress.Root size={18} className={classes.bar}>
         {visible.map((segment) => (

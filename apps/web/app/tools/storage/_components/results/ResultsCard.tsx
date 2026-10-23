@@ -66,7 +66,11 @@ export function ResultsCard({ result, state, onModeChange }: ResultsCardProps) {
       </div>
 
       <DrivesSummary result={result} />
-      <CapacityBar breakdown={result.breakdown} groups={state.cameraGroups} />
+      <CapacityBar
+        breakdown={result.breakdown}
+        groups={state.cameraGroups}
+        singleSetup={state.inputMode === 'simple'}
+      />
       <MetricTiles result={result} />
 
       {warning && (

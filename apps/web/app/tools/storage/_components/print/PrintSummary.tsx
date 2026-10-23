@@ -23,7 +23,9 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
   return (
     <PrintLayout
       title="Storage calculation summary"
-      meta={`Clinton Tool Suite · ${summary.modeLabel}`}
+      meta={['Clinton Tool Suite', summary.modeLabel, summary.inputModeLabel]
+        .filter(Boolean)
+        .join(' · ')}
       getShareUrl={getShareUrl}
     >
       <section className={classes.result}>
@@ -73,7 +75,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
         </tbody>
       </table>
 
-      <h2 className={classes.heading}>Camera groups</h2>
+      <h2 className={classes.heading}>{summary.groupsHeading}</h2>
       <table className={classes.table}>
         <thead>
           <tr>

@@ -2,6 +2,7 @@
 
 import type { CameraGroupUsage } from '@cctv/calc-core';
 import { CameraGroupCard } from '../../../../../components/CameraGroupCard/CameraGroupCard';
+import { CamerasCard } from '../../../../../components/CameraGroupCard/CamerasCard';
 import { CameraStreamFields } from '../../../../../components/CameraGroupCard/CameraStreamFields';
 import { formatGb, formatMbps } from '../../../../../lib/format';
 import { summarizeGroup } from '../../_lib/group-summary';
@@ -9,17 +10,46 @@ import type { CameraGroupChanges, CameraGroupState } from '../../_state/storage-
 import type { StorageCalculatorActions } from '../../_state/use-storage-calculator';
 import { RecordingFields } from './RecordingFields';
 
-interface StorageCameraGroupCardProps {
+interface StorageGroupProps {
   group: CameraGroupState;
   usage: CameraGroupUsage;
+  actions: StorageCalculatorActions;
+}
+
+/** "~" marks values that come from the bitrate estimate. */
+function describeTotals({ group, usage }: Pick<StorageGroupProps, 'group' | 'usage'>) {
+  const approx = group.bitrate.source === 'estimate' ? '~' : '';
+  const gbPerDay = `${approx}${formatGb(usage.gbPerDay.typical)}/day`;
+  return {
+    gbPerDay,
+    total: `${approx}${formatMbps(usage.totalBitrateMbps.typical)} · ${gbPerDay}`,
+  };
+}
+
+/** The shared stream fields plus Storage's recording fields. */
+function StorageGroupFields({ group, usage, actions }: StorageGroupProps) {
+  const update = (changes: CameraGroupChanges) => actions.updateGroup(group.id, changes);
+  return (
+    <CameraStreamFields
+      group={group}
+      perCameraMbps={usage.bitratePerCameraMbps}
+      onChange={update}
+      onBitrateSourceChange={(source) => actions.setBitrateSource(group.id, source)}
+      sceneComplexityHelpNote="This is separate from how many hours are recorded."
+    >
+      <RecordingFields group={group} onChange={update} />
+    </CameraStreamFields>
+  );
+}
+
+interface StorageCameraGroupCardProps extends StorageGroupProps {
   expanded: boolean;
   onToggleExpanded: () => void;
   canDuplicate: boolean;
   canDelete: boolean;
-  actions: StorageCalculatorActions;
 }
 
-/** A Storage camera group: the shared card and stream fields, plus recording mode and GB per day. */
+/** An Advanced-mode Storage camera group: the shared card with recording mode and GB per day. */
 export function StorageCameraGroupCard({
   group,
   usage,
@@ -30,10 +60,7 @@ export function StorageCameraGroupCard({
   actions,
 }: StorageCameraGroupCardProps) {
   const id = group.id;
-  const update = (changes: CameraGroupChanges) => actions.updateGroup(id, changes);
-  // "~" marks values that come from the bitrate estimate.
-  const approx = group.bitrate.source === 'estimate' ? '~' : '';
-  const gbPerDay = `${approx}${formatGb(usage.gbPerDay.typical)}/day`;
+  const { gbPerDay, total } = describeTotals({ group, usage });
 
   return (
     <CameraGroupCard
@@ -45,27 +72,23 @@ export function StorageCameraGroupCard({
       onToggleExpanded={onToggleExpanded}
       canDuplicate={canDuplicate}
       canDelete={canDelete}
-      onRename={(name) => update({ name })}
+      onRename={(name) => actions.updateGroup(id, { name })}
       onDuplicate={() => actions.duplicateGroup(id)}
       onDelete={() => actions.removeGroup(id)}
       collapsedSummary={summarizeGroup(group, usage)}
       collapsedValue={gbPerDay}
-      totalValue={
-        <>
-          {approx}
-          {formatMbps(usage.totalBitrateMbps.typical)} · {gbPerDay}
-        </>
-      }
+      totalValue={total}
     >
-      <CameraStreamFields
-        group={group}
-        perCameraMbps={usage.bitratePerCameraMbps}
-        onChange={update}
-        onBitrateSourceChange={(source) => actions.setBitrateSource(id, source)}
-        sceneComplexityHelpNote="This is separate from how many hours are recorded."
-      >
-        <RecordingFields group={group} onChange={update} />
-      </CameraStreamFields>
+      <StorageGroupFields group={group} usage={usage} actions={actions} />
     </CameraGroupCard>
+  );
+}
+
+/** Simple mode's single camera setup: the same fields, no group controls. */
+export function StorageCamerasCard({ group, usage, actions }: StorageGroupProps) {
+  return (
+    <CamerasCard colorIndex={group.colorIndex} totalValue={describeTotals({ group, usage }).total}>
+      <StorageGroupFields group={group} usage={usage} actions={actions} />
+    </CamerasCard>
   );
 }
