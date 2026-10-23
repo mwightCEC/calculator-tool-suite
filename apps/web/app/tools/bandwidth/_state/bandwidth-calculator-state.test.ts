@@ -86,6 +86,20 @@ describe('group actions', () => {
     expect(reduce(afterRemove, { type: 'restore-group', group: removed, index: 1 })).toEqual(three);
   });
 
+  it('clears to the single default group and restores the previous groups (undo)', () => {
+    const edited = apply(
+      { type: 'add-group' },
+      { type: 'update-group', id: 'g1', changes: { cameraCount: 3 } },
+      { type: 'set-overhead', overheadPercent: 20 }
+    );
+    const cleared = reduce(edited, { type: 'clear-groups' });
+    expect(cleared.cameraGroups).toEqual(initial().cameraGroups);
+    expect(cleared.overheadPercent).toBe(20);
+    expect(reduce(cleared, { type: 'restore-groups', groups: edited.cameraGroups })).toEqual(
+      edited
+    );
+  });
+
   it('returns the same state when nothing changes', () => {
     const state = initial();
     expect(reduce(state, { type: 'remove-group', id: 'g1' })).toBe(state);

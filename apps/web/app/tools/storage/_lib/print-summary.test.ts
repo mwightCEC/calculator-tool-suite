@@ -16,8 +16,9 @@ function summarize(state: StorageCalculatorState) {
   return buildPrintSummary(state, calculateStorage(state));
 }
 
-/** Every group uses a known bitrate, so nothing is estimated. */
+/** Every group uses a known bitrate, so nothing is estimated. RAID 5 and a reserve fill every capacity row. */
 const KNOWN_ONLY = stateAfter(
+  { type: 'update-storage', changes: { raidLevel: 'raid5', reservePercent: 10 } },
   { type: 'update-group', id: 'g1', changes: { cameraCount: 10 } },
   { type: 'set-bitrate-source', id: 'g1', source: 'known-average' },
   {

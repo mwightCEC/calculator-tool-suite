@@ -25,6 +25,8 @@ const SUB_STREAM_HELP = `Lower-resolution second stream each camera sends, used 
 interface BandwidthCameraGroupCardProps {
   group: BandwidthGroupState;
   usage: BandwidthGroupUsage;
+  expanded: boolean;
+  onToggleExpanded: () => void;
   canDuplicate: boolean;
   canDelete: boolean;
   actions: BandwidthCalculatorActions;
@@ -34,6 +36,8 @@ interface BandwidthCameraGroupCardProps {
 export function BandwidthCameraGroupCard({
   group,
   usage,
+  expanded,
+  onToggleExpanded,
   canDuplicate,
   canDelete,
   actions,
@@ -48,6 +52,8 @@ export function BandwidthCameraGroupCard({
       name={group.name}
       cameraCount={group.cameraCount}
       colorIndex={group.colorIndex}
+      expanded={expanded}
+      onToggleExpanded={onToggleExpanded}
       canDuplicate={canDuplicate}
       canDelete={canDelete}
       onRename={(name) => update({ name })}

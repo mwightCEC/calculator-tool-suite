@@ -18,8 +18,8 @@ export const DEFAULT_STORAGE_SETTINGS: StorageSettings = {
   retentionDays: 30,
   driveCount: 4,
   driveSizeTb: 14,
-  raidLevel: 'raid5',
-  reservePercent: 10,
+  raidLevel: 'none',
+  reservePercent: 0,
 };
 
 export function createCameraGroup(id: string, name: string): CameraGroup {

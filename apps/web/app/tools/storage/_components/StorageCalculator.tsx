@@ -3,6 +3,8 @@
 import type { ReactNode } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Stack } from '@mantine/core';
+import { CameraGroupToolbar } from '../../../../components/CameraGroupCard/CameraGroupToolbar';
+import { useGroupExpansion } from '../../../../components/CameraGroupCard/use-group-expansion';
 import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
 import { describeHeadline } from '../_lib/result-summary';
@@ -21,7 +23,8 @@ interface StorageCalculatorProps {
 
 /** Two columns on large screens: inputs on the left, sticky results on the right. */
 export function StorageCalculator({ header }: StorageCalculatorProps) {
-  const { state, result, actions } = useStorageCalculator();
+  const { state, result, hasCustomGroups, actions } = useStorageCalculator();
+  const expansion = useGroupExpansion(state.cameraGroups.map((group) => group.id));
   const groupCount = state.cameraGroups.length;
   const atGroupLimit = groupCount >= MAX_CAMERA_GROUPS;
   const usageByGroupId = new Map(result.groups.map((usage) => [usage.groupId, usage]));
@@ -33,6 +36,16 @@ export function StorageCalculator({ header }: StorageCalculatorProps) {
         <Stack gap="md" className={classes.inputs}>
           {header}
 
+          <CameraGroupToolbar
+            allCollapsed={expansion.allCollapsed}
+            onToggleAll={expansion.toggleAll}
+            canClear={hasCustomGroups}
+            onClear={() => {
+              actions.clearGroups();
+              expansion.expandAll();
+            }}
+          />
+
           {state.cameraGroups.map((group) => {
             const usage = usageByGroupId.get(group.id);
             return (
@@ -41,6 +54,8 @@ export function StorageCalculator({ header }: StorageCalculatorProps) {
                   key={group.id}
                   group={group}
                   usage={usage}
+                  expanded={expansion.isExpanded(group.id)}
+                  onToggleExpanded={() => expansion.toggle(group.id)}
                   canDuplicate={!atGroupLimit}
                   canDelete={groupCount > 1}
                   actions={actions}

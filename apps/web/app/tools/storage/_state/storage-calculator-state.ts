@@ -51,6 +51,8 @@ export type StorageCalculatorAction =
   | { type: 'duplicate-group'; id: string }
   | { type: 'remove-group'; id: string }
   | { type: 'restore-group'; group: CameraGroupState; index: number }
+  | { type: 'clear-groups' }
+  | { type: 'restore-groups'; groups: CameraGroupState[] }
   | { type: 'update-storage'; changes: Partial<StorageSettings> };
 
 export function createInitialStorageCalculatorState(): StorageCalculatorState {
@@ -130,6 +132,13 @@ export function storageCalculatorReducer(
 
     case 'restore-group':
       return withGroups(state, restoreGroup(groups, action.group, action.index));
+
+    case 'clear-groups':
+      // Back to the single default group; storage settings are kept.
+      return { ...state, cameraGroups: createInitialStorageCalculatorState().cameraGroups };
+
+    case 'restore-groups':
+      return withGroups(state, action.groups);
 
     case 'update-storage':
       return { ...state, storage: updateStorage(state.storage, action.changes) };

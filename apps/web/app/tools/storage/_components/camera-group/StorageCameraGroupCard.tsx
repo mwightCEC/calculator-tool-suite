@@ -12,6 +12,8 @@ import { RecordingFields } from './RecordingFields';
 interface StorageCameraGroupCardProps {
   group: CameraGroupState;
   usage: CameraGroupUsage;
+  expanded: boolean;
+  onToggleExpanded: () => void;
   canDuplicate: boolean;
   canDelete: boolean;
   actions: StorageCalculatorActions;
@@ -21,6 +23,8 @@ interface StorageCameraGroupCardProps {
 export function StorageCameraGroupCard({
   group,
   usage,
+  expanded,
+  onToggleExpanded,
   canDuplicate,
   canDelete,
   actions,
@@ -37,6 +41,8 @@ export function StorageCameraGroupCard({
       name={group.name}
       cameraCount={group.cameraCount}
       colorIndex={group.colorIndex}
+      expanded={expanded}
+      onToggleExpanded={onToggleExpanded}
       canDuplicate={canDuplicate}
       canDelete={canDelete}
       onRename={(name) => update({ name })}

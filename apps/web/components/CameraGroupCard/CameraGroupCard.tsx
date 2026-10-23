@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { Collapse, Group, Paper, Text } from '@mantine/core';
 import { CameraGroupHeader } from './CameraGroupHeader';
 import classes from './CameraGroupCard.module.css';
@@ -11,6 +11,9 @@ interface CameraGroupCardProps {
   cameraCount: number;
   /** Index into the group colour palette (--group-color-N). */
   colorIndex: number;
+  /** Controlled by the page (useGroupExpansion) so Collapse all can reach every card. */
+  expanded: boolean;
+  onToggleExpanded: () => void;
   canDuplicate: boolean;
   canDelete: boolean;
   onRename: (name: string) => void;
@@ -32,6 +35,8 @@ export function CameraGroupCard({
   name,
   cameraCount,
   colorIndex,
+  expanded,
+  onToggleExpanded,
   canDuplicate,
   canDelete,
   onRename,
@@ -42,7 +47,6 @@ export function CameraGroupCard({
   totalValue,
   children,
 }: CameraGroupCardProps) {
-  const [expanded, setExpanded] = useState(true);
   const bodyId = `${groupId}-body`;
 
   // Group colour as CSS variables so the stylesheet can tint the dot, badge and footer.
@@ -66,7 +70,7 @@ export function CameraGroupCard({
         bodyId={bodyId}
         canDuplicate={canDuplicate}
         canDelete={canDelete}
-        onToggleExpanded={() => setExpanded((value) => !value)}
+        onToggleExpanded={onToggleExpanded}
         onRename={onRename}
         onDuplicate={onDuplicate}
         onDelete={onDelete}
