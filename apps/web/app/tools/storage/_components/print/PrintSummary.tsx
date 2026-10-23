@@ -23,7 +23,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
   return (
     <PrintLayout
       title="Storage calculation summary"
-      meta={`CCTV tool suite · ${summary.modeLabel}`}
+      meta={`Clinton Tool Suite · ${summary.modeLabel}`}
       getShareUrl={getShareUrl}
     >
       <section className={classes.result}>

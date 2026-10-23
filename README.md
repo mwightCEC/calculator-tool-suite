@@ -1,4 +1,4 @@
-# CCTV tool suite
+# Clinton Tool Suite
 
 Web-based calculators for CCTV installers and system designers.
 

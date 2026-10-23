@@ -1,7 +1,6 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: var(--mantine-spacing-xs);
   color: var(--app-header-fg);
   font-size: var(--mantine-font-size-md);
   font-weight: 600;

@@ -23,7 +23,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
   return (
     <PrintLayout
       title="Bandwidth calculation summary"
-      meta="CCTV tool suite · Bandwidth"
+      meta="Clinton Tool Suite · Bandwidth"
       getShareUrl={getShareUrl}
     >
       <section className={classes.result}>

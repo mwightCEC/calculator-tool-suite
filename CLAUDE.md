@@ -1,8 +1,10 @@
-# CCTV tool suite
+# Clinton Tool Suite
 
 Web calculators for CCTV installers and system designers, aimed at a general audience
-(not tied to one manufacturer's products). The Storage and Bandwidth calculators are built;
-PoE budget, Voltage drop and Lens / FOV are listed as "coming soon".
+(not tied to one manufacturer's products). The suite carries Clinton Electronics branding and
+will be hosted on its site, but the tools don't feature Clinton products. The Storage and
+Bandwidth calculators are built; PoE budget, Voltage drop and Lens / FOV are listed as
+"coming soon".
 
 ## Working agreements
 

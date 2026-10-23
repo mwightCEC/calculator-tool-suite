@@ -1,8 +1,7 @@
 'use client';
 
 import { IconX } from '@tabler/icons-react';
-import { ActionIcon, Drawer, Group } from '@mantine/core';
-import { LogoMark } from './LogoMark';
+import { ActionIcon, Drawer } from '@mantine/core';
 import { SidebarNav } from './SidebarNav';
 import classes from './MobileNavDrawer.module.css';
 
@@ -18,12 +17,7 @@ export function MobileNavDrawer({ opened, onClose }: MobileNavDrawerProps) {
       <Drawer.Overlay />
       <Drawer.Content className={classes.content}>
         <Drawer.Header className={classes.header}>
-          <Drawer.Title>
-            <Group gap="xs" wrap="nowrap" className={classes.title}>
-              <LogoMark />
-              CCTV tool suite
-            </Group>
-          </Drawer.Title>
+          <Drawer.Title className={classes.title}>Clinton Tool Suite</Drawer.Title>
           <ActionIcon variant="chrome" size="lg" onClick={onClose} aria-label="Close navigation">
             <IconX size={20} stroke={1.75} />
           </ActionIcon>
