@@ -4,13 +4,16 @@ import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
 import { groupColors } from '../../../../theme/palettes';
 import {
   createInitialStorageCalculatorState,
+  describeSwitchToSimple,
   storageCalculatorReducer as reduce,
   storageCalculatorStateSchema,
   type StorageCalculatorAction,
   type StorageCalculatorState,
 } from './storage-calculator-state';
 
-const initial = () => createInitialStorageCalculatorState();
+/** The default state switched to Advanced, so groups can be added. */
+const initial = () =>
+  reduce(createInitialStorageCalculatorState(), { type: 'set-input-mode', inputMode: 'advanced' });
 
 /** Applies actions in order, starting from the initial state. */
 function apply(...actions: StorageCalculatorAction[]): StorageCalculatorState {
@@ -35,6 +38,83 @@ describe('initial state', () => {
     expect(initial().storage).toEqual(
       expect.objectContaining({ raidLevel: 'none', reservePercent: 0 })
     );
+  });
+});
+
+describe('input mode', () => {
+  const simple = createInitialStorageCalculatorState;
+  /** Advanced, with three groups, RAID 5 and a 10% reserve. */
+  const busy = () =>
+    apply(
+      { type: 'add-group' },
+      { type: 'add-group' },
+      { type: 'update-group', id: 'g1', changes: { name: 'Lobby', cameraCount: 3 } },
+      { type: 'update-storage', changes: { raidLevel: 'raid5', reservePercent: 10 } }
+    );
+
+  it('starts new visitors in Simple mode', () => {
+    expect(simple().inputMode).toBe('simple');
+  });
+
+  it('keeps only the first group and resets RAID and reserve when switching to Simple', () => {
+    const state = reduce(busy(), { type: 'set-input-mode', inputMode: 'simple' });
+    expect(state.inputMode).toBe('simple');
+    expect(state.cameraGroups).toEqual([busy().cameraGroups[0]]);
+    expect(state.storage).toEqual(
+      expect.objectContaining({ raidLevel: 'none', reservePercent: 0 })
+    );
+    expect(storageCalculatorStateSchema.safeParse(state).success).toBe(true);
+  });
+
+  it('describes what switching to Simple changes, for the Undo message', () => {
+    expect(describeSwitchToSimple(busy())).toEqual([
+      'removed 2 camera groups',
+      'RAID set to none',
+      'reserve set to 0%',
+    ]);
+    expect(describeSwitchToSimple(apply({ type: 'add-group' }))).toEqual([
+      'removed 1 camera group',
+    ]);
+    expect(describeSwitchToSimple(initial())).toEqual([]);
+    expect(describeSwitchToSimple(simple())).toEqual([]);
+  });
+
+  it('undoes a switch by loading the previous state', () => {
+    const before = busy();
+    const switched = reduce(before, { type: 'set-input-mode', inputMode: 'simple' });
+    expect(reduce(switched, { type: 'load-state', state: before })).toEqual(before);
+  });
+
+  it('keeps everything when switching to Advanced', () => {
+    const state = simple();
+    const advanced = reduce(state, { type: 'set-input-mode', inputMode: 'advanced' });
+    expect(advanced).toEqual({ ...state, inputMode: 'advanced' });
+    expect(reduce(advanced, { type: 'set-input-mode', inputMode: 'advanced' })).toBe(advanced);
+  });
+
+  it('keeps Simple mode within its rules whatever the action', () => {
+    const state = simple();
+    const group = state.cameraGroups[0]!;
+    const actions: StorageCalculatorAction[] = [
+      { type: 'add-group' },
+      { type: 'duplicate-group', id: group.id },
+      { type: 'restore-groups', groups: busy().cameraGroups },
+      { type: 'update-storage', changes: { raidLevel: 'raid6', reservePercent: 15 } },
+    ];
+    for (const action of actions) {
+      const next = reduce(state, action);
+      expect(next.cameraGroups).toHaveLength(1);
+      expect(next.storage).toEqual(
+        expect.objectContaining({ raidLevel: 'none', reservePercent: 0 })
+      );
+    }
+  });
+
+  it('rejects a Simple state with several groups or RAID in the schema', () => {
+    const twoGroups = { ...simple(), cameraGroups: busy().cameraGroups.slice(0, 2) };
+    const withRaid = { ...simple(), storage: { ...simple().storage, raidLevel: 'raid5' } };
+    expect(storageCalculatorStateSchema.safeParse(twoGroups).success).toBe(false);
+    expect(storageCalculatorStateSchema.safeParse(withRaid).success).toBe(false);
   });
 });
 

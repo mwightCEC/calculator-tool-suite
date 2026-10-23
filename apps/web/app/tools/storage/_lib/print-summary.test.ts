@@ -9,7 +9,11 @@ import {
 import { buildPrintSummary } from './print-summary';
 
 function stateAfter(...actions: StorageCalculatorAction[]): StorageCalculatorState {
-  return actions.reduce(storageCalculatorReducer, createInitialStorageCalculatorState());
+  const advanced = storageCalculatorReducer(createInitialStorageCalculatorState(), {
+    type: 'set-input-mode',
+    inputMode: 'advanced',
+  });
+  return actions.reduce(storageCalculatorReducer, advanced);
 }
 
 function summarize(state: StorageCalculatorState) {
@@ -115,6 +119,17 @@ describe('buildPrintSummary', () => {
       { label: 'RAID', value: 'RAID 5' },
       { label: 'Reserve', value: '10%' },
     ]);
+  });
+
+  it('labels Simple mode and its single camera setup', () => {
+    const simple = summarize(createInitialStorageCalculatorState());
+    expect(simple.inputModeLabel).toBe('Simple mode');
+    expect(simple.groupsHeading).toBe('Cameras');
+    expect(simple.groups.map((group) => group.name)).toEqual(['Cameras']);
+    expect(simple.capacity[0]?.label).toBe('Camera footage');
+    const advanced = summarize(KNOWN_ONLY);
+    expect(advanced.inputModeLabel).toBeNull();
+    expect(advanced.groupsHeading).toBe('Camera groups');
   });
 
   it('adds estimate notes only when bitrates are estimated', () => {

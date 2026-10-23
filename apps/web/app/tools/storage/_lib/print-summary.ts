@@ -66,6 +66,10 @@ export interface GroupRow {
 
 export interface PrintSummary {
   modeLabel: string;
+  /** "Simple mode" for Simple input, null for Advanced. */
+  inputModeLabel: string | null;
+  /** "Cameras" in Simple mode (one setup), "Camera groups" in Advanced. */
+  groupsHeading: string;
   headline: ResultHeadline;
   drives: string;
   raid: string;
@@ -114,6 +118,7 @@ function groupBitrate(group: CameraGroupState, usage: CameraGroupUsage): string 
 }
 
 function groupRows(state: StorageCalculatorState, result: StorageCalculationResult): GroupRow[] {
+  const simple = state.inputMode === 'simple';
   return state.cameraGroups.flatMap((group) => {
     const usage = result.groups.find((candidate) => candidate.groupId === group.id);
     if (!usage) {
@@ -123,7 +128,8 @@ function groupRows(state: StorageCalculatorState, result: StorageCalculationResu
     return [
       {
         key: group.id,
-        name: group.name,
+        // Simple mode's one setup has no visible group name.
+        name: simple ? 'Cameras' : group.name,
         cameras: formatNumber(group.cameraCount, 0),
         camera: `${RESOLUTION_LABELS[group.resolution]} · ${CODEC_LABELS[group.codec]} · ${group.frameRate} fps`,
         scene:
@@ -154,6 +160,9 @@ function capacityRows(
   });
 
   const footage = breakdown.footageTbByGroup.map(({ groupId, tb }) => {
+    if (state.inputMode === 'simple') {
+      return row(groupId, 'Camera footage', tb);
+    }
     const name = state.cameraGroups.find((group) => group.id === groupId)?.name ?? groupId;
     return row(groupId, `Footage: ${name}`, tb);
   });
@@ -203,6 +212,8 @@ export function buildPrintSummary(
 ): PrintSummary {
   return {
     modeLabel: CALCULATION_MODE_LABELS[result.mode],
+    inputModeLabel: state.inputMode === 'simple' ? 'Simple mode' : null,
+    groupsHeading: state.inputMode === 'simple' ? 'Cameras' : 'Camera groups',
     headline: describeHeadline(result),
     drives: describeDriveCount(result),
     raid: describeRaid(result),

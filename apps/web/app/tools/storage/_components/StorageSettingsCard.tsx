@@ -32,12 +32,19 @@ function drivesHelp(minDrives: number, driveStep: number): string {
 }
 
 interface StorageSettingsCardProps {
+  /** Simple mode hides RAID and Reserve; they stay at No RAID and 0%. */
+  showRaidAndReserve: boolean;
   mode: CalculationMode;
   storage: StorageSettings;
   onChange: (changes: Partial<StorageSettings>) => void;
 }
 
-export function StorageSettingsCard({ mode, storage, onChange }: StorageSettingsCardProps) {
+export function StorageSettingsCard({
+  showRaidAndReserve,
+  mode,
+  storage,
+  onChange,
+}: StorageSettingsCardProps) {
   const { raidLevel } = storage;
   const minDrives = raidMinDrives(raidLevel);
   const driveStep = raidDriveStep(raidLevel);
@@ -102,41 +109,45 @@ export function StorageSettingsCard({ mode, storage, onChange }: StorageSettings
         />
       </FieldRow>
 
-      <FieldRow label="RAID" help={RAID_HELP} controlId="storage-raid">
-        <Select
-          id="storage-raid"
-          data={RAID_SELECT_DATA}
-          value={raidLevel}
-          onChange={(value) => {
-            const level = parseOption(RAID_LEVELS, value);
-            if (level) {
-              onChange({ raidLevel: level });
-            }
-          }}
-          allowDeselect={false}
-          className={classes.select}
-        />
-      </FieldRow>
+      {showRaidAndReserve && (
+        <>
+          <FieldRow label="RAID" help={RAID_HELP} controlId="storage-raid">
+            <Select
+              id="storage-raid"
+              data={RAID_SELECT_DATA}
+              value={raidLevel}
+              onChange={(value) => {
+                const level = parseOption(RAID_LEVELS, value);
+                if (level) {
+                  onChange({ raidLevel: level });
+                }
+              }}
+              allowDeselect={false}
+              className={classes.select}
+            />
+          </FieldRow>
 
-      <FieldRow
-        label="Reserve"
-        help="Usable capacity kept free as headroom, for example for recorder overhead or growth."
-        controlId="storage-reserve"
-      >
-        <Select
-          id="storage-reserve"
-          data={RESERVE_SELECT_DATA}
-          value={String(storage.reservePercent)}
-          onChange={(value) => {
-            const reservePercent = parseOption(RESERVE_PERCENTS, value);
-            if (reservePercent !== undefined) {
-              onChange({ reservePercent });
-            }
-          }}
-          allowDeselect={false}
-          className={classes.select}
-        />
-      </FieldRow>
+          <FieldRow
+            label="Reserve"
+            help="Usable capacity kept free as headroom, for example for recorder overhead or growth."
+            controlId="storage-reserve"
+          >
+            <Select
+              id="storage-reserve"
+              data={RESERVE_SELECT_DATA}
+              value={String(storage.reservePercent)}
+              onChange={(value) => {
+                const reservePercent = parseOption(RESERVE_PERCENTS, value);
+                if (reservePercent !== undefined) {
+                  onChange({ reservePercent });
+                }
+              }}
+              allowDeselect={false}
+              className={classes.select}
+            />
+          </FieldRow>
+        </>
+      )}
     </Paper>
   );
 }

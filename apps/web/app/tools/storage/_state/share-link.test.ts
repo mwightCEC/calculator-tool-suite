@@ -8,10 +8,12 @@ import {
   SCENE_COMPLEXITIES,
 } from '@cctv/calc-core';
 import { describe, expect, it } from 'vitest';
+import { INPUT_MODES } from '../../../../lib/input-mode';
 import {
   stateToV2Payload,
   V2_BITRATE_SOURCES,
   V2_CODECS,
+  V2_INPUT_MODES,
   V2_MODES,
   V2_RAID_LEVELS,
   V2_RECORDING_MODES,
@@ -41,6 +43,7 @@ const PAGE = 'https://example.test/tools/storage';
 /** A non-default state: two groups, days mode, a bitrate cap, a non-ASCII name and the late-added resolutions. */
 function sampleState(): StorageCalculatorState {
   const actions: StorageCalculatorAction[] = [
+    { type: 'set-input-mode', inputMode: 'advanced' },
     { type: 'add-group' },
     { type: 'set-mode', mode: 'days-from-capacity' },
     { type: 'set-bitrate-source', id: 'g1', source: 'bitrate-cap' },
@@ -132,6 +135,7 @@ describe('v2 index tables', () => {
     ['scene complexities', V2_SCENE_COMPLEXITIES, SCENE_COMPLEXITIES],
     ['recording modes', V2_RECORDING_MODES, RECORDING_MODES],
     ['bitrate sources', V2_BITRATE_SOURCES, BITRATE_SOURCES],
+    ['input modes', V2_INPUT_MODES, INPUT_MODES],
   ] as const)('cover every calc-core %s option', (_label, table, options) => {
     expect([...table].sort()).toEqual([...options].sort());
   });
@@ -145,6 +149,7 @@ describe('v2 index tables', () => {
       complexities: V2_SCENE_COMPLEXITIES,
       recording: V2_RECORDING_MODES,
       sources: V2_BITRATE_SOURCES,
+      inputModes: V2_INPUT_MODES,
     }).toEqual({
       modes: ['storage-needed', 'days-from-capacity'],
       raid: ['none', 'raid1', 'raid5', 'raid6', 'raid10'],
@@ -153,6 +158,7 @@ describe('v2 index tables', () => {
       complexities: ['low', 'medium', 'high'],
       recording: ['continuous', 'motion', 'schedule'],
       sources: ['estimate', 'known-average', 'bitrate-cap'],
+      inputModes: ['advanced', 'simple'],
     });
   });
 });
@@ -274,6 +280,41 @@ describe('decodeShareParams', () => {
     ],
   ])('rejects %s', (_label, build) => {
     expect(decodeShareParams(build())).toEqual({ status: 'invalid' });
+  });
+});
+
+describe('input mode', () => {
+  it('round-trips Simple mode', () => {
+    const state = createInitialStorageCalculatorState();
+    expect(state.inputMode).toBe('simple');
+    expect(decodeShareParams(encodeShareParams(state))).toEqual({ status: 'loaded', state });
+  });
+
+  it('opens links made before Simple mode in Advanced', () => {
+    const withoutInputMode = stateToV2Payload(sampleState()).slice(0, 3);
+    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, withoutInputMode))).toEqual({
+      status: 'loaded',
+      state: sampleState(),
+    });
+    const { inputMode: _omitted, ...v1State } = sampleState();
+    expect(decodeShareParams(linkParams(LEGACY_SHARE_FORMAT_VERSION, v1State))).toEqual({
+      status: 'loaded',
+      state: sampleState(),
+    });
+  });
+
+  it('rejects a Simple link that breaks Simple mode’s rules', () => {
+    const simpleIndex = V2_INPUT_MODES.indexOf('simple');
+    const twoGroups = stateToV2Payload(sampleState());
+    twoGroups[3] = simpleIndex;
+    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, twoGroups))).toEqual({
+      status: 'invalid',
+    });
+    const withRaid = stateToV2Payload(createInitialStorageCalculatorState());
+    withRaid[1][3] = V2_RAID_LEVELS.indexOf('raid5');
+    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, withRaid))).toEqual({
+      status: 'invalid',
+    });
   });
 });
 
