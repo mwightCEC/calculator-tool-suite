@@ -82,7 +82,8 @@ export function ingestSegments(
     const subMbps = recordsSub ? usage.subTotalMbps.typical : 0;
     return {
       key: usage.groupId,
-      label: group?.name ?? usage.groupId,
+      // Simple mode's one setup has no visible group name.
+      label: state.inputMode === 'simple' ? 'Cameras' : (group?.name ?? usage.groupId),
       mbps: usage.mainTotalMbps.typical + subMbps,
       colorIndex: group?.colorIndex ?? 0,
     };

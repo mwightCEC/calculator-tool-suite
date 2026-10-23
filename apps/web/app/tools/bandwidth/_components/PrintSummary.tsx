@@ -23,7 +23,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
   return (
     <PrintLayout
       title="Bandwidth calculation summary"
-      meta="Clinton Tool Suite · Bandwidth"
+      meta={['Clinton Tool Suite', 'Bandwidth', summary.inputModeLabel].filter(Boolean).join(' · ')}
       getShareUrl={getShareUrl}
     >
       <section className={classes.result}>
@@ -80,7 +80,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
         </>
       )}
 
-      <h2 className={classes.heading}>Camera groups</h2>
+      <h2 className={classes.heading}>{summary.groupsHeading}</h2>
       <table className={classes.table}>
         <thead>
           <tr>

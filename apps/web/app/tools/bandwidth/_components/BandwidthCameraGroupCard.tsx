@@ -3,6 +3,7 @@
 import { isSubStreamModelValidated, type BandwidthGroupUsage } from '@cctv/calc-core';
 import { Text } from '@mantine/core';
 import { CameraGroupCard } from '../../../../components/CameraGroupCard/CameraGroupCard';
+import { CamerasCard } from '../../../../components/CameraGroupCard/CamerasCard';
 import { CameraStreamFields } from '../../../../components/CameraGroupCard/CameraStreamFields';
 import { FieldRow, fieldLabelId } from '../../../../components/FieldRow/FieldRow';
 import { OptionButtons } from '../../../../components/OptionButtons/OptionButtons';
@@ -32,7 +33,7 @@ interface BandwidthCameraGroupCardProps {
   actions: BandwidthCalculatorActions;
 }
 
-/** A Bandwidth camera group: the shared card and stream fields, plus the sub-stream. */
+/** An Advanced-mode Bandwidth camera group: the shared card and stream fields, plus the sub-stream. */
 export function BandwidthCameraGroupCard({
   group,
   usage,
@@ -84,5 +85,25 @@ export function BandwidthCameraGroupCard({
         </FieldRow>
       </CameraStreamFields>
     </CameraGroupCard>
+  );
+}
+
+interface BandwidthCamerasCardProps {
+  group: BandwidthGroupState;
+  usage: BandwidthGroupUsage;
+  actions: BandwidthCalculatorActions;
+}
+
+/** Simple mode's single camera setup: the stream fields; the sub-stream stays at D1. */
+export function BandwidthCamerasCard({ group, usage, actions }: BandwidthCamerasCardProps) {
+  return (
+    <CamerasCard colorIndex={group.colorIndex} totalValue={describeMainTotal(group, usage)}>
+      <CameraStreamFields
+        group={group}
+        perCameraMbps={usage.mainPerCameraMbps}
+        onChange={(changes) => actions.updateGroup(group.id, changes)}
+        onBitrateSourceChange={(source) => actions.setBitrateSource(group.id, source)}
+      />
+    </CamerasCard>
   );
 }

@@ -8,6 +8,7 @@ import {
   VIEWING_STREAMS,
 } from '@cctv/calc-core';
 import { describe, expect, it } from 'vitest';
+import { INPUT_MODES } from '../../../../lib/input-mode';
 import { SHARE_STATE_PARAM, SHARE_VERSION_PARAM } from '../../../../lib/share/share-codec';
 import {
   bandwidthCalculatorReducer,
@@ -19,6 +20,7 @@ import {
   stateToV1Payload,
   V1_BITRATE_SOURCES,
   V1_CODECS,
+  V1_INPUT_MODES,
   V1_RECORDED_STREAMS,
   V1_RESOLUTIONS,
   V1_SCENE_COMPLEXITIES,
@@ -50,7 +52,11 @@ function sampleState(): BandwidthCalculatorState {
     { type: 'update-network', changes: { recorderLimitMbps: 160, uplinkMbps: 1000 } },
     { type: 'set-overhead', overheadPercent: 20 },
   ];
-  return actions.reduce(bandwidthCalculatorReducer, createInitialBandwidthCalculatorState());
+  const advanced = bandwidthCalculatorReducer(createInitialBandwidthCalculatorState(), {
+    type: 'set-input-mode',
+    inputMode: 'advanced',
+  });
+  return actions.reduce(bandwidthCalculatorReducer, advanced);
 }
 
 /** Query parameters carrying a hand-built JSON payload, as an untrusted link might. */
@@ -102,6 +108,7 @@ describe('v1 index tables', () => {
     ['scene complexities', V1_SCENE_COMPLEXITIES, SCENE_COMPLEXITIES],
     ['sub-stream resolutions', V1_SUB_STREAM_RESOLUTIONS, SUB_STREAM_RESOLUTIONS],
     ['bitrate sources', V1_BITRATE_SOURCES, BITRATE_SOURCES],
+    ['input modes', V1_INPUT_MODES, INPUT_MODES],
   ] as const)('cover every calc-core %s option', (_label, table, options) => {
     expect([...table].sort()).toEqual([...options].sort());
   });
@@ -115,6 +122,7 @@ describe('v1 index tables', () => {
       complexities: V1_SCENE_COMPLEXITIES,
       subStreams: V1_SUB_STREAM_RESOLUTIONS,
       sources: V1_BITRATE_SOURCES,
+      inputModes: V1_INPUT_MODES,
     }).toEqual({
       recorded: ['main', 'main-and-sub'],
       viewing: ['sub', 'main'],
@@ -123,6 +131,25 @@ describe('v1 index tables', () => {
       complexities: ['low', 'medium', 'high'],
       subStreams: ['d1', '720p', '1080p'],
       sources: ['estimate', 'known-average', 'bitrate-cap'],
+      inputModes: ['advanced', 'simple'],
+    });
+  });
+});
+
+describe('input mode', () => {
+  it('opens links made before Simple mode in Advanced', () => {
+    const withoutInputMode = stateToV1Payload(sampleState()).slice(0, 5);
+    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, withoutInputMode))).toEqual({
+      status: 'loaded',
+      state: sampleState(),
+    });
+  });
+
+  it('rejects a Simple link that breaks Simple mode’s rules', () => {
+    const payload = stateToV1Payload(sampleState());
+    payload[5] = V1_INPUT_MODES.indexOf('simple');
+    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, payload))).toEqual({
+      status: 'invalid',
     });
   });
 });

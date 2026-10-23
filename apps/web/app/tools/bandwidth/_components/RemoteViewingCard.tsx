@@ -9,6 +9,32 @@ import { InputCard } from './InputCard';
 
 const formatCameras = (count: number) => `${count} ${count === 1 ? 'camera' : 'cameras'}`;
 
+/** Simultaneous remote viewers; also used on its own by Simple mode. */
+export function ViewersField({
+  viewers,
+  onChange,
+}: {
+  viewers: number;
+  onChange: (viewers: number) => void;
+}) {
+  return (
+    <FieldRow
+      label="Viewers"
+      help="People watching live video from outside the site at the same time, through an app or web client. Use 0 if nobody views remotely."
+      controlId="bandwidth-viewers"
+    >
+      <NumberStepper
+        id="bandwidth-viewers"
+        value={viewers}
+        onChange={onChange}
+        min={0}
+        max={MAX_REMOTE_VIEWERS}
+        unitLabel="viewer"
+      />
+    </FieldRow>
+  );
+}
+
 interface RemoteViewingCardProps {
   remoteViewing: RemoteViewing;
   /** Cameras each viewer actually watches, capped at the total camera count. */
@@ -28,20 +54,7 @@ export function RemoteViewingCard({
 
   return (
     <InputCard id="bandwidth-remote-title" title="Remote viewing">
-      <FieldRow
-        label="Viewers"
-        help="People watching live video from outside the site at the same time, through an app or web client. Use 0 if nobody views remotely."
-        controlId="bandwidth-viewers"
-      >
-        <NumberStepper
-          id="bandwidth-viewers"
-          value={viewers}
-          onChange={(value) => onChange({ viewers: value })}
-          min={0}
-          max={MAX_REMOTE_VIEWERS}
-          unitLabel="viewer"
-        />
-      </FieldRow>
+      <ViewersField viewers={viewers} onChange={(value) => onChange({ viewers: value })} />
 
       <FieldRow
         label="Cameras each"

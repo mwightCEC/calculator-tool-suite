@@ -17,7 +17,11 @@ import {
 } from './result-summary';
 
 function stateAfter(...actions: BandwidthCalculatorAction[]): BandwidthCalculatorState {
-  return actions.reduce(bandwidthCalculatorReducer, createInitialBandwidthCalculatorState());
+  const advanced = bandwidthCalculatorReducer(createInitialBandwidthCalculatorState(), {
+    type: 'set-input-mode',
+    inputMode: 'advanced',
+  });
+  return actions.reduce(bandwidthCalculatorReducer, advanced);
 }
 
 /** 10 cameras at a known 4 Mbps, so main-stream figures are exact. */
@@ -113,6 +117,11 @@ describe('describeWarning', () => {
 });
 
 describe('ingestSegments', () => {
+  it('labels Simple mode’s single setup "Cameras"', () => {
+    const state = createInitialBandwidthCalculatorState();
+    expect(ingestSegments(state, calculateBandwidth(state))[0]?.label).toBe('Cameras');
+  });
+
   it('splits ingest into groups and overhead that add up to the total', () => {
     const state = stateAfter(...KNOWN_4_MBPS, { type: 'add-group' });
     const result = calculateBandwidth(state);
