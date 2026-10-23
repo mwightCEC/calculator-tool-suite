@@ -9,7 +9,6 @@ import {
 import { ActionIcon, Group } from '@mantine/core';
 import { ColorSchemeToggle } from './ColorSchemeToggle';
 import { HelpButton } from './HelpButton';
-import { LogoMark } from './LogoMark';
 import classes from './AppHeader.module.css';
 
 interface AppHeaderProps {
@@ -47,8 +46,7 @@ export function AppHeader({ sidebarCollapsed, onToggleSidebar, onOpenMobileNav }
         </ActionIcon>
 
         <Link href="/" className={classes.brand}>
-          <LogoMark />
-          <span>CCTV tool suite</span>
+          Clinton Tool Suite
         </Link>
       </Group>
 

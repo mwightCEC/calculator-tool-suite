@@ -10,7 +10,7 @@ import { cssVariablesResolver, theme } from '../theme/theme';
 import './global.css';
 
 export const metadata: Metadata = {
-  title: { default: 'CCTV tool suite', template: '%s · CCTV tool suite' },
+  title: { default: 'Clinton Tool Suite', template: '%s · Clinton Tool Suite' },
   description: 'Calculators for CCTV installers and system designers.',
 };
 

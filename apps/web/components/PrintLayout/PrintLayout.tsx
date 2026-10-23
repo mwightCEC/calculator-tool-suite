@@ -14,7 +14,7 @@ interface PrintContext {
 
 interface PrintLayoutProps {
   title: string;
-  /** Shown under the title, before the print date, e.g. "CCTV tool suite · Storage needed". */
+  /** Shown under the title, before the print date, e.g. "Clinton Tool Suite · Storage needed". */
   meta: string;
   /** Share link for the current state, printed at the end. */
   getShareUrl: () => string;

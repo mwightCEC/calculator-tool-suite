@@ -118,9 +118,9 @@ mv "$SUDOERS_FILE.tmp" "$SUDOERS_FILE"
 
 echo "==> Writing $SERVICE.service"
 cat > "/etc/systemd/system/$SERVICE.service" <<EOF
-# CCTV tool suite (Next.js standalone server). Managed by deploy/setup-server.sh.
+# Clinton Tool Suite (Next.js standalone server). Managed by deploy/setup-server.sh.
 [Unit]
-Description=CCTV tool suite
+Description=Clinton Tool Suite
 After=network.target
 
 [Service]
@@ -151,7 +151,7 @@ fi
 
 echo "==> Writing nginx config for $DOMAIN"
 cat > "/etc/nginx/sites-available/$SERVICE" <<EOF
-# CCTV tool suite: proxy to the Next.js server. Managed by deploy/setup-server.sh.
+# Clinton Tool Suite: proxy to the Next.js server. Managed by deploy/setup-server.sh.
 server {
     listen 80;
     listen [::]:80;
