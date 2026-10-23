@@ -31,7 +31,7 @@ Bandwidth calculators are built; PoE budget, Voltage drop and Lens / FOV are lis
 - Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`,
   `CameraGroupCard`, `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export).
 - Shared logic: `apps/web/lib/` (`camera-groups/` group list and colours, `share/` link codec
-  and URL sync hook, `format.ts`, camera and bitrate labels).
+  and URL sync hook, `saved-state.ts`, `format.ts`, camera and bitrate labels).
 - Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts`.
 - Theme: `apps/web/theme/` (palettes, `--app-*` CSS variables, Mantine overrides).
 
@@ -91,6 +91,10 @@ config or routing changes.
   (`share-format-v1.ts`). All decoded state is validated against the tool's state schema.
   The index tables are append-only: reordering or removing an option breaks existing links
   and needs a new format version.
+- Saved state: each tool keeps its last state in localStorage
+  (`cctv-tool-suite:<tool>-calculator`), stored as the same share parameters so it gets the
+  same versions and validation. A link in the URL wins over saved state; the default state
+  clears it (`lib/share/saved-state.ts`).
 - Camera group colours: neighbouring groups never share a colour (`lib/camera-groups/group-colors.ts`,
   enforced in the reducer for add, duplicate, delete, undo and loading a link).
 - Camera presets (the `CameraModel` type in calc-core) and the bitrate measurement campaign
