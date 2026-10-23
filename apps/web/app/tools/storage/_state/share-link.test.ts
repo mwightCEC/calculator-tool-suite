@@ -38,13 +38,18 @@ import {
 
 const PAGE = 'https://example.test/tools/storage';
 
-/** A non-default state: two groups, days mode, a bitrate cap and a non-ASCII name. */
+/** A non-default state: two groups, days mode, a bitrate cap, a non-ASCII name and the late-added resolutions. */
 function sampleState(): StorageCalculatorState {
   const actions: StorageCalculatorAction[] = [
     { type: 'add-group' },
     { type: 'set-mode', mode: 'days-from-capacity' },
     { type: 'set-bitrate-source', id: 'g1', source: 'bitrate-cap' },
-    { type: 'update-group', id: 'g2', changes: { name: 'Lobby – Café 東', cameraCount: 3 } },
+    { type: 'update-group', id: 'g1', changes: { resolution: '960H' } },
+    {
+      type: 'update-group',
+      id: 'g2',
+      changes: { name: 'Lobby – Café 東', cameraCount: 3, resolution: 'nHD' },
+    },
   ];
   return actions.reduce(storageCalculatorReducer, createInitialStorageCalculatorState());
 }
@@ -143,7 +148,7 @@ describe('v2 index tables', () => {
     }).toEqual({
       modes: ['storage-needed', 'days-from-capacity'],
       raid: ['none', 'raid1', 'raid5', 'raid6', 'raid10'],
-      resolutions: ['1MP', '2MP', '3MP', '4MP', '5MP', '6MP', '8MP', '12MP'],
+      resolutions: ['1MP', '2MP', '3MP', '4MP', '5MP', '6MP', '8MP', '12MP', 'nHD', '960H'],
       codecs: ['h264', 'h265', 'mjpeg'],
       complexities: ['low', 'medium', 'high'],
       recording: ['continuous', 'motion', 'schedule'],
