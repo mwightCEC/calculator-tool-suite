@@ -30,6 +30,12 @@ describe('initial state', () => {
       expect.objectContaining({ id: 'g1', name: 'Camera group 1', colorIndex: 0 }),
     ]);
   });
+
+  it('defaults to no RAID and no reserve', () => {
+    expect(initial().storage).toEqual(
+      expect.objectContaining({ raidLevel: 'none', reservePercent: 0 })
+    );
+  });
 });
 
 describe('add-group', () => {
@@ -144,6 +150,27 @@ describe('remove-group and restore-group', () => {
     const state = initial();
     const group = state.cameraGroups[0]!;
     expect(reduce(state, { type: 'restore-group', group, index: 0 })).toBe(state);
+  });
+});
+
+describe('clear-groups and restore-groups', () => {
+  const edited = apply(
+    { type: 'add-group' },
+    { type: 'update-group', id: 'g1', changes: { cameraCount: 3 } },
+    { type: 'update-storage', changes: { retentionDays: 60 } }
+  );
+
+  it('resets the groups to the single default group and keeps the storage settings', () => {
+    const cleared = reduce(edited, { type: 'clear-groups' });
+    expect(cleared.cameraGroups).toEqual(initial().cameraGroups);
+    expect(cleared.storage).toBe(edited.storage);
+  });
+
+  it('puts the previous groups back (undo)', () => {
+    const cleared = reduce(edited, { type: 'clear-groups' });
+    expect(reduce(cleared, { type: 'restore-groups', groups: edited.cameraGroups })).toEqual(
+      edited
+    );
   });
 });
 

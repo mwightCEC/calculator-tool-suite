@@ -23,12 +23,19 @@ const ESTIMATED: CameraGroup = {
   bitrate: { source: 'estimate' },
 };
 
+/** RAID 5 with a 10% reserve, so the tests exercise parity and reserve whatever the defaults are. */
+const BASE_STORAGE: StorageSettings = {
+  ...DEFAULT_STORAGE_SETTINGS,
+  raidLevel: 'raid5',
+  reservePercent: 10,
+};
+
 function input(
   mode: StorageCalculationInput['mode'],
   storage: Partial<StorageSettings> = {},
   cameraGroups: CameraGroup[] = [KNOWN_432_GB_PER_DAY]
 ): StorageCalculationInput {
-  return { mode, cameraGroups, storage: { ...DEFAULT_STORAGE_SETTINGS, ...storage } };
+  return { mode, cameraGroups, storage: { ...BASE_STORAGE, ...storage } };
 }
 
 function breakdownTotal(result: StorageCalculationResult): number {

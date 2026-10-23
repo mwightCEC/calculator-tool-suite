@@ -7,7 +7,10 @@ import {
   type CalculationMode,
   type StorageSettings,
 } from '@cctv/calc-core';
-import { notifyGroupRemoved } from '../../../../components/CameraGroupCard/notify-group-removed';
+import {
+  notifyGroupRemoved,
+  notifyGroupsCleared,
+} from '../../../../components/CameraGroupCard/undo-notifications';
 import { useUrlStateSync } from '../../../../lib/share/use-url-state-sync';
 import { encodeState, storageShareCodec } from './share-link';
 import {
@@ -19,6 +22,7 @@ import {
 
 /** The default calculation keeps a clean URL with no share parameters. */
 const DEFAULT_STATE_ENCODED = encodeState(createInitialStorageCalculatorState());
+const DEFAULT_GROUPS = createInitialStorageCalculatorState().cameraGroups;
 
 /**
  * Storage calculator state, live results and actions.
@@ -48,6 +52,19 @@ export function useStorageCalculator() {
     notifyGroupRemoved(group, () => dispatch({ type: 'restore-group', group, index }));
   };
 
+  // Compared through the share encoding, which covers every group field that matters.
+  const hasCustomGroups =
+    encodeState(state) !== encodeState({ ...state, cameraGroups: DEFAULT_GROUPS });
+
+  const clearGroups = () => {
+    if (!hasCustomGroups) {
+      return;
+    }
+    const previous = state.cameraGroups;
+    dispatch({ type: 'clear-groups' });
+    notifyGroupsCleared(() => dispatch({ type: 'restore-groups', groups: previous }));
+  };
+
   const actions = {
     setMode: (mode: CalculationMode) => dispatch({ type: 'set-mode', mode }),
     updateGroup: (id: string, changes: CameraGroupChanges) =>
@@ -57,11 +74,12 @@ export function useStorageCalculator() {
     addGroup: () => dispatch({ type: 'add-group' }),
     duplicateGroup: (id: string) => dispatch({ type: 'duplicate-group', id }),
     removeGroup,
+    clearGroups,
     updateStorage: (changes: Partial<StorageSettings>) =>
       dispatch({ type: 'update-storage', changes }),
   };
 
-  return { state, result, actions };
+  return { state, result, hasCustomGroups, actions };
 }
 
 export type StorageCalculatorActions = ReturnType<typeof useStorageCalculator>['actions'];

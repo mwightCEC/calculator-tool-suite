@@ -51,6 +51,8 @@ export type BandwidthCalculatorAction =
   | { type: 'duplicate-group'; id: string }
   | { type: 'remove-group'; id: string }
   | { type: 'restore-group'; group: BandwidthGroupState; index: number }
+  | { type: 'clear-groups' }
+  | { type: 'restore-groups'; groups: BandwidthGroupState[] }
   | { type: 'set-recorded-streams'; recordedStreams: RecordedStreams }
   | { type: 'update-remote-viewing'; changes: Partial<RemoteViewing> }
   | { type: 'update-network'; changes: Partial<NetworkLinks> }
@@ -118,6 +120,13 @@ export function bandwidthCalculatorReducer(
 
     case 'restore-group':
       return withGroups(state, restoreGroup(groups, action.group, action.index));
+
+    case 'clear-groups':
+      // Back to the single default group; system settings are kept.
+      return { ...state, cameraGroups: createInitialBandwidthCalculatorState().cameraGroups };
+
+    case 'restore-groups':
+      return withGroups(state, action.groups);
 
     case 'set-recorded-streams':
       return { ...state, recordedStreams: action.recordedStreams };

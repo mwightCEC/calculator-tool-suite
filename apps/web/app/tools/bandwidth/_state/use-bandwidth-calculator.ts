@@ -9,7 +9,10 @@ import {
   type RecordedStreams,
   type RemoteViewing,
 } from '@cctv/calc-core';
-import { notifyGroupRemoved } from '../../../../components/CameraGroupCard/notify-group-removed';
+import {
+  notifyGroupRemoved,
+  notifyGroupsCleared,
+} from '../../../../components/CameraGroupCard/undo-notifications';
 import { useUrlStateSync } from '../../../../lib/share/use-url-state-sync';
 import {
   bandwidthCalculatorReducer,
@@ -21,6 +24,7 @@ import { bandwidthShareCodec, encodeState } from './share-link';
 
 /** The default calculation keeps a clean URL with no share parameters. */
 const DEFAULT_STATE_ENCODED = encodeState(createInitialBandwidthCalculatorState());
+const DEFAULT_GROUPS = createInitialBandwidthCalculatorState().cameraGroups;
 
 /**
  * Bandwidth calculator state, live results and actions.
@@ -50,6 +54,19 @@ export function useBandwidthCalculator() {
     notifyGroupRemoved(group, () => dispatch({ type: 'restore-group', group, index }));
   };
 
+  // Compared through the share encoding, which covers every group field that matters.
+  const hasCustomGroups =
+    encodeState(state) !== encodeState({ ...state, cameraGroups: DEFAULT_GROUPS });
+
+  const clearGroups = () => {
+    if (!hasCustomGroups) {
+      return;
+    }
+    const previous = state.cameraGroups;
+    dispatch({ type: 'clear-groups' });
+    notifyGroupsCleared(() => dispatch({ type: 'restore-groups', groups: previous }));
+  };
+
   const actions = {
     updateGroup: (id: string, changes: BandwidthGroupChanges) =>
       dispatch({ type: 'update-group', id, changes }),
@@ -58,6 +75,7 @@ export function useBandwidthCalculator() {
     addGroup: () => dispatch({ type: 'add-group' }),
     duplicateGroup: (id: string) => dispatch({ type: 'duplicate-group', id }),
     removeGroup,
+    clearGroups,
     setRecordedStreams: (recordedStreams: RecordedStreams) =>
       dispatch({ type: 'set-recorded-streams', recordedStreams }),
     updateRemoteViewing: (changes: Partial<RemoteViewing>) =>
@@ -68,7 +86,7 @@ export function useBandwidthCalculator() {
       dispatch({ type: 'set-overhead', overheadPercent }),
   };
 
-  return { state, result, actions };
+  return { state, result, hasCustomGroups, actions };
 }
 
 export type BandwidthCalculatorActions = ReturnType<typeof useBandwidthCalculator>['actions'];
