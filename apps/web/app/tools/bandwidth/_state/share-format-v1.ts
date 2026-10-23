@@ -8,12 +8,13 @@ import type {
   ViewingStream,
 } from '@cctv/calc-core';
 import { z } from 'zod';
+import type { InputMode } from '../../../../lib/input-mode';
 import type { BandwidthCalculatorState } from './bandwidth-calculator-state';
 
 /*
  * Bandwidth share link format v1: a compact positional JSON array.
  *
- *   [recordedStreams, remoteViewing, network, overheadPercent, groups]
+ *   [recordedStreams, remoteViewing, network, overheadPercent, groups, inputMode?]
  *   remoteViewing = [viewers, camerasPerViewer, stream]
  *   network       = [recorderLimitMbps, uplinkMbps, siteUploadMbps] (0 = check off)
  *   group         = [name, cameraCount, resolution, codec, frameRate, sceneComplexity,
@@ -26,6 +27,9 @@ import type { BandwidthCalculatorState } from './bandwidth-calculator-state';
  * format version. They are separate from Storage's tables so each calculator's
  * links can change on their own. Group ids are not stored and are re-created
  * as g1, g2, … .
+ *
+ * inputMode was added later as an optional last item. Links without it were
+ * made before Simple mode existed, so they open in Advanced.
  */
 
 export const V1_RECORDED_STREAMS = [
@@ -63,6 +67,8 @@ export const V1_BITRATE_SOURCES = [
   'bitrate-cap',
 ] as const satisfies readonly BitrateSource[];
 
+export const V1_INPUT_MODES = ['advanced', 'simple'] as const satisfies readonly InputMode[];
+
 const index = z.int().nonnegative();
 
 /** Shape check only; value ranges are validated afterwards by the state schema. */
@@ -85,6 +91,7 @@ const payloadSchema = z.tuple([
       z.number(),
     ])
   ),
+  index.optional(),
 ]);
 
 type Payload = z.infer<typeof payloadSchema>;
@@ -121,6 +128,7 @@ export function stateToV1Payload(state: BandwidthCalculatorState): Payload {
       group.bitrate.source === 'estimate' ? 0 : group.bitrate.mbps,
       group.colorIndex,
     ]),
+    V1_INPUT_MODES.indexOf(state.inputMode),
   ];
 }
 
@@ -135,11 +143,13 @@ export function v1PayloadToState(raw: unknown): unknown {
   if (!parsed.success) {
     return null;
   }
-  const [recordedIndex, remoteViewing, network, overheadPercent, groups] = parsed.data;
+  const [recordedIndex, remoteViewing, network, overheadPercent, groups, inputModeIndex] =
+    parsed.data;
   const [viewers, camerasPerViewer, streamIndex] = remoteViewing;
   const [recorderLimitMbps, uplinkMbps, siteUploadMbps] = network;
 
   return {
+    inputMode: inputModeIndex === undefined ? 'advanced' : V1_INPUT_MODES[inputModeIndex],
     recordedStreams: V1_RECORDED_STREAMS[recordedIndex],
     remoteViewing: { viewers, camerasPerViewer, stream: V1_VIEWING_STREAMS[streamIndex] },
     network: {

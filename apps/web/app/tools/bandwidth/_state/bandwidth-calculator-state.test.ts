@@ -6,11 +6,18 @@ import {
   bandwidthCalculatorReducer as reduce,
   bandwidthCalculatorStateSchema,
   createInitialBandwidthCalculatorState,
+  describeSwitchToSimple,
+  SIMPLE_BANDWIDTH_SETTINGS,
   type BandwidthCalculatorAction,
   type BandwidthCalculatorState,
 } from './bandwidth-calculator-state';
 
-const initial = () => createInitialBandwidthCalculatorState();
+/** The default state switched to Advanced, so every setting can change. */
+const initial = () =>
+  reduce(createInitialBandwidthCalculatorState(), {
+    type: 'set-input-mode',
+    inputMode: 'advanced',
+  });
 
 /** Applies actions in order, starting from the initial state. */
 function apply(...actions: BandwidthCalculatorAction[]): BandwidthCalculatorState {
@@ -45,6 +52,106 @@ describe('initial state', () => {
       siteUploadMbps: null,
     });
     expect(state.overheadPercent).toBe(10);
+  });
+});
+
+describe('input mode', () => {
+  const simple = createInitialBandwidthCalculatorState;
+  /** Advanced, with three groups and every hidden setting changed. */
+  const busy = () =>
+    apply(
+      { type: 'add-group' },
+      { type: 'add-group' },
+      { type: 'update-group', id: 'g1', changes: { name: 'Lobby', subStreamResolution: '720p' } },
+      { type: 'set-recorded-streams', recordedStreams: 'main-and-sub' },
+      {
+        type: 'update-remote-viewing',
+        changes: { viewers: 2, camerasPerViewer: 9, stream: 'main' },
+      },
+      {
+        type: 'update-network',
+        changes: { recorderLimitMbps: 160, uplinkMbps: 1000, siteUploadMbps: 50 },
+      },
+      { type: 'set-overhead', overheadPercent: 20 }
+    );
+
+  it('starts new visitors in Simple mode, whose fixed settings are the defaults', () => {
+    const state = simple();
+    const fixed = SIMPLE_BANDWIDTH_SETTINGS;
+    expect(state.inputMode).toBe('simple');
+    expect(state.cameraGroups[0]?.subStreamResolution).toBe(fixed.subStreamResolution);
+    expect(state.recordedStreams).toBe(fixed.recordedStreams);
+    expect(state.remoteViewing.camerasPerViewer).toBe(fixed.camerasPerViewer);
+    expect(state.remoteViewing.stream).toBe(fixed.viewingStream);
+    expect(state.overheadPercent).toBe(fixed.overheadPercent);
+  });
+
+  it('keeps the first group, viewers and site upload when switching to Simple', () => {
+    const state = reduce(busy(), { type: 'set-input-mode', inputMode: 'simple' });
+    expect(state.inputMode).toBe('simple');
+    expect(state.cameraGroups).toEqual([{ ...busy().cameraGroups[0], subStreamResolution: 'd1' }]);
+    expect(state.recordedStreams).toBe('main');
+    expect(state.remoteViewing).toEqual({ viewers: 2, camerasPerViewer: 4, stream: 'sub' });
+    expect(state.network).toEqual({
+      recorderLimitMbps: null,
+      uplinkMbps: null,
+      siteUploadMbps: 50,
+    });
+    expect(state.overheadPercent).toBe(10);
+    expect(bandwidthCalculatorStateSchema.safeParse(state).success).toBe(true);
+  });
+
+  it('describes what switching to Simple changes, for the Undo message', () => {
+    expect(describeSwitchToSimple(busy())).toEqual([
+      'removed 2 camera groups',
+      'sub-stream set to D1',
+      'recording set to main stream only',
+      'remote viewing set to 4 cameras on the sub-stream',
+      'recorder limit and uplink checks turned off',
+      'overhead set to 10%',
+    ]);
+    expect(describeSwitchToSimple(initial())).toEqual([]);
+    expect(describeSwitchToSimple(simple())).toEqual([]);
+  });
+
+  it('undoes a switch by loading the previous state', () => {
+    const before = busy();
+    const switched = reduce(before, { type: 'set-input-mode', inputMode: 'simple' });
+    expect(reduce(switched, { type: 'load-state', state: before })).toEqual(before);
+  });
+
+  it('keeps everything when switching to Advanced', () => {
+    const state = simple();
+    expect(reduce(state, { type: 'set-input-mode', inputMode: 'advanced' })).toEqual({
+      ...state,
+      inputMode: 'advanced',
+    });
+  });
+
+  it('keeps Simple mode within its rules whatever the action', () => {
+    const state = simple();
+    const actions: BandwidthCalculatorAction[] = [
+      { type: 'add-group' },
+      { type: 'duplicate-group', id: 'g1' },
+      { type: 'restore-groups', groups: busy().cameraGroups },
+      { type: 'update-group', id: 'g1', changes: { subStreamResolution: '1080p' } },
+      { type: 'set-recorded-streams', recordedStreams: 'main-and-sub' },
+      { type: 'update-remote-viewing', changes: { camerasPerViewer: 9, stream: 'main' } },
+      { type: 'update-network', changes: { uplinkMbps: 1000 } },
+      { type: 'set-overhead', overheadPercent: 20 },
+    ];
+    for (const action of actions) {
+      const next = reduce(state, action);
+      expect(next.inputMode).toBe('simple');
+      expect(bandwidthCalculatorStateSchema.safeParse(next).success).toBe(true);
+    }
+  });
+
+  it('rejects a Simple state that breaks the rules in the schema', () => {
+    const twoGroups = { ...simple(), cameraGroups: busy().cameraGroups.slice(0, 2) };
+    const withOverhead = { ...simple(), overheadPercent: 20 };
+    expect(bandwidthCalculatorStateSchema.safeParse(twoGroups).success).toBe(false);
+    expect(bandwidthCalculatorStateSchema.safeParse(withOverhead).success).toBe(false);
   });
 });
 

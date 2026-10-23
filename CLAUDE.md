@@ -96,7 +96,9 @@ config or routing changes.
   same versions and validation. A link in the URL wins over saved state; the default state
   clears it (`lib/share/saved-state.ts`).
 - Simple / Advanced input (`lib/input-mode.ts`): new visitors start in Simple, which is one camera
-  setup with some settings hidden at fixed values (Storage: No RAID, 0% reserve). The reducer
+  setup with some settings hidden at fixed values (Storage: No RAID, 0% reserve; Bandwidth: D1
+  sub-stream, main only, 4 cameras per viewer on the sub-stream, 10% overhead, only the site
+  upload check). The reducer
   enforces Simple's rules after every action; switching to Simple trims the setup, with Undo.
   The mode is an optional last item in share links; links without it open in Advanced.
 - Camera group colours: neighbouring groups never share a colour (`lib/camera-groups/group-colors.ts`,
