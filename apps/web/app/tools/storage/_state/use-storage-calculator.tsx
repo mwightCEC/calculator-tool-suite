@@ -22,6 +22,8 @@ import {
 
 /** The default calculation keeps a clean URL with no share parameters. */
 const DEFAULT_STATE_ENCODED = encodeState(createInitialStorageCalculatorState());
+/** Where this calculator's last state is kept in the browser. */
+const SAVED_STATE_KEY = 'cctv-tool-suite:storage-calculator';
 const DEFAULT_GROUPS = createInitialStorageCalculatorState().cameraGroups;
 
 /**
@@ -40,7 +42,7 @@ export function useStorageCalculator() {
     (restored: StorageCalculatorState) => dispatch({ type: 'load-state', state: restored }),
     []
   );
-  useUrlStateSync(state, loadState, storageShareCodec, DEFAULT_STATE_ENCODED);
+  useUrlStateSync(state, loadState, storageShareCodec, DEFAULT_STATE_ENCODED, SAVED_STATE_KEY);
 
   const removeGroup = (id: string) => {
     const index = state.cameraGroups.findIndex((group) => group.id === id);
