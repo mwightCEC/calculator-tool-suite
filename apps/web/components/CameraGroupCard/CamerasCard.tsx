@@ -3,6 +3,8 @@ import { Group, Paper, Text, Title } from '@mantine/core';
 import classes from './CameraGroupCard.module.css';
 
 interface CamerasCardProps {
+  /** Card heading; Cameras unless the calculator counts other devices. */
+  title?: string;
   /** Index into the group colour palette, so the footer matches the results. */
   colorIndex: number;
   /** Value in the "Total" footer. */
@@ -12,7 +14,12 @@ interface CamerasCardProps {
 }
 
 /** Simple mode's single camera setup: the group card's fields and total, without group controls. */
-export function CamerasCard({ colorIndex, totalValue, children }: CamerasCardProps) {
+export function CamerasCard({
+  title = 'Cameras',
+  colorIndex,
+  totalValue,
+  children,
+}: CamerasCardProps) {
   const colorVariables = { '--group-tint': `var(--group-tint-${colorIndex})` } as CSSProperties;
 
   return (
@@ -24,7 +31,7 @@ export function CamerasCard({ colorIndex, totalValue, children }: CamerasCardPro
       aria-labelledby="cameras-title"
     >
       <Title order={2} id="cameras-title" className={classes.camerasTitle}>
-        Cameras
+        {title}
       </Title>
       <div className={classes.fields}>{children}</div>
       <Group justify="space-between" gap="md" className={classes.footer}>

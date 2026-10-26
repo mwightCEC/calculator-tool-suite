@@ -5,9 +5,18 @@ import { ActionIcon, Badge, Group, Tooltip } from '@mantine/core';
 import { GroupNameInput } from './GroupNameInput';
 import classes from './CameraGroupCard.module.css';
 
+/** Singular and plural for a group's count badge, e.g. camera / cameras. */
+export interface CountNoun {
+  one: string;
+  other: string;
+}
+
+const CAMERAS: CountNoun = { one: 'camera', other: 'cameras' };
+
 interface CameraGroupHeaderProps {
   name: string;
   cameraCount: number;
+  countNoun?: CountNoun;
   expanded: boolean;
   bodyId: string;
   canDuplicate: boolean;
@@ -21,6 +30,7 @@ interface CameraGroupHeaderProps {
 export function CameraGroupHeader({
   name,
   cameraCount,
+  countNoun = CAMERAS,
   expanded,
   bodyId,
   canDuplicate,
@@ -49,7 +59,7 @@ export function CameraGroupHeader({
       <span className={classes.dot} aria-hidden="true" />
       <GroupNameInput value={name} onChange={onRename} />
       <Badge className={classes.countBadge} radius="sm" variant="filled">
-        {cameraCount} {cameraCount === 1 ? 'camera' : 'cameras'}
+        {cameraCount} {cameraCount === 1 ? countNoun.one : countNoun.other}
       </Badge>
 
       <Group gap={4} wrap="nowrap" className={classes.headerActions}>

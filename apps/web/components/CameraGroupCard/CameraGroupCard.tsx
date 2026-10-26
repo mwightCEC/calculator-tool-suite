@@ -2,13 +2,15 @@
 
 import type { CSSProperties, ReactNode } from 'react';
 import { Collapse, Group, Paper, Text } from '@mantine/core';
-import { CameraGroupHeader } from './CameraGroupHeader';
+import { CameraGroupHeader, type CountNoun } from './CameraGroupHeader';
 import classes from './CameraGroupCard.module.css';
 
 interface CameraGroupCardProps {
   groupId: string;
   name: string;
   cameraCount: number;
+  /** Words for the count badge; cameras unless the calculator counts other devices. */
+  countNoun?: CountNoun;
   /** Index into the group colour palette (--group-color-N). */
   colorIndex: number;
   /** Controlled by the page (useGroupExpansion) so Collapse all can reach every card. */
@@ -34,6 +36,7 @@ export function CameraGroupCard({
   groupId,
   name,
   cameraCount,
+  countNoun,
   colorIndex,
   expanded,
   onToggleExpanded,
@@ -66,6 +69,7 @@ export function CameraGroupCard({
       <CameraGroupHeader
         name={name}
         cameraCount={cameraCount}
+        countNoun={countNoun}
         expanded={expanded}
         bodyId={bodyId}
         canDuplicate={canDuplicate}
