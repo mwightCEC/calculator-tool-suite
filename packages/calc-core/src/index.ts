@@ -113,3 +113,46 @@ export {
   type BandwidthModels,
   type BandwidthResult,
 } from './bandwidth/calculate-bandwidth';
+
+// PoE budget calculator
+export * from './poe/options';
+export {
+  classForDeviceWatts,
+  POE_CLASS_SPECS,
+  PORT_STANDARD_MAX_CLASS,
+  poeClassSpec,
+  portStandardMaxDeviceWatts,
+  type PoeClassSpec,
+} from './poe/poe-classes';
+export {
+  createDefaultPoeInput,
+  createPoeDeviceGroup,
+  DEFAULT_DEVICE_WATTS,
+  DEFAULT_POE_CLASS,
+  devicePowerSchema,
+  poeDeviceGroupSchema,
+  poeInputSchema,
+  poeSwitchSchema,
+  type DevicePower,
+  type PoeDeviceGroup,
+  type PoeInput,
+  type PoeSwitch,
+} from './poe/schema';
+export {
+  CABLE_LOSS_VOLTS,
+  cableLengthInMetres,
+  cableLossWatts,
+  LOOP_OHMS_PER_100_M,
+  MAX_CABLE_RUN_M,
+  METRES_PER_FOOT,
+  pairsForDeviceWatts,
+} from './poe/cable-loss';
+export {
+  BUDGET_STATUSES,
+  budgetStatus,
+  calculatePoe,
+  type BudgetStatus,
+  type PoeGroupUsage,
+  type PoeProblem,
+  type PoeResult,
+} from './poe/calculate-poe';
