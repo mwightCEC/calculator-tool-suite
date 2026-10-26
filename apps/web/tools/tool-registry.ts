@@ -43,7 +43,7 @@ export const TOOLS: readonly ToolDefinition[] = [
     description: 'Check camera power draw against switch and injector PoE budgets.',
     icon: IconPlug,
     route: '/tools/poe-budget',
-    status: 'coming-soon',
+    status: 'available',
   },
   {
     id: 'voltage-drop',
