@@ -5,11 +5,14 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, Group, Stack } from '@mantine/core';
 import { CameraGroupToolbar } from '../../../../components/CameraGroupCard/CameraGroupToolbar';
 import { useGroupExpansion } from '../../../../components/CameraGroupCard/use-group-expansion';
+import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
 import { ModeSwitch } from '../../../../components/ModeSwitch/ModeSwitch';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
+import { describeUsage } from '../_lib/result-summary';
 import { usePoeCalculator } from '../_state/use-poe-calculator';
-import { BudgetSummary } from './BudgetSummary';
+import { HowCalculated } from './HowCalculated';
 import { PoeDeviceGroupCard, PoeDevicesCard } from './PoeDeviceGroupCard';
+import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
 import { SwitchCard } from './SwitchCard';
 import classes from './PoeCalculator.module.css';
 
@@ -28,6 +31,7 @@ export function PoeCalculator({ header }: PoeCalculatorProps) {
   const advanced = state.inputMode === 'advanced';
   const firstGroup = state.deviceGroups[0];
   const firstUsage = firstGroup && usageByGroupId.get(firstGroup.id);
+  const usage = describeUsage(result);
 
   return (
     <div className={classes.layout}>
@@ -97,11 +101,20 @@ export function PoeCalculator({ header }: PoeCalculatorProps) {
             />
           )
         )}
+
+        <HowCalculated />
       </Stack>
 
       <div className={classes.results}>
-        <BudgetSummary result={result} />
+        <ResultsCard result={result} state={state} />
       </div>
+
+      <MobileResultBar
+        label="PoE budget used"
+        value={usage.value}
+        detail={usage.detail}
+        resultsId={RESULTS_CARD_ID}
+      />
     </div>
   );
 }

@@ -3,6 +3,8 @@
   grid-template-columns: minmax(0, 1fr);
   gap: var(--mantine-spacing-lg);
   align-items: start;
+  /* Room for the fixed mobile result bar below the content. */
+  padding-bottom: 72px;
 }
 
 .inputs {
@@ -13,7 +15,7 @@
   border-style: dashed;
 }
 
-/* The Switch / NVR card and the interim budget summary. */
+/* The Switch / NVR card. */
 .card {
   display: flex;
   flex-direction: column;
@@ -24,10 +26,6 @@
 .cardTitle {
   font-size: var(--mantine-font-size-md);
   margin-bottom: 4px;
-}
-
-.secondaryText {
-  color: var(--app-text-secondary);
 }
 
 .numberInput {
@@ -47,11 +45,14 @@
 @media (min-width: $mantine-breakpoint-lg) {
   .layout {
     grid-template-columns: minmax(0, 1fr) 380px;
+    padding-bottom: 0;
   }
 
   /* Results stay in view while the inputs scroll. */
   .results {
     position: sticky;
     top: calc(var(--app-shell-header-height) + var(--mantine-spacing-md));
+    max-height: calc(100dvh - var(--app-shell-header-height) - 2 * var(--mantine-spacing-md));
+    overflow-y: auto;
   }
 }
