@@ -2,8 +2,8 @@
 
 Web calculators for CCTV installers and system designers, aimed at a general audience
 (not tied to one manufacturer's products). The suite carries Clinton Electronics branding and
-will be hosted on its site, but the tools don't feature Clinton products. The Storage and
-Bandwidth calculators are built; PoE budget, Voltage drop and Lens / FOV are listed as
+will be hosted on its site, but the tools don't feature Clinton products. The Storage,
+Bandwidth and PoE budget calculators are built; Voltage drop and Lens / FOV are listed as
 "coming soon".
 
 ## Working agreements
@@ -25,7 +25,7 @@ Bandwidth calculators are built; PoE budget, Voltage drop and Lens / FOV are lis
 | `apps/web`           | Next.js 16 (App Router) + Mantine 9 UI. All calculations run client-side. |
 
 - calc-core is consumed as TypeScript source (`transpilePackages` in `next.config.ts`).
-- Each calculator lives in `apps/web/app/tools/<tool>/` (`storage`, `bandwidth`) with
+- Each calculator lives in `apps/web/app/tools/<tool>/` (`storage`, `bandwidth`, `poe-budget`) with
   `_components/`, `_lib/` (labels, result and print-summary text) and `_state/` (reducer,
   schema, share-link format).
 - Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`,
@@ -85,10 +85,14 @@ config or routing changes.
   worst-case (low) days.
 - Bandwidth headlines typical recorder ingest; network checks use the high estimate
   (OK up to 70%, caution up to 90%, then over capacity; thresholds in calc-core).
+- PoE budget checks one switch / NVR against device groups given by PoE class (the class's
+  switch-side allocation) or datasheet watts (plus an I²R cable-loss estimate, 100 m assumed
+  without a length). Budget status: OK within budget less the reserve, then into reserve,
+  then over budget; also port count, port standard and the 100 m run limit (calc-core `src/poe/`).
 - Shared links: `?v=<version>&s=<base64url of a compact positional array>`, built with
   `lib/share/share-codec.ts`. Each tool owns its own versions: Storage writes `v=2`
-  (`share-format-v2.ts`) and still opens `v=1` full-JSON links; Bandwidth writes `v=1`
-  (`share-format-v1.ts`). All decoded state is validated against the tool's state schema.
+  (`share-format-v2.ts`) and still opens `v=1` full-JSON links; Bandwidth and PoE budget
+  write `v=1` (`share-format-v1.ts`). All decoded state is validated against the tool's state schema.
   The index tables are append-only: reordering or removing an option breaks existing links
   and needs a new format version.
 - Saved state: each tool keeps its last state in localStorage
@@ -98,7 +102,7 @@ config or routing changes.
 - Simple / Advanced input (`lib/input-mode.ts`): new visitors start in Simple, which is one camera
   setup with some settings hidden at fixed values (Storage: No RAID, 0% reserve; Bandwidth: D1
   sub-stream, main only, 4 cameras per viewer on the sub-stream, 10% overhead, only the site
-  upload check). The reducer
+  upload check; PoE budget: 20% reserve, no cable length). The reducer
   enforces Simple's rules after every action; switching to Simple trims the setup, with Undo.
   The mode is an optional last item in share links; links without it open in Advanced.
 - Camera group colours: neighbouring groups never share a colour (`lib/camera-groups/group-colors.ts`,

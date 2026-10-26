@@ -12,6 +12,7 @@ import { describeUsage } from '../_lib/result-summary';
 import { usePoeCalculator } from '../_state/use-poe-calculator';
 import { HowCalculated } from './HowCalculated';
 import { PoeDeviceGroupCard, PoeDevicesCard } from './PoeDeviceGroupCard';
+import { PrintSummary } from './PrintSummary';
 import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
 import { SwitchCard } from './SwitchCard';
 import classes from './PoeCalculator.module.css';
@@ -34,87 +35,90 @@ export function PoeCalculator({ header }: PoeCalculatorProps) {
   const usage = describeUsage(result);
 
   return (
-    <div className={classes.layout}>
-      <Stack gap="md" className={classes.inputs}>
-        {header}
+    <>
+      <div className={classes.layout}>
+        <Stack gap="md" className={classes.inputs}>
+          {header}
 
-        <Group justify="space-between" gap="sm">
-          <ModeSwitch value={state.inputMode} onChange={actions.setInputMode} />
-          {advanced && (
-            <CameraGroupToolbar
-              allCollapsed={expansion.allCollapsed}
-              onToggleAll={expansion.toggleAll}
-              canClear={hasCustomGroups}
-              onClear={() => {
-                actions.clearGroups();
-                expansion.expandAll();
-              }}
-            />
+          <Group justify="space-between" gap="sm">
+            <ModeSwitch value={state.inputMode} onChange={actions.setInputMode} />
+            {advanced && (
+              <CameraGroupToolbar
+                allCollapsed={expansion.allCollapsed}
+                onToggleAll={expansion.toggleAll}
+                canClear={hasCustomGroups}
+                onClear={() => {
+                  actions.clearGroups();
+                  expansion.expandAll();
+                }}
+              />
+            )}
+          </Group>
+
+          <SwitchCard
+            powerSource={state.powerSource}
+            showReserve={advanced}
+            onChange={actions.updateSwitch}
+          />
+
+          {advanced ? (
+            <>
+              {state.deviceGroups.map((group) => {
+                const usage = usageByGroupId.get(group.id);
+                return (
+                  usage && (
+                    <PoeDeviceGroupCard
+                      key={group.id}
+                      group={group}
+                      usage={usage}
+                      cableLengthUnit={state.cableLengthUnit}
+                      expanded={expansion.isExpanded(group.id)}
+                      onToggleExpanded={() => expansion.toggle(group.id)}
+                      canDuplicate={!atGroupLimit}
+                      canDelete={groupCount > 1}
+                      actions={actions}
+                    />
+                  )
+                );
+              })}
+
+              <Button
+                variant="default"
+                leftSection={<IconPlus size={16} />}
+                onClick={actions.addGroup}
+                disabled={atGroupLimit}
+                className={classes.addGroup}
+              >
+                {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} device groups` : 'Add device group'}
+              </Button>
+            </>
+          ) : (
+            firstGroup &&
+            firstUsage && (
+              <PoeDevicesCard
+                group={firstGroup}
+                usage={firstUsage}
+                cableLengthUnit={state.cableLengthUnit}
+                actions={actions}
+              />
+            )
           )}
-        </Group>
 
-        <SwitchCard
-          powerSource={state.powerSource}
-          showReserve={advanced}
-          onChange={actions.updateSwitch}
+          <HowCalculated />
+        </Stack>
+
+        <div className={classes.results}>
+          <ResultsCard result={result} state={state} />
+        </div>
+
+        <MobileResultBar
+          label="PoE budget used"
+          value={usage.value}
+          detail={usage.detail}
+          resultsId={RESULTS_CARD_ID}
         />
-
-        {advanced ? (
-          <>
-            {state.deviceGroups.map((group) => {
-              const usage = usageByGroupId.get(group.id);
-              return (
-                usage && (
-                  <PoeDeviceGroupCard
-                    key={group.id}
-                    group={group}
-                    usage={usage}
-                    cableLengthUnit={state.cableLengthUnit}
-                    expanded={expansion.isExpanded(group.id)}
-                    onToggleExpanded={() => expansion.toggle(group.id)}
-                    canDuplicate={!atGroupLimit}
-                    canDelete={groupCount > 1}
-                    actions={actions}
-                  />
-                )
-              );
-            })}
-
-            <Button
-              variant="default"
-              leftSection={<IconPlus size={16} />}
-              onClick={actions.addGroup}
-              disabled={atGroupLimit}
-              className={classes.addGroup}
-            >
-              {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} device groups` : 'Add device group'}
-            </Button>
-          </>
-        ) : (
-          firstGroup &&
-          firstUsage && (
-            <PoeDevicesCard
-              group={firstGroup}
-              usage={firstUsage}
-              cableLengthUnit={state.cableLengthUnit}
-              actions={actions}
-            />
-          )
-        )}
-
-        <HowCalculated />
-      </Stack>
-
-      <div className={classes.results}>
-        <ResultsCard result={result} state={state} />
       </div>
-
-      <MobileResultBar
-        label="PoE budget used"
-        value={usage.value}
-        detail={usage.detail}
-        resultsId={RESULTS_CARD_ID}
-      />
-    </div>
+      <PrintSummary state={state} result={result} />
+    </>
   );
 }
