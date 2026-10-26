@@ -20,6 +20,14 @@ export const PORT_STANDARD_LABELS: Record<PortStandard, string> = {
   'bt-type4': 'PoE++ Type 4 (802.3bt, 90 W)',
 };
 
+/** Short names for sentences: "more than PoE+ ports supply". */
+export const PORT_STANDARD_SHORT_LABELS: Record<PortStandard, string> = {
+  af: 'PoE',
+  at: 'PoE+',
+  'bt-type3': 'PoE++ Type 3',
+  'bt-type4': 'PoE++ Type 4',
+};
+
 export const POWER_INPUT_LABELS: Record<PowerInput, string> = {
   watts: 'By watts',
   class: 'By PoE class',
