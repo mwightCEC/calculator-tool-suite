@@ -9,7 +9,7 @@ export interface ResultFigure {
   likelyRange: string | null;
 }
 
-/** Recorder ingest, the headline: "~38 Mbps", "likely 26–55 Mbps". */
+/** The bandwidth estimate, the headline: "~38 Mbps", "likely 26–55 Mbps". */
 export function describeIngest(result: BandwidthResult): ResultFigure {
   const approx = result.isEstimated ? '~' : '';
   return {
@@ -18,7 +18,7 @@ export function describeIngest(result: BandwidthResult): ResultFigure {
   };
 }
 
-/** Remote viewing upload; "0 Mbps" with no viewers. */
+/** Remote viewing bandwidth; "0 Mbps" with no viewers. */
 export function describeViewingUpload(result: BandwidthResult): ResultFigure {
   const approx = result.viewingPerCameraMbps !== null && result.isEstimated ? '~' : '';
   return {
@@ -69,8 +69,8 @@ export interface TrafficSegment {
 }
 
 /**
- * Typical recorder ingest split by camera group (main streams, plus sub-streams
- * when recorded) with the overhead allowance as its own segment.
+ * Typical bandwidth estimate split by camera group (main streams, plus sub-streams
+ * when included) with the overhead allowance as its own segment.
  */
 export function ingestSegments(
   state: BandwidthCalculatorState,

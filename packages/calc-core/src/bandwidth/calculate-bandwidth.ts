@@ -34,7 +34,7 @@ export interface BandwidthResult {
   subTotalMbps: ValueRange;
   /** Average main-stream bitrate per camera, before overhead. */
   averageMainPerCameraMbps: ValueRange;
-  /** Traffic the recorder receives on the local network, with overhead. */
+  /** All camera traffic on the local network, with overhead (the bandwidth estimate). */
   ingestMbps: ValueRange;
   /** Cameras each remote viewer actually watches (capped at the total camera count). */
   viewedCamerasPerViewer: number;

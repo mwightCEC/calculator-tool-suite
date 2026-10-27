@@ -47,7 +47,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
     >
       <div>
         <Group justify="space-between" align="center" wrap="nowrap" className={classes.labelRow}>
-          <Text className={classes.sectionLabel}>Recorder ingest</Text>
+          <Text className={classes.sectionLabel}>Bandwidth estimate</Text>
           <Badge
             variant={result.isEstimated ? 'filled' : 'light'}
             color={result.isEstimated ? 'amber' : 'green'}
@@ -67,7 +67,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
           )}
         </div>
         <Text className={classes.note}>
-          Peak traffic from the cameras to the recorder, including {state.overheadPercent}%
+          Peak traffic from all cameras on the local network, including {state.overheadPercent}%
           overhead.
         </Text>
       </div>
@@ -75,7 +75,9 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
       <IngestBar segments={ingestSegments(state, result)} />
 
       <div>
-        <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>Remote viewing upload</Text>
+        <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>
+          Remote viewing bandwidth
+        </Text>
         <Text className={classes.figureValue}>
           {upload.value}
           {upload.likelyRange && (

@@ -19,9 +19,9 @@ import classes from './CameraGroupCard.module.css';
 const BITRATE_HELP = (
   <>
     Per-camera stream bitrate. <b>Estimate</b>: a typical value and likely range for early planning;
-    real bitrate varies a lot with scene, night/IR and camera model. <b>Known average</b>: a
-    measured average from an existing system. <b>Bitrate cap</b>: the CBR or maximum bitrate set on
-    the camera, which gives a reliable worst case.
+    real bitrate varies a lot with scene, night/IR and camera model. <b>VBR</b>: the measured
+    average of a variable-bitrate stream, for example from an existing system. <b>CBR</b>: the
+    constant or maximum bitrate set on the camera, which gives a reliable worst case.
     {!isBitrateModelValidated &&
       ' The estimate currently uses preliminary placeholder values that have not been validated against real cameras.'}
   </>
@@ -65,7 +65,7 @@ export function BitrateField({
       ) : (
         <EnteredBitrateInput
           id={`${idPrefix}-bitrate-mbps`}
-          label={bitrate.source === 'bitrate-cap' ? 'Bitrate cap (Mbps)' : 'Known average (Mbps)'}
+          label={bitrate.source === 'bitrate-cap' ? 'CBR bitrate (Mbps)' : 'VBR average (Mbps)'}
           value={bitrate.mbps}
           onChange={onMbpsChange}
         />

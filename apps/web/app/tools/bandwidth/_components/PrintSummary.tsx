@@ -28,7 +28,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
     >
       <section className={classes.result}>
         <p className={classes.resultLabel}>
-          Recorder ingest <span className={classes.source}>{summary.sourceLabel}</span>
+          Bandwidth estimate <span className={classes.source}>{summary.sourceLabel}</span>
         </p>
         <p className={classes.resultValue}>{summary.ingest.value}</p>
         {summary.ingest.likelyRange && (

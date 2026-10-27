@@ -56,7 +56,7 @@ describe('buildPrintSummary', () => {
     expect(summary.keyFigures[0]?.value).toBe('40 Mbps');
     expect(summary.groups[0]).toEqual(
       expect.objectContaining({
-        bitrate: '4 Mbps known average',
+        bitrate: '4 Mbps VBR average',
         scene: 'n/a (known bitrate)',
         totalMbps: '40 Mbps',
         perDay: '432 GB',

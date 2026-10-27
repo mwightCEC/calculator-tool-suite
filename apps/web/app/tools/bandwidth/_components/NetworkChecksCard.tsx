@@ -54,7 +54,7 @@ export function NetworkChecksCard({ network, onChange }: NetworkChecksCardProps)
 
       <FieldRow
         label="Uplink"
-        help="Speed of the recorder's network port or the camera switch's uplink to it. Checked against the traffic the recorder receives."
+        help="Speed of the network link that carries all the camera traffic, such as a switch uplink. Checked against the bandwidth estimate."
         controlId="bandwidth-uplink"
       >
         <OptionButtons

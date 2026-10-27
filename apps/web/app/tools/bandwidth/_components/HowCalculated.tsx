@@ -17,23 +17,23 @@ export function HowCalculated() {
         <Accordion.Panel>
           <List size="sm" spacing="xs">
             <List.Item>
-              <b>Recorder ingest</b> adds up <i>bitrate × cameras</i> for every group&apos;s main
-              stream, plus the sub-streams when they are recorded, then adds the overhead allowance
-              for network protocol headers and bursts.
+              The <b>bandwidth estimate</b> adds up <i>bitrate × cameras</i> for every group&apos;s
+              main stream, plus the sub-streams when they are included, then adds the overhead
+              allowance for network protocol headers and bursts.
             </List.Item>
             <List.Item>
-              <b>Remote viewing upload</b> is <i>viewers × cameras each × per-camera bitrate</i>,
+              <b>Remote viewing bandwidth</b> is <i>viewers × cameras each × per-camera bitrate</i>,
               plus overhead. The per-camera bitrate is the busiest group&apos;s for the chosen
               stream, so mixed systems are not underestimated.
             </List.Item>
             <List.Item>
-              Recording mode does not change network traffic: cameras stream to the recorder
-              continuously, and motion or schedule recording only changes what is written to disk.
+              Cameras stream continuously, so motion or schedule settings do not reduce network
+              traffic.
             </List.Item>
             <List.Item>
               Real bitrate varies with the scene, night/IR noise, camera model and settings, so
-              estimates are shown as a likely range. Use a <b>Known average</b> or a{' '}
-              <b>Bitrate cap</b> for firmer figures.
+              estimates are shown as a likely range. Use <b>VBR</b> or <b>CBR</b> with a known
+              bitrate for firmer figures.
             </List.Item>
             <List.Item>
               Network checks compare the high end of the range with each link: up to{' '}
