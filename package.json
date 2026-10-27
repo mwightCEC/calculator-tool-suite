@@ -12,6 +12,7 @@
   },
   "scripts": {
     "dev": "npm run dev -w @cctv/web",
+    "start": "node scripts/start-dev.mjs",
     "build": "npm run build --workspaces --if-present",
     "deploy": "bash deploy/release.sh",
     "format": "oxfmt -c oxfmt.config.mjs --write .",
