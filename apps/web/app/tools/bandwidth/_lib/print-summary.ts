@@ -102,9 +102,9 @@ function groupBitrate(group: BandwidthGroupState, usage: BandwidthGroupUsage): s
       return `~${formatFixed(range.typical, digits)} Mbps est. (${formatRangeBounds(range, digits)})`;
     }
     case 'known-average':
-      return `${formatMbps(group.bitrate.mbps)} known average`;
+      return `${formatMbps(group.bitrate.mbps)} VBR average`;
     case 'bitrate-cap':
-      return `${formatMbps(group.bitrate.mbps)} cap`;
+      return `${formatMbps(group.bitrate.mbps)} CBR`;
   }
 }
 
@@ -154,7 +154,7 @@ function notes(result: BandwidthResult): string[] {
   ];
   if (result.isEstimated) {
     list.push(
-      'Bitrates marked "~" or "est." are planning estimates; real bitrate varies with scene, night/IR and camera model. Use measured averages or configured bitrate caps for the most reliable results.'
+      'Bitrates marked "~" or "est." are planning estimates; real bitrate varies with scene, night/IR and camera model. Use a measured VBR average or the configured CBR bitrate for the most reliable results.'
     );
     if (!(isBitrateModelValidated && isSubStreamModelValidated)) {
       list.push(
@@ -176,10 +176,10 @@ export function buildPrintSummary(
     ingest: describeIngest(result),
     sourceLabel: result.isEstimated ? 'Estimated' : 'From known bitrates',
     keyFigures: [
-      { label: 'Remote viewing upload', value: rangeValue(result.viewingUploadMbps) },
+      { label: 'Remote viewing bandwidth', value: rangeValue(result.viewingUploadMbps) },
       { label: 'Main streams', value: rangeValue(result.mainTotalMbps) },
       {
-        label: `Sub-streams (${recordsSub ? 'recorded' : 'not recorded'})`,
+        label: `Sub-streams (${recordsSub ? 'included' : 'not included'})`,
         value: rangeValue(result.subTotalMbps),
       },
       { label: 'Cameras', value: formatNumber(result.totalCameras, 0) },

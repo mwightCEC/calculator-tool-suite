@@ -126,7 +126,7 @@ export function BandwidthCalculator({ header }: BandwidthCalculatorProps) {
         </div>
 
         <MobileResultBar
-          label="Recorder ingest"
+          label="Bandwidth estimate"
           value={ingest.value}
           detail={ingest.likelyRange}
           resultsId={RESULTS_CARD_ID}

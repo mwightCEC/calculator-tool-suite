@@ -78,7 +78,7 @@ export function CameraStreamFields({
 
       <FieldRow
         label="Resolution"
-        help="Main-stream recording resolution. Higher resolutions need more bitrate."
+        help="Main-stream resolution. Higher resolutions need more bitrate."
         controlId={`${id}-resolution`}
       >
         <Select
@@ -118,7 +118,7 @@ export function CameraStreamFields({
 
       <FieldRow
         label="Frame rate"
-        help="Recorded frames per second. Lower frame rates reduce bitrate, though not proportionally."
+        help="Frames per second the camera sends. Lower frame rates reduce bitrate, though not proportionally."
         controlId={`${id}-fps`}
       >
         <Select

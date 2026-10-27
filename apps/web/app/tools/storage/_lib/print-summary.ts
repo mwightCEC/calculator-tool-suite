@@ -111,9 +111,9 @@ function groupBitrate(group: CameraGroupState, usage: CameraGroupUsage): string 
       return `~${formatFixed(range.typical, digits)} Mbps est. (${formatRangeBounds(range, digits)})`;
     }
     case 'known-average':
-      return `${formatMbps(group.bitrate.mbps)} known average`;
+      return `${formatMbps(group.bitrate.mbps)} VBR average`;
     case 'bitrate-cap':
-      return `${formatMbps(group.bitrate.mbps)} cap`;
+      return `${formatMbps(group.bitrate.mbps)} CBR`;
   }
 }
 
@@ -195,7 +195,7 @@ function notes(result: StorageCalculationResult): string[] {
   ];
   if (result.isEstimated) {
     list.push(
-      'Bitrates marked "est." are planning estimates; real bitrate varies with scene, night/IR and camera model. Use measured averages or configured bitrate caps for the most reliable results.'
+      'Bitrates marked "est." are planning estimates; real bitrate varies with scene, night/IR and camera model. Use a measured VBR average or the configured CBR bitrate for the most reliable results.'
     );
     if (!isBitrateModelValidated) {
       list.push(

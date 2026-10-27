@@ -30,7 +30,7 @@ function buildTiles(state: BandwidthCalculatorState, result: BandwidthResult): T
     {
       label: 'Sub-streams',
       value: `~${formatMbps(subTotalMbps.typical)}`,
-      detail: recordsSub ? 'Recorded' : 'Not recorded',
+      detail: recordsSub ? 'Included' : 'Not included',
     },
     {
       label: 'Per camera (main)',

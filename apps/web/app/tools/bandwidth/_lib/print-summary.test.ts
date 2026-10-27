@@ -45,7 +45,10 @@ describe('buildPrintSummary', () => {
     expect(summary.ingest).toEqual({ value: '44 Mbps', likelyRange: null });
     expect(summary.sourceLabel).toBe('From known bitrates');
     expect(summary.keyFigures).toContainEqual({ label: 'Main streams', value: '40 Mbps' });
-    expect(summary.keyFigures).toContainEqual({ label: 'Remote viewing upload', value: '0 Mbps' });
+    expect(summary.keyFigures).toContainEqual({
+      label: 'Remote viewing bandwidth',
+      value: '0 Mbps',
+    });
     expect(summary.notes).toHaveLength(1);
     expect(summary.notes[0]).toMatch(/up to 70% is OK, up to 90% is a caution/);
   });
@@ -108,10 +111,10 @@ describe('buildPrintSummary', () => {
       camera: '4MP (1440p) · H.265 · 15 fps',
       scene: 'n/a (known bitrate)',
       subStream: 'D1',
-      bitrate: '4 Mbps known average',
+      bitrate: '4 Mbps VBR average',
       mainTotal: '40 Mbps',
     });
-    expect(summary.keyFigures.map((figure) => figure.label)).toContain('Sub-streams (recorded)');
+    expect(summary.keyFigures.map((figure) => figure.label)).toContain('Sub-streams (included)');
     expect(summary.settings).toEqual([
       { label: 'Recorded streams', value: 'Main + sub' },
       { label: 'Remote viewing', value: 'No remote viewers' },

@@ -55,6 +55,11 @@ describe('bandwidthInputSchema', () => {
     expect(bandwidthInputSchema.safeParse(input).success).toBe(true);
   });
 
+  it.each([10, 100, 1000, 10_000])('accepts a %i Mbps uplink', (uplinkMbps) => {
+    const input = { ...valid, network: { ...valid.network, uplinkMbps } };
+    expect(bandwidthInputSchema.safeParse(input).success).toBe(true);
+  });
+
   it('accepts zero remote viewers', () => {
     const input = { ...valid, remoteViewing: { ...valid.remoteViewing, viewers: 0 } };
     expect(bandwidthInputSchema.safeParse(input).success).toBe(true);

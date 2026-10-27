@@ -20,8 +20,8 @@ export function HowCalculated() {
               storage is worse than having spare.
             </List.Item>
             <List.Item>
-              For the most reliable results use a <b>Known average</b> measured on an existing
-              system, or a <b>Bitrate cap</b> (CBR or maximum bitrate) configured on the cameras.
+              For the most reliable results use a <b>VBR</b> average measured on an existing system,
+              or the <b>CBR</b> (constant or maximum) bitrate configured on the cameras.
             </List.Item>
             <List.Item>
               RAID parity or mirroring and the reserve are taken out of raw capacity before footage

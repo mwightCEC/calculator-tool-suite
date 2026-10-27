@@ -32,8 +32,9 @@ export const VIEWING_STREAM_LABELS: Record<ViewingStream, string> = {
 };
 
 export const UPLINK_LABELS: Record<UplinkSpeedMbps, string> = {
+  10: '10 Mbps',
   100: '100 Mbps',
-  1000: '1 Gbps',
+  1000: '1 Gbps (1000 Mbps)',
   10_000: '10 Gbps',
 };
 

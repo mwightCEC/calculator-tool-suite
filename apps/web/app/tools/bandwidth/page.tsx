@@ -4,7 +4,7 @@ import { BandwidthCalculator } from './_components/BandwidthCalculator';
 
 export const metadata: Metadata = {
   title: 'Bandwidth',
-  description: 'Estimate network traffic for recording and remote viewing.',
+  description: 'Estimate network bandwidth for camera streams and remote viewing.',
 };
 
 export default function BandwidthPage() {
@@ -13,7 +13,7 @@ export default function BandwidthPage() {
       header={
         <div>
           <Title order={1}>Bandwidth Calculator</Title>
-          <Text c="dimmed">Estimate network traffic for recording and remote viewing.</Text>
+          <Text c="dimmed">Estimate network bandwidth for camera streams and remote viewing.</Text>
         </div>
       }
     />
