@@ -3,81 +3,88 @@ import { cameraBitrateRange } from '../bitrate/group-bitrate';
 import type { BitrateSource } from '../options';
 import { pointRange, scaleRange, sumRanges, type ValueRange } from '../range';
 import { checkLink, type LinkCheck } from './link-checks';
-import type { ViewingStream } from './options';
-import type { BandwidthCameraGroup, BandwidthInput } from './schema';
-import { subStreamBitrateRange, type SubStreamModel } from './sub-stream-model';
+import type { BandwidthCameraGroup, BandwidthInput, RemoteViewing } from './schema';
 
 export interface BandwidthModels {
   bitrateModel?: BitrateModel;
-  subStreamModel?: SubStreamModel;
 }
 
 export interface BandwidthGroupUsage {
   groupId: string;
-  /** Source of the main-stream bitrate. Sub-streams always use the placeholder ranges. */
   bitrateSource: BitrateSource;
-  mainPerCameraMbps: ValueRange;
-  subPerCameraMbps: ValueRange;
+  perCameraMbps: ValueRange;
   /** All cameras in the group, before overhead. */
-  mainTotalMbps: ValueRange;
-  subTotalMbps: ValueRange;
+  totalMbps: ValueRange;
+}
+
+export interface RemoteViewingUsage {
+  /** Cameras each remote viewer actually watches (capped at the total camera count). */
+  viewedCamerasPerViewer: number;
+  /** Per-camera rate used for remote viewing, before overhead. */
+  perCameraMbps: ValueRange;
+  /** Bandwidth for all remote viewers, with overhead. */
+  totalMbps: ValueRange;
 }
 
 export interface BandwidthResult {
   groups: BandwidthGroupUsage[];
   totalCameras: number;
-  /** True when any traffic that counts comes from an estimate or the sub-stream placeholders. */
+  /** True when any camera group's bitrate comes from the estimate. */
   isEstimated: boolean;
-  /** Sum of all main streams, before overhead. */
-  mainTotalMbps: ValueRange;
-  /** Sum of all sub-streams, before overhead (counted in ingest only when recorded). */
-  subTotalMbps: ValueRange;
-  /** Average main-stream bitrate per camera, before overhead. */
-  averageMainPerCameraMbps: ValueRange;
-  /** All camera traffic on the local network, with overhead (the bandwidth estimate). */
-  ingestMbps: ValueRange;
-  /** Cameras each remote viewer actually watches (capped at the total camera count). */
-  viewedCamerasPerViewer: number;
-  /** Per-camera rate used for remote viewing (busiest group's), or null with no viewers. */
-  viewingPerCameraMbps: ValueRange | null;
-  /** Upload from the site for remote viewing, with overhead. */
-  viewingUploadMbps: ValueRange;
+  /** Sum of all camera streams, before overhead. */
+  streamsMbps: ValueRange;
+  /** Average bitrate per camera, weighted by camera count, before overhead. */
+  averagePerCameraMbps: ValueRange;
+  /** The bandwidth estimate: all camera traffic on the local network, with overhead. */
+  bandwidthMbps: ValueRange;
+  /** Null when remote viewing is off. */
+  remoteViewing: RemoteViewingUsage | null;
   /** One check per link the user entered, in a fixed order. */
   linkChecks: LinkCheck[];
 }
 
 function groupUsage(group: BandwidthCameraGroup, models: BandwidthModels): BandwidthGroupUsage {
-  const mainPerCameraMbps = cameraBitrateRange(group, models.bitrateModel);
-  const subPerCameraMbps = subStreamBitrateRange(group.subStreamResolution, models.subStreamModel);
+  const perCameraMbps = cameraBitrateRange(group, models.bitrateModel);
   return {
     groupId: group.id,
     bitrateSource: group.bitrate.source,
-    mainPerCameraMbps,
-    subPerCameraMbps,
-    mainTotalMbps: scaleRange(mainPerCameraMbps, group.cameraCount),
-    subTotalMbps: scaleRange(subPerCameraMbps, group.cameraCount),
+    perCameraMbps,
+    totalMbps: scaleRange(perCameraMbps, group.cameraCount),
   };
 }
 
-/** The busiest group's per-camera rate for a stream (highest high estimate), keeping viewing conservative. */
-function busiestPerCameraRate(groups: BandwidthGroupUsage[], stream: ViewingStream): ValueRange {
-  const rates = groups.map((group) =>
-    stream === 'main' ? group.mainPerCameraMbps : group.subPerCameraMbps
-  );
-  return rates.reduce((busiest, rate) => (rate.high > busiest.high ? rate : busiest));
+function remoteViewingUsage(
+  viewing: RemoteViewing,
+  averagePerCameraMbps: ValueRange,
+  totalCameras: number,
+  overheadFactor: number
+): RemoteViewingUsage | null {
+  if (!viewing.enabled) {
+    return null;
+  }
+  const viewedCamerasPerViewer = Math.min(viewing.camerasPerViewer, totalCameras);
+  const perCameraMbps =
+    viewing.bitrateSource === 'custom' ? pointRange(viewing.customMbps) : averagePerCameraMbps;
+  return {
+    viewedCamerasPerViewer,
+    perCameraMbps,
+    totalMbps: scaleRange(perCameraMbps, viewing.viewers * viewedCamerasPerViewer * overheadFactor),
+  };
 }
 
-function linkChecks(input: BandwidthInput, ingest: ValueRange, upload: ValueRange): LinkCheck[] {
-  const { recorderLimitMbps, uplinkMbps, siteUploadMbps } = input.network;
+function linkChecks(
+  input: BandwidthInput,
+  bandwidth: ValueRange,
+  remoteViewing: RemoteViewingUsage | null
+): LinkCheck[] {
+  const { uplinkMbps } = input.network;
+  const { siteUploadMbps } = input.remoteViewing;
   const checks: LinkCheck[] = [];
-  if (recorderLimitMbps !== null) {
-    checks.push(checkLink('recorder-limit', recorderLimitMbps, ingest));
-  }
   if (uplinkMbps !== null) {
-    checks.push(checkLink('uplink', uplinkMbps, ingest));
+    checks.push(checkLink('uplink', uplinkMbps, bandwidth));
   }
-  if (siteUploadMbps !== null) {
-    checks.push(checkLink('site-upload', siteUploadMbps, upload));
+  if (remoteViewing && siteUploadMbps !== null) {
+    checks.push(checkLink('site-upload', siteUploadMbps, remoteViewing.totalMbps));
   }
   return checks;
 }
@@ -94,34 +101,25 @@ export function calculateBandwidth(
   const groups = input.cameraGroups.map((group) => groupUsage(group, models));
   const totalCameras = input.cameraGroups.reduce((sum, group) => sum + group.cameraCount, 0);
   const overheadFactor = 1 + input.overheadPercent / 100;
-  const recordsSub = input.recordedStreams === 'main-and-sub';
-  const { viewers, camerasPerViewer, stream } = input.remoteViewing;
 
-  const mainTotalMbps = sumRanges(groups.map((group) => group.mainTotalMbps));
-  const subTotalMbps = sumRanges(groups.map((group) => group.subTotalMbps));
-  const recordedMbps = recordsSub ? sumRanges([mainTotalMbps, subTotalMbps]) : mainTotalMbps;
-  const ingestMbps = scaleRange(recordedMbps, overheadFactor);
-
-  const viewedCamerasPerViewer = Math.min(camerasPerViewer, totalCameras);
-  const viewingPerCameraMbps = viewers > 0 ? busiestPerCameraRate(groups, stream) : null;
-  const viewingUploadMbps = viewingPerCameraMbps
-    ? scaleRange(viewingPerCameraMbps, viewers * viewedCamerasPerViewer * overheadFactor)
-    : pointRange(0);
-
-  const mainEstimated = groups.some((group) => group.bitrateSource === 'estimate');
-  const subStreamsCount = recordsSub || (viewers > 0 && stream === 'sub');
+  const streamsMbps = sumRanges(groups.map((group) => group.totalMbps));
+  const averagePerCameraMbps = scaleRange(streamsMbps, 1 / totalCameras);
+  const bandwidthMbps = scaleRange(streamsMbps, overheadFactor);
+  const remoteViewing = remoteViewingUsage(
+    input.remoteViewing,
+    averagePerCameraMbps,
+    totalCameras,
+    overheadFactor
+  );
 
   return {
     groups,
     totalCameras,
-    isEstimated: mainEstimated || subStreamsCount,
-    mainTotalMbps,
-    subTotalMbps,
-    averageMainPerCameraMbps: scaleRange(mainTotalMbps, 1 / totalCameras),
-    ingestMbps,
-    viewedCamerasPerViewer,
-    viewingPerCameraMbps,
-    viewingUploadMbps,
-    linkChecks: linkChecks(input, ingestMbps, viewingUploadMbps),
+    isEstimated: groups.some((group) => group.bitrateSource === 'estimate'),
+    streamsMbps,
+    averagePerCameraMbps,
+    bandwidthMbps,
+    remoteViewing,
+    linkChecks: linkChecks(input, bandwidthMbps, remoteViewing),
   };
 }

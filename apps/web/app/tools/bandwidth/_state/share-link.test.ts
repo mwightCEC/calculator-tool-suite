@@ -1,11 +1,9 @@
 import {
   BITRATE_SOURCES,
   CODECS,
-  RECORDED_STREAMS,
   RESOLUTIONS,
   SCENE_COMPLEXITIES,
-  SUB_STREAM_RESOLUTIONS,
-  VIEWING_STREAMS,
+  VIEWING_BITRATE_SOURCES,
 } from '@cctv/calc-core';
 import { describe, expect, it } from 'vitest';
 import { INPUT_MODES } from '../../../../lib/input-mode';
@@ -17,16 +15,14 @@ import {
   type BandwidthCalculatorState,
 } from './bandwidth-calculator-state';
 import {
-  stateToV1Payload,
-  V1_BITRATE_SOURCES,
-  V1_CODECS,
-  V1_INPUT_MODES,
-  V1_RECORDED_STREAMS,
-  V1_RESOLUTIONS,
-  V1_SCENE_COMPLEXITIES,
-  V1_SUB_STREAM_RESOLUTIONS,
-  V1_VIEWING_STREAMS,
-} from './share-format-v1';
+  stateToV2Payload,
+  V2_BITRATE_SOURCES,
+  V2_CODECS,
+  V2_INPUT_MODES,
+  V2_RESOLUTIONS,
+  V2_SCENE_COMPLEXITIES,
+  V2_VIEWING_BITRATE_SOURCES,
+} from './share-format-v2';
 import { buildShareUrl, decodeShareParams, encodeState, SHARE_FORMAT_VERSION } from './share-link';
 
 const PAGE = 'https://example.test/tools/bandwidth';
@@ -40,16 +36,20 @@ function sampleState(): BandwidthCalculatorState {
     {
       type: 'update-group',
       id: 'g2',
+      changes: { name: 'Lobby – Café 東', cameraCount: 3, resolution: 'nHD' },
+    },
+    {
+      type: 'update-remote-viewing',
       changes: {
-        name: 'Lobby – Café 東',
-        cameraCount: 3,
-        resolution: 'nHD',
-        subStreamResolution: '720p',
+        enabled: true,
+        viewers: 3,
+        camerasPerViewer: 9,
+        bitrateSource: 'custom',
+        customMbps: 0.7,
+        siteUploadMbps: 50,
       },
     },
-    { type: 'set-recorded-streams', recordedStreams: 'main-and-sub' },
-    { type: 'update-remote-viewing', changes: { viewers: 3, camerasPerViewer: 9, stream: 'main' } },
-    { type: 'update-network', changes: { recorderLimitMbps: 160, uplinkMbps: 1000 } },
+    { type: 'update-network', changes: { uplinkMbps: 1000 } },
     { type: 'set-overhead', overheadPercent: 20 },
   ];
   const advanced = bandwidthCalculatorReducer(createInitialBandwidthCalculatorState(), {
@@ -69,10 +69,11 @@ function roundTrip(state: BandwidthCalculatorState) {
   return decodeShareParams(new URL(buildShareUrl(state, PAGE)).searchParams);
 }
 
-describe('encoding (v1)', () => {
-  it('writes the current format version', () => {
+describe('encoding (v2)', () => {
+  it('writes format version 2', () => {
     const url = new URL(buildShareUrl(sampleState(), PAGE));
-    expect(url.searchParams.get(SHARE_VERSION_PARAM)).toBe(SHARE_FORMAT_VERSION);
+    expect(url.searchParams.get(SHARE_VERSION_PARAM)).toBe('2');
+    expect(SHARE_FORMAT_VERSION).toBe('2');
   });
 
   it('round-trips the state exactly', () => {
@@ -80,8 +81,16 @@ describe('encoding (v1)', () => {
     expect(roundTrip(state)).toEqual({ status: 'loaded', state });
   });
 
-  it('round-trips the default state, with every check off', () => {
+  it('round-trips the default (Simple) state, with remote viewing and every check off', () => {
     const state = createInitialBandwidthCalculatorState();
+    expect(roundTrip(state)).toEqual({ status: 'loaded', state });
+  });
+
+  it('round-trips remote viewing turned off with its settings kept', () => {
+    const state = bandwidthCalculatorReducer(sampleState(), {
+      type: 'update-remote-viewing',
+      changes: { enabled: false },
+    });
     expect(roundTrip(state)).toEqual({ status: 'loaded', state });
   });
 
@@ -90,66 +99,47 @@ describe('encoding (v1)', () => {
   });
 
   it('stores an off check as 0 and reads it back as off', () => {
-    const payload = stateToV1Payload(sampleState());
-    expect(payload[2]).toEqual([160, 1000, 0]);
+    const state = bandwidthCalculatorReducer(sampleState(), {
+      type: 'update-remote-viewing',
+      changes: { siteUploadMbps: null },
+    });
+    const payload = stateToV2Payload(state);
+    expect(payload[0][5]).toBe(0);
+    expect(payload[1]).toEqual([1000]);
     const result = decodeShareParams(linkParams(SHARE_FORMAT_VERSION, payload));
-    expect(result.status === 'loaded' && result.state.network.siteUploadMbps).toBeNull();
+    expect(result.status === 'loaded' && result.state.remoteViewing.siteUploadMbps).toBeNull();
   });
 });
 
-describe('v1 index tables', () => {
+describe('v2 index tables', () => {
   // The tables are part of the link format. If calc-core's options change, these
   // tests fail: append new options to the tables, or create a new format version.
   it.each([
-    ['recorded streams', V1_RECORDED_STREAMS, RECORDED_STREAMS],
-    ['viewing streams', V1_VIEWING_STREAMS, VIEWING_STREAMS],
-    ['resolutions', V1_RESOLUTIONS, RESOLUTIONS],
-    ['codecs', V1_CODECS, CODECS],
-    ['scene complexities', V1_SCENE_COMPLEXITIES, SCENE_COMPLEXITIES],
-    ['sub-stream resolutions', V1_SUB_STREAM_RESOLUTIONS, SUB_STREAM_RESOLUTIONS],
-    ['bitrate sources', V1_BITRATE_SOURCES, BITRATE_SOURCES],
-    ['input modes', V1_INPUT_MODES, INPUT_MODES],
+    ['viewing bitrate sources', V2_VIEWING_BITRATE_SOURCES, VIEWING_BITRATE_SOURCES],
+    ['resolutions', V2_RESOLUTIONS, RESOLUTIONS],
+    ['codecs', V2_CODECS, CODECS],
+    ['scene complexities', V2_SCENE_COMPLEXITIES, SCENE_COMPLEXITIES],
+    ['bitrate sources', V2_BITRATE_SOURCES, BITRATE_SOURCES],
+    ['input modes', V2_INPUT_MODES, INPUT_MODES],
   ] as const)('cover every calc-core %s option', (_label, table, options) => {
     expect([...table].sort()).toEqual([...options].sort());
   });
 
   it('keep their published order (append only; reordering breaks existing links)', () => {
     expect({
-      recorded: V1_RECORDED_STREAMS,
-      viewing: V1_VIEWING_STREAMS,
-      resolutions: V1_RESOLUTIONS,
-      codecs: V1_CODECS,
-      complexities: V1_SCENE_COMPLEXITIES,
-      subStreams: V1_SUB_STREAM_RESOLUTIONS,
-      sources: V1_BITRATE_SOURCES,
-      inputModes: V1_INPUT_MODES,
+      viewing: V2_VIEWING_BITRATE_SOURCES,
+      resolutions: V2_RESOLUTIONS,
+      codecs: V2_CODECS,
+      complexities: V2_SCENE_COMPLEXITIES,
+      sources: V2_BITRATE_SOURCES,
+      inputModes: V2_INPUT_MODES,
     }).toEqual({
-      recorded: ['main', 'main-and-sub'],
-      viewing: ['sub', 'main'],
+      viewing: ['camera', 'custom'],
       resolutions: ['1MP', '2MP', '3MP', '4MP', '5MP', '6MP', '8MP', '12MP', 'nHD', '960H'],
       codecs: ['h264', 'h265', 'mjpeg'],
       complexities: ['low', 'medium', 'high'],
-      subStreams: ['d1', '720p', '1080p'],
       sources: ['estimate', 'known-average', 'bitrate-cap'],
       inputModes: ['advanced', 'simple'],
-    });
-  });
-});
-
-describe('input mode', () => {
-  it('opens links made before Simple mode in Advanced', () => {
-    const withoutInputMode = stateToV1Payload(sampleState()).slice(0, 5);
-    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, withoutInputMode))).toEqual({
-      status: 'loaded',
-      state: sampleState(),
-    });
-  });
-
-  it('rejects a Simple link that breaks Simple mode’s rules', () => {
-    const payload = stateToV1Payload(sampleState());
-    payload[5] = V1_INPUT_MODES.indexOf('simple');
-    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, payload))).toEqual({
-      status: 'invalid',
     });
   });
 });
@@ -160,7 +150,7 @@ describe('decodeShareParams', () => {
   });
 
   it('re-creates group ids as g1, g2, …', () => {
-    const payload = stateToV1Payload(sampleState());
+    const payload = stateToV2Payload(sampleState());
     const result = decodeShareParams(linkParams(SHARE_FORMAT_VERSION, payload));
     expect(result.status === 'loaded' && result.state.cameraGroups.map((g) => g.id)).toEqual([
       'g1',
@@ -168,48 +158,72 @@ describe('decodeShareParams', () => {
     ]);
   });
 
+  /** A v2 payload of the sample state with one change, as a link. */
+  function changedLink(change: (payload: ReturnType<typeof stateToV2Payload>) => void) {
+    return () => {
+      const payload = stateToV2Payload(sampleState());
+      change(payload);
+      return linkParams(SHARE_FORMAT_VERSION, payload);
+    };
+  }
+
   it.each([
-    ['an unknown version', () => linkParams('99', stateToV1Payload(sampleState()))],
+    ['an unknown version', () => linkParams('99', stateToV2Payload(sampleState()))],
+    ['a v1 link (no longer read)', () => linkParams('1', [0, [1, 4, 0], [0, 0, 0], 10, [], 0])],
     ['a Storage-style object', () => linkParams(SHARE_FORMAT_VERSION, sampleState())],
     [
-      'an out-of-range sub-stream index',
-      () => {
-        const payload = stateToV1Payload(sampleState());
-        payload[4][0]![6] = V1_SUB_STREAM_RESOLUTIONS.length;
-        return linkParams(SHARE_FORMAT_VERSION, payload);
-      },
+      'an enabled flag other than 0 or 1',
+      changedLink((payload) => {
+        payload[0][0] = 2;
+      }),
+    ],
+    [
+      'zero viewers',
+      changedLink((payload) => {
+        payload[0][1] = 0;
+      }),
+    ],
+    [
+      'an out-of-range viewing bitrate source',
+      changedLink((payload) => {
+        payload[0][3] = V2_VIEWING_BITRATE_SOURCES.length;
+      }),
+    ],
+    [
+      'a custom bitrate above the limit',
+      changedLink((payload) => {
+        payload[0][4] = 500;
+      }),
+    ],
+    [
+      'a negative site upload',
+      changedLink((payload) => {
+        payload[0][5] = -5;
+      }),
     ],
     [
       'an uplink speed that is not an option',
-      () => {
-        const payload = stateToV1Payload(sampleState());
-        payload[2][1] = 250;
-        return linkParams(SHARE_FORMAT_VERSION, payload);
-      },
+      changedLink((payload) => {
+        payload[1][0] = 250;
+      }),
     ],
     [
       'an overhead that is not an option',
-      () => {
-        const payload = stateToV1Payload(sampleState());
-        payload[3] = 15;
-        return linkParams(SHARE_FORMAT_VERSION, payload);
-      },
-    ],
-    [
-      'a negative link capacity',
-      () => {
-        const payload = stateToV1Payload(sampleState());
-        payload[2][0] = -5;
-        return linkParams(SHARE_FORMAT_VERSION, payload);
-      },
+      changedLink((payload) => {
+        payload[2] = 15;
+      }),
     ],
     [
       'no camera groups',
-      () => {
-        const payload = stateToV1Payload(sampleState());
-        payload[4] = [];
-        return linkParams(SHARE_FORMAT_VERSION, payload);
-      },
+      changedLink((payload) => {
+        payload[3] = [];
+      }),
+    ],
+    [
+      'a Simple link that breaks Simple mode’s rules',
+      changedLink((payload) => {
+        payload[4] = V2_INPUT_MODES.indexOf('simple');
+      }),
     ],
   ])('rejects %s', (_label, params) => {
     expect(decodeShareParams(params())).toEqual({ status: 'invalid' });

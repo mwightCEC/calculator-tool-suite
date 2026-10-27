@@ -19,22 +19,22 @@ function rangeDetail(range: ValueRange): string | null {
 const approx = (range: ValueRange) => (isPointRange(range) ? '' : '~');
 
 function buildTiles(state: BandwidthCalculatorState, result: BandwidthResult): Tile[] {
-  const recordsSub = state.recordedStreams === 'main-and-sub';
-  const { mainTotalMbps, subTotalMbps, averageMainPerCameraMbps } = result;
+  const { streamsMbps, averagePerCameraMbps, bandwidthMbps } = result;
+  const overheadMbps = bandwidthMbps.typical - streamsMbps.typical;
   return [
     {
-      label: 'Main streams',
-      value: `${approx(mainTotalMbps)}${formatMbps(mainTotalMbps.typical)}`,
-      detail: rangeDetail(mainTotalMbps),
+      label: 'Camera streams',
+      value: `${approx(streamsMbps)}${formatMbps(streamsMbps.typical)}`,
+      detail: rangeDetail(streamsMbps),
     },
     {
-      label: 'Sub-streams',
-      value: `~${formatMbps(subTotalMbps.typical)}`,
-      detail: recordsSub ? 'Included' : 'Not included',
+      label: 'Overhead',
+      value: `${approx(bandwidthMbps)}${formatMbps(overheadMbps)}`,
+      detail: `${state.overheadPercent}% allowance`,
     },
     {
-      label: 'Per camera (main)',
-      value: `${approx(averageMainPerCameraMbps)}${formatMbps(averageMainPerCameraMbps.typical)}`,
+      label: 'Per camera',
+      value: `${approx(averagePerCameraMbps)}${formatMbps(averagePerCameraMbps.typical)}`,
       detail: 'Average, before overhead',
     },
     {
@@ -50,7 +50,7 @@ interface MetricTilesProps {
   result: BandwidthResult;
 }
 
-/** Stream totals before overhead, average per camera and camera count. */
+/** Stream total and overhead, average per camera and camera count. */
 export function MetricTiles({ state, result }: MetricTilesProps) {
   return (
     <SimpleGrid cols={2} spacing="xs" component="dl" className={classes.tiles}>

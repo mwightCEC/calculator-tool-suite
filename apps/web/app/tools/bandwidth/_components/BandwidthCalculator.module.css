@@ -22,7 +22,7 @@
   border-style: dashed;
 }
 
-/* System settings cards (Recording, Remote viewing, Network checks, Overhead). */
+/* System settings cards (Remote viewing, Network checks, Overhead). */
 .card {
   display: flex;
   flex-direction: column;
@@ -30,9 +30,12 @@
   padding: var(--mantine-spacing-md);
 }
 
+.cardHeader {
+  margin-bottom: 4px;
+}
+
 .cardTitle {
   font-size: var(--mantine-font-size-md);
-  margin-bottom: 4px;
 }
 
 .secondaryText {

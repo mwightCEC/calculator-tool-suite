@@ -7,7 +7,6 @@ import {
   type BitrateSource,
   type NetworkLinks,
   type OverheadPercent,
-  type RecordedStreams,
   type RemoteViewing,
 } from '@cctv/calc-core';
 import { z } from 'zod';
@@ -34,12 +33,8 @@ export const bandwidthGroupStateSchema = bandwidthCameraGroupSchema.extend({
   colorIndex: colorIndexSchema,
 });
 
-/** What Simple mode fixes: the settings it hides (the calculator's defaults). */
+/** What Simple mode fixes: remote viewing and the uplink check are off, with the default overhead. */
 export const SIMPLE_BANDWIDTH_SETTINGS = {
-  subStreamResolution: 'd1',
-  recordedStreams: 'main',
-  camerasPerViewer: 4,
-  viewingStream: 'sub',
   overheadPercent: 10,
 } as const;
 
@@ -54,11 +49,7 @@ function followsSimpleRules(state: z.infer<typeof bandwidthStateShape>): boolean
   return (
     state.inputMode === 'advanced' ||
     (state.cameraGroups.length === 1 &&
-      state.cameraGroups[0]?.subStreamResolution === fixed.subStreamResolution &&
-      state.recordedStreams === fixed.recordedStreams &&
-      state.remoteViewing.camerasPerViewer === fixed.camerasPerViewer &&
-      state.remoteViewing.stream === fixed.viewingStream &&
-      state.network.recorderLimitMbps === null &&
+      !state.remoteViewing.enabled &&
       state.network.uplinkMbps === null &&
       state.overheadPercent === fixed.overheadPercent)
   );
@@ -85,7 +76,6 @@ export type BandwidthCalculatorAction =
   | { type: 'restore-group'; group: BandwidthGroupState; index: number }
   | { type: 'clear-groups' }
   | { type: 'restore-groups'; groups: BandwidthGroupState[] }
-  | { type: 'set-recorded-streams'; recordedStreams: RecordedStreams }
   | { type: 'update-remote-viewing'; changes: Partial<RemoteViewing> }
   | { type: 'update-network'; changes: Partial<NetworkLinks> }
   | { type: 'set-overhead'; overheadPercent: OverheadPercent };
@@ -118,21 +108,12 @@ function applySimpleRules(state: BandwidthCalculatorState): BandwidthCalculatorS
   if (followsSimpleRules(state)) {
     return state;
   }
-  const fixed = SIMPLE_BANDWIDTH_SETTINGS;
   return {
     ...state,
-    cameraGroups: firstGroupOnly(state.cameraGroups).map((group) => ({
-      ...group,
-      subStreamResolution: fixed.subStreamResolution,
-    })),
-    recordedStreams: fixed.recordedStreams,
-    remoteViewing: {
-      ...state.remoteViewing,
-      camerasPerViewer: fixed.camerasPerViewer,
-      stream: fixed.viewingStream,
-    },
-    network: { ...state.network, recorderLimitMbps: null, uplinkMbps: null },
-    overheadPercent: fixed.overheadPercent,
+    cameraGroups: firstGroupOnly(state.cameraGroups),
+    remoteViewing: { ...state.remoteViewing, enabled: false },
+    network: { ...state.network, uplinkMbps: null },
+    overheadPercent: SIMPLE_BANDWIDTH_SETTINGS.overheadPercent,
   };
 }
 
@@ -141,20 +122,13 @@ export function describeSwitchToSimple(state: BandwidthCalculatorState): string[
   if (state.inputMode === 'simple') {
     return [];
   }
-  const fixed = SIMPLE_BANDWIDTH_SETTINGS;
+  const { overheadPercent } = SIMPLE_BANDWIDTH_SETTINGS;
   const removed = state.cameraGroups.length - 1;
-  const { remoteViewing, network } = state;
   return [
     removed > 0 && `removed ${removed} camera group${removed === 1 ? '' : 's'}`,
-    state.cameraGroups[0]?.subStreamResolution !== fixed.subStreamResolution &&
-      'sub-stream set to D1',
-    state.recordedStreams !== fixed.recordedStreams && 'recording set to main stream only',
-    (remoteViewing.camerasPerViewer !== fixed.camerasPerViewer ||
-      remoteViewing.stream !== fixed.viewingStream) &&
-      'remote viewing set to 4 cameras on the sub-stream',
-    (network.recorderLimitMbps !== null || network.uplinkMbps !== null) &&
-      'recorder limit and uplink checks turned off',
-    state.overheadPercent !== fixed.overheadPercent && 'overhead set to 10%',
+    state.remoteViewing.enabled && 'remote viewing turned off',
+    state.network.uplinkMbps !== null && 'uplink check turned off',
+    state.overheadPercent !== overheadPercent && `overhead set to ${overheadPercent}%`,
   ].filter((change) => change !== false);
 }
 
@@ -221,9 +195,6 @@ function reduce(
 
     case 'restore-groups':
       return withGroups(state, action.groups);
-
-    case 'set-recorded-streams':
-      return { ...state, recordedStreams: action.recordedStreams };
 
     case 'update-remote-viewing':
       return { ...state, remoteViewing: { ...state.remoteViewing, ...action.changes } };

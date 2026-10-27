@@ -1,27 +1,15 @@
 'use client';
 
-import { isSubStreamModelValidated, type BandwidthGroupUsage } from '@cctv/calc-core';
-import { Text } from '@mantine/core';
+import type { BandwidthGroupUsage } from '@cctv/calc-core';
 import { CameraGroupCard } from '../../../../components/CameraGroupCard/CameraGroupCard';
 import { CamerasCard } from '../../../../components/CameraGroupCard/CamerasCard';
 import { CameraStreamFields } from '../../../../components/CameraGroupCard/CameraStreamFields';
-import { FieldRow, fieldLabelId } from '../../../../components/FieldRow/FieldRow';
-import { OptionButtons } from '../../../../components/OptionButtons/OptionButtons';
-import { describeEstimate } from '../../../../lib/bitrate-text';
-import { SUB_STREAM_RESOLUTION_OPTIONS } from '../_lib/bandwidth-labels';
-import { describeGroupTotals, describeMainTotal, summarizeGroup } from '../_lib/group-summary';
+import { describeGroupTotal, summarizeGroup } from '../_lib/group-summary';
 import type {
   BandwidthGroupChanges,
   BandwidthGroupState,
 } from '../_state/bandwidth-calculator-state';
 import type { BandwidthCalculatorActions } from '../_state/use-bandwidth-calculator';
-import classes from './BandwidthCalculator.module.css';
-
-const SUB_STREAM_HELP = `Lower-resolution second stream each camera sends, used for grid views and sometimes recorded alongside the main stream.${
-  isSubStreamModelValidated
-    ? ''
-    : ' Its bitrate uses preliminary placeholder values that have not been validated against real cameras.'
-}`;
 
 interface BandwidthCameraGroupCardProps {
   group: BandwidthGroupState;
@@ -33,7 +21,7 @@ interface BandwidthCameraGroupCardProps {
   actions: BandwidthCalculatorActions;
 }
 
-/** An Advanced-mode Bandwidth camera group: the shared card and stream fields, plus the sub-stream. */
+/** An Advanced-mode Bandwidth camera group: the shared card and stream fields. */
 export function BandwidthCameraGroupCard({
   group,
   usage,
@@ -45,7 +33,7 @@ export function BandwidthCameraGroupCard({
 }: BandwidthCameraGroupCardProps) {
   const id = group.id;
   const update = (changes: BandwidthGroupChanges) => actions.updateGroup(id, changes);
-  const subStreamId = `${id}-sub-stream`;
+  const total = describeGroupTotal(group, usage);
 
   return (
     <CameraGroupCard
@@ -61,29 +49,15 @@ export function BandwidthCameraGroupCard({
       onDuplicate={() => actions.duplicateGroup(id)}
       onDelete={() => actions.removeGroup(id)}
       collapsedSummary={summarizeGroup(group, usage)}
-      collapsedValue={describeMainTotal(group, usage)}
-      totalValue={describeGroupTotals(group, usage)}
+      collapsedValue={total}
+      totalValue={total}
     >
       <CameraStreamFields
         group={group}
-        perCameraMbps={usage.mainPerCameraMbps}
+        perCameraMbps={usage.perCameraMbps}
         onChange={update}
         onBitrateSourceChange={(source) => actions.setBitrateSource(id, source)}
-      >
-        <FieldRow label="Sub-stream" help={SUB_STREAM_HELP} controlId={subStreamId}>
-          <OptionButtons
-            id={subStreamId}
-            value={group.subStreamResolution}
-            onChange={(subStreamResolution) => update({ subStreamResolution })}
-            options={SUB_STREAM_RESOLUTION_OPTIONS}
-            aria-labelledby={fieldLabelId(subStreamId)}
-          />
-          <Text size="sm" className={classes.secondaryText}>
-            {describeEstimate(usage.subPerCameraMbps)}
-            {isSubStreamModelValidated ? '' : ' (placeholder)'}
-          </Text>
-        </FieldRow>
-      </CameraStreamFields>
+      />
     </CameraGroupCard>
   );
 }
@@ -94,13 +68,13 @@ interface BandwidthCamerasCardProps {
   actions: BandwidthCalculatorActions;
 }
 
-/** Simple mode's single camera setup: the stream fields; the sub-stream stays at D1. */
+/** Simple mode's single camera setup: the stream fields. */
 export function BandwidthCamerasCard({ group, usage, actions }: BandwidthCamerasCardProps) {
   return (
-    <CamerasCard colorIndex={group.colorIndex} totalValue={describeMainTotal(group, usage)}>
+    <CamerasCard colorIndex={group.colorIndex} totalValue={describeGroupTotal(group, usage)}>
       <CameraStreamFields
         group={group}
-        perCameraMbps={usage.mainPerCameraMbps}
+        perCameraMbps={usage.perCameraMbps}
         onChange={(changes) => actions.updateGroup(group.id, changes)}
         onBitrateSourceChange={(source) => actions.setBitrateSource(group.id, source)}
       />

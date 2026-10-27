@@ -62,7 +62,7 @@
   font-size: var(--mantine-font-size-xs);
 }
 
-/* Ingest bar */
+/* Bandwidth bar */
 
 .bar {
   background-color: var(--app-capacity-unused);

@@ -7,13 +7,13 @@ import {
   type BandwidthCalculatorState,
 } from '../_state/bandwidth-calculator-state';
 import {
-  describeIngest,
+  bandwidthSegments,
+  describeBandwidth,
   describeLinkLoad,
+  describeRemoteViewing,
   describeViewing,
-  describeViewingUpload,
   describeWarning,
   formatLinkSpeed,
-  ingestSegments,
 } from './result-summary';
 
 function stateAfter(...actions: BandwidthCalculatorAction[]): BandwidthCalculatorState {
@@ -24,60 +24,83 @@ function stateAfter(...actions: BandwidthCalculatorAction[]): BandwidthCalculato
   return actions.reduce(bandwidthCalculatorReducer, advanced);
 }
 
-/** 10 cameras at a known 4 Mbps, so main-stream figures are exact. */
+/** 10 cameras at a known 4 Mbps, so every figure is exact. */
 const KNOWN_4_MBPS: BandwidthCalculatorAction[] = [
   { type: 'update-group', id: 'g1', changes: { cameraCount: 10 } },
   { type: 'set-bitrate-source', id: 'g1', source: 'known-average' },
   { type: 'update-group', id: 'g1', changes: { bitrate: { source: 'known-average', mbps: 4 } } },
 ];
 
-const NO_VIEWERS: BandwidthCalculatorAction = {
+const VIEWING_ON: BandwidthCalculatorAction = {
   type: 'update-remote-viewing',
-  changes: { viewers: 0 },
+  changes: { enabled: true },
 };
 
-describe('describeIngest', () => {
-  it('is exact with known bitrates and no estimated traffic', () => {
-    const state = stateAfter(...KNOWN_4_MBPS, NO_VIEWERS);
+describe('describeBandwidth', () => {
+  it('is exact with known bitrates', () => {
+    const state = stateAfter(...KNOWN_4_MBPS);
     // 10 × 4 Mbps + 10% overhead.
-    expect(describeIngest(calculateBandwidth(state))).toEqual({
+    expect(describeBandwidth(calculateBandwidth(state))).toEqual({
       value: '44 Mbps',
       likelyRange: null,
     });
   });
 
   it('marks estimates with "~" and gives the likely range', () => {
-    const figure = describeIngest(calculateBandwidth(stateAfter()));
+    const figure = describeBandwidth(calculateBandwidth(stateAfter()));
     expect(figure.value).toMatch(/^~[\d.]+ Mbps$/);
     expect(figure.likelyRange).toMatch(/^likely [\d.]+–[\d.]+ Mbps$/);
   });
 });
 
-describe('describeViewingUpload and describeViewing', () => {
-  it('shows zero upload and "No remote viewers" without viewers', () => {
-    const state = stateAfter(...KNOWN_4_MBPS, NO_VIEWERS);
+describe('describeRemoteViewing and describeViewing', () => {
+  it('describes remote viewing as "Off" when it is turned off', () => {
+    const state = stateAfter(...KNOWN_4_MBPS);
     const result = calculateBandwidth(state);
-    expect(describeViewingUpload(result)).toEqual({ value: '0 Mbps', likelyRange: null });
-    expect(describeViewing(state, result)).toBe('No remote viewers');
+    expect(result.remoteViewing).toBeNull();
+    expect(describeViewing(state, result)).toBe('Off');
   });
 
-  it('describes viewers, capped cameras and stream', () => {
-    const state = stateAfter(
-      { type: 'update-group', id: 'g1', changes: { cameraCount: 3 } },
-      { type: 'update-remote-viewing', changes: { viewers: 2, camerasPerViewer: 4 } }
-    );
-    expect(describeViewing(state, calculateBandwidth(state))).toBe(
-      '2 viewers × 3 cameras · Sub (grid)'
-    );
+  it('is exact at a known camera bitrate', () => {
+    // 1 viewer × 4 cameras × 4 Mbps + 10% overhead.
+    const viewing = calculateBandwidth(stateAfter(...KNOWN_4_MBPS, VIEWING_ON)).remoteViewing!;
+    expect(describeRemoteViewing(viewing)).toEqual({ value: '17.6 Mbps', likelyRange: null });
   });
 
-  it('uses singular nouns for one viewer and one camera', () => {
+  it('marks an estimated camera bitrate with "~"', () => {
+    const viewing = calculateBandwidth(stateAfter(VIEWING_ON)).remoteViewing!;
+    expect(describeRemoteViewing(viewing).value).toMatch(/^~/);
+  });
+
+  it('is exact at a custom bitrate, even when the cameras are estimated', () => {
     const state = stateAfter({
       type: 'update-remote-viewing',
-      changes: { viewers: 1, camerasPerViewer: 1, stream: 'main' },
+      changes: { enabled: true, bitrateSource: 'custom', customMbps: 0.5 },
+    });
+    // 1 viewer × 4 cameras × 0.5 Mbps + 10% overhead.
+    expect(describeRemoteViewing(calculateBandwidth(state).remoteViewing!)).toEqual({
+      value: '2.2 Mbps',
+      likelyRange: null,
+    });
+  });
+
+  it('describes viewers, capped cameras and the camera bitrate', () => {
+    const state = stateAfter(
+      { type: 'update-group', id: 'g1', changes: { cameraCount: 3 } },
+      { type: 'update-remote-viewing', changes: { enabled: true, viewers: 2, camerasPerViewer: 4 } }
+    );
+    expect(describeViewing(state, calculateBandwidth(state))).toBe(
+      '2 viewers × 3 cameras · Camera bitrate'
+    );
+  });
+
+  it('uses singular nouns and names a custom bitrate', () => {
+    const state = stateAfter({
+      type: 'update-remote-viewing',
+      changes: { enabled: true, camerasPerViewer: 1, bitrateSource: 'custom', customMbps: 0.5 },
     });
     expect(describeViewing(state, calculateBandwidth(state))).toBe(
-      '1 viewer × 1 camera · Main (full screen)'
+      '1 viewer × 1 camera · Custom bitrate 0.5 Mbps'
     );
   });
 });
@@ -87,7 +110,7 @@ describe('link text', () => {
     expect(formatLinkSpeed(1000)).toBe('1 Gbps');
     expect(formatLinkSpeed(10_000)).toBe('10 Gbps');
     expect(formatLinkSpeed(1500)).toBe('1,500 Mbps');
-    expect(formatLinkSpeed(250)).toBe('250 Mbps');
+    expect(formatLinkSpeed(10)).toBe('10 Mbps');
   });
 
   it('describes the high load against capacity', () => {
@@ -100,57 +123,44 @@ describe('describeWarning', () => {
   it('is null when no link is over capacity', () => {
     const state = stateAfter(...KNOWN_4_MBPS, {
       type: 'update-network',
-      changes: { recorderLimitMbps: 55 }, // 44 / 55 = 80%: caution only
+      changes: { uplinkMbps: 100 }, // 44 / 100 = 44%: OK
     });
     expect(describeWarning(calculateBandwidth(state))).toBeNull();
   });
 
   it('names every link over capacity', () => {
-    const state = stateAfter(...KNOWN_4_MBPS, {
-      type: 'update-network',
-      changes: { recorderLimitMbps: 40, uplinkMbps: 100, siteUploadMbps: 0.5 },
-    });
+    const state = stateAfter(
+      ...KNOWN_4_MBPS,
+      { type: 'update-network', changes: { uplinkMbps: 10 } },
+      { type: 'update-remote-viewing', changes: { enabled: true, siteUploadMbps: 0.5 } }
+    );
     expect(describeWarning(calculateBandwidth(state))).toBe(
-      'Traffic may exceed: Recorder limit, Site upload. Allow headroom for bursts and other traffic.'
+      'Traffic may exceed: Uplink, Site upload. Allow headroom for bursts and other traffic.'
     );
   });
 });
 
-describe('ingestSegments', () => {
+describe('bandwidthSegments', () => {
   it('labels Simple mode’s single setup "Cameras"', () => {
     const state = createInitialBandwidthCalculatorState();
-    expect(ingestSegments(state, calculateBandwidth(state))[0]?.label).toBe('Cameras');
+    expect(bandwidthSegments(state, calculateBandwidth(state))[0]?.label).toBe('Cameras');
   });
 
-  it('splits ingest into groups and overhead that add up to the total', () => {
+  it('splits the estimate into groups and overhead that add up to the total', () => {
     const state = stateAfter(...KNOWN_4_MBPS, { type: 'add-group' });
     const result = calculateBandwidth(state);
-    const segments = ingestSegments(state, result);
+    const segments = bandwidthSegments(state, result);
 
     expect(segments.map((segment) => segment.key)).toEqual(['g1', 'g2', 'overhead']);
     expect(segments[0]).toEqual({ key: 'g1', label: 'Camera group 1', mbps: 40, colorIndex: 0 });
     expect(segments[2]).toMatchObject({ label: 'Overhead', colorIndex: null });
     const total = segments.reduce((sum, segment) => sum + segment.mbps, 0);
-    expect(total).toBeCloseTo(result.ingestMbps.typical);
-  });
-
-  it('includes sub-streams only when they are recorded', () => {
-    const mainOnly = stateAfter(...KNOWN_4_MBPS);
-    const withSub = stateAfter(...KNOWN_4_MBPS, {
-      type: 'set-recorded-streams',
-      recordedStreams: 'main-and-sub',
-    });
-    const subTotal = calculateBandwidth(withSub).groups[0]?.subTotalMbps.typical ?? 0;
-
-    expect(ingestSegments(mainOnly, calculateBandwidth(mainOnly))[0]?.mbps).toBe(40);
-    expect(ingestSegments(withSub, calculateBandwidth(withSub))[0]?.mbps).toBeCloseTo(
-      40 + subTotal
-    );
+    expect(total).toBeCloseTo(result.bandwidthMbps.typical);
   });
 
   it('gives a zero overhead segment at 0% overhead', () => {
     const state = stateAfter(...KNOWN_4_MBPS, { type: 'set-overhead', overheadPercent: 0 });
-    const segments = ingestSegments(state, calculateBandwidth(state));
+    const segments = bandwidthSegments(state, calculateBandwidth(state));
     expect(segments.at(-1)?.mbps).toBeCloseTo(0);
   });
 });

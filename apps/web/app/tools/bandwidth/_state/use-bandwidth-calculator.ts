@@ -6,7 +6,6 @@ import {
   type BitrateSource,
   type NetworkLinks,
   type OverheadPercent,
-  type RecordedStreams,
   type RemoteViewing,
 } from '@cctv/calc-core';
 import {
@@ -91,8 +90,6 @@ export function useBandwidthCalculator() {
     duplicateGroup: (id: string) => dispatch({ type: 'duplicate-group', id }),
     removeGroup,
     clearGroups,
-    setRecordedStreams: (recordedStreams: RecordedStreams) =>
-      dispatch({ type: 'set-recorded-streams', recordedStreams }),
     updateRemoteViewing: (changes: Partial<RemoteViewing>) =>
       dispatch({ type: 'update-remote-viewing', changes }),
     updateNetwork: (changes: Partial<NetworkLinks>) =>
