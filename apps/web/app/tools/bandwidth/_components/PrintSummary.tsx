@@ -30,9 +30,9 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
         <p className={classes.resultLabel}>
           Bandwidth estimate <span className={classes.source}>{summary.sourceLabel}</span>
         </p>
-        <p className={classes.resultValue}>{summary.ingest.value}</p>
-        {summary.ingest.likelyRange && (
-          <p className={classes.resultRange}>{summary.ingest.likelyRange}</p>
+        <p className={classes.resultValue}>{summary.bandwidth.value}</p>
+        {summary.bandwidth.likelyRange && (
+          <p className={classes.resultRange}>{summary.bandwidth.likelyRange}</p>
         )}
       </section>
 
@@ -90,13 +90,9 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
             </th>
             <th scope="col">Camera</th>
             <th scope="col">Scene</th>
-            <th scope="col">Sub-stream</th>
-            <th scope="col">Main bitrate per camera</th>
+            <th scope="col">Bitrate per camera</th>
             <th scope="col" className={classes.number}>
-              Main total
-            </th>
-            <th scope="col" className={classes.number}>
-              Sub total
+              Total
             </th>
           </tr>
         </thead>
@@ -107,10 +103,8 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
               <td className={classes.number}>{group.cameras}</td>
               <td>{group.camera}</td>
               <td>{group.scene}</td>
-              <td>{group.subStream}</td>
               <td>{group.bitrate}</td>
-              <td className={classes.number}>{group.mainTotal}</td>
-              <td className={classes.number}>{group.subTotal}</td>
+              <td className={classes.number}>{group.total}</td>
             </tr>
           ))}
         </tbody>

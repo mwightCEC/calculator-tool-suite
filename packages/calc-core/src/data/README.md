@@ -41,14 +41,3 @@ Every value carries a `provenance` string saying where it came from, for example
 3. Bump `version`, set `lastUpdated`, and set `status` to `"validated"`.
    The schema rejects `"validated"` while any value is still marked `placeholder`.
 4. Run `npm test`.
-
-## Sub-stream model (Bandwidth calculator)
-
-`sub-stream-model.json` holds per-camera **sub-stream** bitrate ranges (low / typical /
-high, in Mbps) for D1, 720p and 1080p. It is kept apart from the main bitrate model so the
-main model's resolutions, and Storage's share links, are unaffected. Sub-streams are usually
-set to a low fixed bitrate, so these ranges don't vary with codec or frame rate.
-
-It follows the same rules as `bitrate-model.json`: every entry has a `provenance`, the file
-is validated against the schema in `../bandwidth/sub-stream-model.ts`, and `"validated"`
-is rejected while any entry is still a placeholder. The current values are **placeholders**.

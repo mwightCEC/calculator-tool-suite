@@ -22,9 +22,9 @@ describe('linkStatus', () => {
 
 describe('checkLink', () => {
   it('judges utilisation on the high estimate', () => {
-    const check = checkLink('recorder-limit', 100, { low: 40, typical: 60, high: 80 });
+    const check = checkLink('uplink', 100, { low: 40, typical: 60, high: 80 });
     expect(check).toEqual({
-      link: 'recorder-limit',
+      link: 'uplink',
       capacityMbps: 100,
       loadMbps: { low: 40, typical: 60, high: 80 },
       utilisation: 0.8,

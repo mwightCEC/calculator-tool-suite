@@ -1,7 +1,12 @@
-import type { BandwidthResult, LinkCheck } from '@cctv/calc-core';
+import {
+  isPointRange,
+  type BandwidthResult,
+  type LinkCheck,
+  type RemoteViewingUsage,
+} from '@cctv/calc-core';
 import { formatLikelyRange, formatMbps, formatNumber } from '../../../../lib/format';
 import type { BandwidthCalculatorState } from '../_state/bandwidth-calculator-state';
-import { LINK_LABELS, VIEWING_STREAM_LABELS } from './bandwidth-labels';
+import { LINK_LABELS, VIEWING_BITRATE_SOURCE_LABELS } from './bandwidth-labels';
 
 export interface ResultFigure {
   value: string;
@@ -10,33 +15,38 @@ export interface ResultFigure {
 }
 
 /** The bandwidth estimate, the headline: "~38 Mbps", "likely 26–55 Mbps". */
-export function describeIngest(result: BandwidthResult): ResultFigure {
+export function describeBandwidth(result: BandwidthResult): ResultFigure {
   const approx = result.isEstimated ? '~' : '';
   return {
-    value: `${approx}${formatMbps(result.ingestMbps.typical)}`,
-    likelyRange: formatLikelyRange(result.ingestMbps, 'Mbps'),
+    value: `${approx}${formatMbps(result.bandwidthMbps.typical)}`,
+    likelyRange: formatLikelyRange(result.bandwidthMbps, 'Mbps'),
   };
 }
 
-/** Remote viewing bandwidth; "0 Mbps" with no viewers. */
-export function describeViewingUpload(result: BandwidthResult): ResultFigure {
-  const approx = result.viewingPerCameraMbps !== null && result.isEstimated ? '~' : '';
+/** Remote viewing bandwidth, with "~" when it comes from estimated camera bitrates. */
+export function describeRemoteViewing(viewing: RemoteViewingUsage): ResultFigure {
+  const approx = isPointRange(viewing.totalMbps) ? '' : '~';
   return {
-    value: `${approx}${formatMbps(result.viewingUploadMbps.typical)}`,
-    likelyRange: formatLikelyRange(result.viewingUploadMbps, 'Mbps'),
+    value: `${approx}${formatMbps(viewing.totalMbps.typical)}`,
+    likelyRange: formatLikelyRange(viewing.totalMbps, 'Mbps'),
   };
 }
 
 const plural = (count: number, noun: string) =>
   `${formatNumber(count, 0)} ${count === 1 ? noun : `${noun}s`}`;
 
-/** "2 viewers × 4 cameras · Sub (grid)", or "No remote viewers". */
+/** "2 viewers × 4 cameras · Camera bitrate", "… · Custom bitrate 0.5 Mbps", or "Off". */
 export function describeViewing(state: BandwidthCalculatorState, result: BandwidthResult): string {
-  const { viewers, stream } = state.remoteViewing;
-  if (viewers === 0) {
-    return 'No remote viewers';
+  const viewing = result.remoteViewing;
+  if (!viewing) {
+    return 'Off';
   }
-  return `${plural(viewers, 'viewer')} × ${plural(result.viewedCamerasPerViewer, 'camera')} · ${VIEWING_STREAM_LABELS[stream]}`;
+  const { viewers, bitrateSource, customMbps } = state.remoteViewing;
+  const rate =
+    bitrateSource === 'custom'
+      ? `${VIEWING_BITRATE_SOURCE_LABELS.custom} ${formatMbps(customMbps)}`
+      : VIEWING_BITRATE_SOURCE_LABELS.camera;
+  return `${plural(viewers, 'viewer')} × ${plural(viewing.viewedCamerasPerViewer, 'camera')} · ${rate}`;
 }
 
 /** "1 Gbps" for whole gigabits, otherwise "250 Mbps". */
@@ -68,23 +78,18 @@ export interface TrafficSegment {
   colorIndex: number | null;
 }
 
-/**
- * Typical bandwidth estimate split by camera group (main streams, plus sub-streams
- * when included) with the overhead allowance as its own segment.
- */
-export function ingestSegments(
+/** Typical bandwidth estimate split by camera group, with the overhead allowance as its own segment. */
+export function bandwidthSegments(
   state: BandwidthCalculatorState,
   result: BandwidthResult
 ): TrafficSegment[] {
-  const recordsSub = state.recordedStreams === 'main-and-sub';
   const groupSegments = result.groups.map((usage) => {
     const group = state.cameraGroups.find((candidate) => candidate.id === usage.groupId);
-    const subMbps = recordsSub ? usage.subTotalMbps.typical : 0;
     return {
       key: usage.groupId,
       // Simple mode's one setup has no visible group name.
       label: state.inputMode === 'simple' ? 'Cameras' : (group?.name ?? usage.groupId),
-      mbps: usage.mainTotalMbps.typical + subMbps,
+      mbps: usage.totalMbps.typical,
       colorIndex: group?.colorIndex ?? 0,
     };
   });
@@ -94,7 +99,7 @@ export function ingestSegments(
     {
       key: 'overhead',
       label: 'Overhead',
-      mbps: result.ingestMbps.typical - streamsMbps,
+      mbps: result.bandwidthMbps.typical - streamsMbps,
       colorIndex: null,
     },
   ];

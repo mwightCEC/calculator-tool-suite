@@ -1,30 +1,24 @@
 'use client';
 
-import {
-  isBitrateModelValidated,
-  isSubStreamModelValidated,
-  type BandwidthResult,
-} from '@cctv/calc-core';
+import { isBitrateModelValidated, type BandwidthResult } from '@cctv/calc-core';
 import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
 import { Badge, Box, Button, Group, Text } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
 import {
-  describeIngest,
+  bandwidthSegments,
+  describeBandwidth,
+  describeRemoteViewing,
   describeViewing,
-  describeViewingUpload,
   describeWarning,
-  ingestSegments,
 } from '../../_lib/result-summary';
 import type { BandwidthCalculatorState } from '../../_state/bandwidth-calculator-state';
 import { buildShareUrl } from '../../_state/share-link';
-import { IngestBar } from './IngestBar';
+import { BandwidthBar } from './BandwidthBar';
 import { LinkChecks } from './LinkChecks';
 import { MetricTiles } from './MetricTiles';
 import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'bandwidth-results';
-
-const modelsValidated = isBitrateModelValidated && isSubStreamModelValidated;
 
 interface ResultsCardProps {
   result: BandwidthResult;
@@ -33,8 +27,8 @@ interface ResultsCardProps {
 }
 
 export function ResultsCard({ result, state }: ResultsCardProps) {
-  const ingest = describeIngest(result);
-  const upload = describeViewingUpload(result);
+  const bandwidth = describeBandwidth(result);
+  const viewing = result.remoteViewing && describeRemoteViewing(result.remoteViewing);
   const warning = describeWarning(result);
 
   return (
@@ -61,9 +55,9 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
 
         {/* Polite live region so screen readers hear the headline update as inputs change. */}
         <div aria-live="polite" aria-atomic="true">
-          <Text className={classes.headlineValue}>{ingest.value}</Text>
-          {ingest.likelyRange && (
-            <Text className={classes.secondaryText}>{ingest.likelyRange}</Text>
+          <Text className={classes.headlineValue}>{bandwidth.value}</Text>
+          {bandwidth.likelyRange && (
+            <Text className={classes.secondaryText}>{bandwidth.likelyRange}</Text>
           )}
         </div>
         <Text className={classes.note}>
@@ -72,25 +66,30 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Text>
       </div>
 
-      <IngestBar segments={ingestSegments(state, result)} />
+      <BandwidthBar segments={bandwidthSegments(state, result)} />
 
-      <div>
-        <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>
-          Remote viewing bandwidth
-        </Text>
-        <Text className={classes.figureValue}>
-          {upload.value}
-          {upload.likelyRange && (
-            <Text span className={classes.secondaryText}>
-              {' '}
-              · {upload.likelyRange}
-            </Text>
-          )}
-        </Text>
-        <Text className={classes.note}>{describeViewing(state, result)}</Text>
-      </div>
+      {viewing && (
+        <div>
+          <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>
+            Remote viewing bandwidth
+          </Text>
+          <Text className={classes.figureValue}>
+            {viewing.value}
+            {viewing.likelyRange && (
+              <Text span className={classes.secondaryText}>
+                {' '}
+                · {viewing.likelyRange}
+              </Text>
+            )}
+          </Text>
+          <Text className={classes.note}>{describeViewing(state, result)}</Text>
+        </div>
+      )}
 
-      <LinkChecks checks={result.linkChecks} />
+      {/* Simple mode has no link checks to enter. */}
+      {state.inputMode === 'advanced' && (
+        <LinkChecks checks={result.linkChecks} remoteViewing={state.remoteViewing.enabled} />
+      )}
 
       {warning && (
         <Group gap={6} wrap="nowrap" className={classes.warning} role="status">
@@ -104,7 +103,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
       {result.isEstimated && (
         <Text className={classes.note}>
           Estimates are shown as a likely range; link checks use the high end.
-          {!modelsValidated && ' Bitrate estimates use preliminary placeholder values.'}
+          {!isBitrateModelValidated && ' Bitrate estimates use preliminary placeholder values.'}
         </Text>
       )}
 

@@ -90,13 +90,6 @@ export {
   type RemoteViewing,
 } from './bandwidth/schema';
 export {
-  isSubStreamModelValidated,
-  SUB_STREAM_MODEL,
-  subStreamBitrateRange,
-  subStreamModelSchema,
-  type SubStreamModel,
-} from './bandwidth/sub-stream-model';
-export {
   checkLink,
   LINK_CAUTION_ABOVE,
   LINK_KINDS,
@@ -112,6 +105,7 @@ export {
   type BandwidthGroupUsage,
   type BandwidthModels,
   type BandwidthResult,
+  type RemoteViewingUsage,
 } from './bandwidth/calculate-bandwidth';
 
 // PoE budget calculator

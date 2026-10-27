@@ -11,12 +11,12 @@ const segmentColor = (segment: TrafficSegment) =>
     ? 'var(--app-capacity-reserve)'
     : `var(--group-color-${segment.colorIndex})`;
 
-interface IngestBarProps {
+interface BandwidthBarProps {
   segments: TrafficSegment[];
 }
 
-/** Typical recorder ingest split by camera group, with overhead as the last segment. */
-export function IngestBar({ segments }: IngestBarProps) {
+/** Typical bandwidth estimate split by camera group, with overhead as the last segment. */
+export function BandwidthBar({ segments }: BandwidthBarProps) {
   const visible = segments.filter((segment) => segment.mbps > 0);
   const totalMbps = visible.reduce((sum, segment) => sum + segment.mbps, 0);
   if (totalMbps === 0) {

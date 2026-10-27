@@ -1,7 +1,6 @@
 import {
   isBitrateModelValidated,
   isPointRange,
-  isSubStreamModelValidated,
   LINK_CAUTION_ABOVE,
   LINK_OVER_CAPACITY_ABOVE,
   type BandwidthGroupUsage,
@@ -24,14 +23,9 @@ import type {
   BandwidthCalculatorState,
   BandwidthGroupState,
 } from '../_state/bandwidth-calculator-state';
+import { LINK_LABELS, LINK_STATUS_LABELS } from './bandwidth-labels';
 import {
-  LINK_LABELS,
-  LINK_STATUS_LABELS,
-  RECORDED_STREAMS_LABELS,
-  SUB_STREAM_RESOLUTION_LABELS,
-} from './bandwidth-labels';
-import {
-  describeIngest,
+  describeBandwidth,
   describeViewing,
   describeWarning,
   formatLinkSpeed,
@@ -64,10 +58,8 @@ export interface GroupRow {
   cameras: string;
   camera: string;
   scene: string;
-  subStream: string;
   bitrate: string;
-  mainTotal: string;
-  subTotal: string;
+  total: string;
 }
 
 export interface PrintSummary {
@@ -75,7 +67,7 @@ export interface PrintSummary {
   inputModeLabel: string | null;
   /** "Cameras" in Simple mode (one setup), "Camera groups" in Advanced. */
   groupsHeading: string;
-  ingest: ResultFigure;
+  bandwidth: ResultFigure;
   sourceLabel: string;
   keyFigures: LabelledValue[];
   links: LinkRow[];
@@ -97,7 +89,7 @@ const percent = (fraction: number) => `${formatNumber(fraction * 100, 0)}%`;
 function groupBitrate(group: BandwidthGroupState, usage: BandwidthGroupUsage): string {
   switch (group.bitrate.source) {
     case 'estimate': {
-      const range = usage.mainPerCameraMbps;
+      const range = usage.perCameraMbps;
       const digits = rangeDigits(range);
       return `~${formatFixed(range.typical, digits)} Mbps est. (${formatRangeBounds(range, digits)})`;
     }
@@ -127,11 +119,8 @@ function groupRows(state: BandwidthCalculatorState, result: BandwidthResult): Gr
           group.bitrate.source === 'estimate'
             ? SCENE_COMPLEXITY_LABELS[group.sceneComplexity]
             : 'n/a (known bitrate)',
-        subStream: SUB_STREAM_RESOLUTION_LABELS[group.subStreamResolution],
         bitrate: groupBitrate(group, usage),
-        mainTotal: `${approx}${formatMbps(usage.mainTotalMbps.typical)}`,
-        // Sub-streams always use the placeholder estimates.
-        subTotal: `~${formatMbps(usage.subTotalMbps.typical)}`,
+        total: `${approx}${formatMbps(usage.totalMbps.typical)}`,
       },
     ];
   });
@@ -156,9 +145,9 @@ function notes(result: BandwidthResult): string[] {
     list.push(
       'Bitrates marked "~" or "est." are planning estimates; real bitrate varies with scene, night/IR and camera model. Use a measured VBR average or the configured CBR bitrate for the most reliable results.'
     );
-    if (!(isBitrateModelValidated && isSubStreamModelValidated)) {
+    if (!isBitrateModelValidated) {
       list.push(
-        'The bitrate and sub-stream estimates currently use preliminary placeholder values that have not been validated against measured cameras.'
+        'The bitrate estimates currently use preliminary placeholder values that have not been validated against measured cameras.'
       );
     }
   }
@@ -169,26 +158,24 @@ export function buildPrintSummary(
   state: BandwidthCalculatorState,
   result: BandwidthResult
 ): PrintSummary {
-  const recordsSub = state.recordedStreams === 'main-and-sub';
+  const viewing = result.remoteViewing;
   return {
     inputModeLabel: state.inputMode === 'simple' ? 'Simple mode' : null,
     groupsHeading: state.inputMode === 'simple' ? 'Cameras' : 'Camera groups',
-    ingest: describeIngest(result),
+    bandwidth: describeBandwidth(result),
     sourceLabel: result.isEstimated ? 'Estimated' : 'From known bitrates',
     keyFigures: [
-      { label: 'Remote viewing bandwidth', value: rangeValue(result.viewingUploadMbps) },
-      { label: 'Main streams', value: rangeValue(result.mainTotalMbps) },
-      {
-        label: `Sub-streams (${recordsSub ? 'included' : 'not included'})`,
-        value: rangeValue(result.subTotalMbps),
-      },
+      ...(viewing
+        ? [{ label: 'Remote viewing bandwidth', value: rangeValue(viewing.totalMbps) }]
+        : []),
+      { label: 'Camera streams (before overhead)', value: rangeValue(result.streamsMbps) },
+      { label: 'Per camera (average)', value: rangeValue(result.averagePerCameraMbps) },
       { label: 'Cameras', value: formatNumber(result.totalCameras, 0) },
     ],
     links: linkRows(result),
     warning: describeWarning(result),
     groups: groupRows(state, result),
     settings: [
-      { label: 'Recorded streams', value: RECORDED_STREAMS_LABELS[state.recordedStreams] },
       { label: 'Remote viewing', value: describeViewing(state, result) },
       { label: 'Overhead', value: `${state.overheadPercent}%` },
     ],

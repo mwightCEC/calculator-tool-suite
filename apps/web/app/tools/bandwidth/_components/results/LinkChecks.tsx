@@ -45,15 +45,22 @@ function LinkCheckRow({ check }: { check: LinkCheck }) {
   );
 }
 
-/** One row per link entered under Network checks, or a hint when none are. */
-export function LinkChecks({ checks }: { checks: LinkCheck[] }) {
+interface LinkChecksProps {
+  checks: LinkCheck[];
+  /** Whether remote viewing is on, which offers the site upload check. */
+  remoteViewing: boolean;
+}
+
+/** One row per link entered, or a hint when none are. */
+export function LinkChecks({ checks, remoteViewing }: LinkChecksProps) {
   return (
     <div>
       <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>Network checks</Text>
       {checks.length === 0 ? (
         <Text className={classes.secondaryText}>
-          Enter a recorder limit, uplink or site upload speed under Network checks to see whether
-          the traffic fits.
+          {remoteViewing
+            ? 'Choose an uplink speed under Network checks, or enter a site upload speed under Remote viewing, to see whether the traffic fits.'
+            : 'Choose an uplink speed under Network checks to see whether the traffic fits.'}
         </Text>
       ) : (
         <Stack component="ul" gap="sm" className={classes.linkList}>

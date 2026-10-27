@@ -8,17 +8,15 @@ import { useGroupExpansion } from '../../../../components/CameraGroupCard/use-gr
 import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
 import { ModeSwitch } from '../../../../components/ModeSwitch/ModeSwitch';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
-import { describeIngest } from '../_lib/result-summary';
+import { describeBandwidth } from '../_lib/result-summary';
 import { useBandwidthCalculator } from '../_state/use-bandwidth-calculator';
 import { BandwidthCameraGroupCard, BandwidthCamerasCard } from './BandwidthCameraGroupCard';
 import { HowCalculated } from './HowCalculated';
 import { NetworkChecksCard } from './NetworkChecksCard';
 import { OverheadCard } from './OverheadCard';
 import { PrintSummary } from './PrintSummary';
-import { RecordingCard } from './RecordingCard';
 import { RemoteViewingCard } from './RemoteViewingCard';
 import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
-import { SimpleRemoteViewingCard } from './SimpleRemoteViewingCard';
 import classes from './BandwidthCalculator.module.css';
 
 interface BandwidthCalculatorProps {
@@ -33,7 +31,7 @@ export function BandwidthCalculator({ header }: BandwidthCalculatorProps) {
   const groupCount = state.cameraGroups.length;
   const atGroupLimit = groupCount >= MAX_CAMERA_GROUPS;
   const usageByGroupId = new Map(result.groups.map((usage) => [usage.groupId, usage]));
-  const ingest = describeIngest(result);
+  const bandwidth = describeBandwidth(result);
   const advanced = state.inputMode === 'advanced';
   const firstGroup = state.cameraGroups[0];
   const firstUsage = firstGroup && usageByGroupId.get(firstGroup.id);
@@ -89,13 +87,14 @@ export function BandwidthCalculator({ header }: BandwidthCalculatorProps) {
                 {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} camera groups` : 'Add camera group'}
               </Button>
 
-              <RecordingCard
-                recordedStreams={state.recordedStreams}
-                onChange={actions.setRecordedStreams}
-              />
               <RemoteViewingCard
                 remoteViewing={state.remoteViewing}
-                viewedCamerasPerViewer={result.viewedCamerasPerViewer}
+                viewedCamerasPerViewer={
+                  // Only shown while remote viewing is on, when the result has it.
+                  result.remoteViewing?.viewedCamerasPerViewer ??
+                  state.remoteViewing.camerasPerViewer
+                }
+                averagePerCameraMbps={result.averagePerCameraMbps}
                 onChange={actions.updateRemoteViewing}
               />
               <NetworkChecksCard network={state.network} onChange={actions.updateNetwork} />
@@ -105,17 +104,10 @@ export function BandwidthCalculator({ header }: BandwidthCalculatorProps) {
               />
             </>
           ) : (
-            <>
-              {firstGroup && firstUsage && (
-                <BandwidthCamerasCard group={firstGroup} usage={firstUsage} actions={actions} />
-              )}
-              <SimpleRemoteViewingCard
-                viewers={state.remoteViewing.viewers}
-                siteUploadMbps={state.network.siteUploadMbps}
-                onRemoteViewingChange={actions.updateRemoteViewing}
-                onNetworkChange={actions.updateNetwork}
-              />
-            </>
+            firstGroup &&
+            firstUsage && (
+              <BandwidthCamerasCard group={firstGroup} usage={firstUsage} actions={actions} />
+            )
           )}
 
           <HowCalculated />
@@ -127,8 +119,8 @@ export function BandwidthCalculator({ header }: BandwidthCalculatorProps) {
 
         <MobileResultBar
           label="Bandwidth estimate"
-          value={ingest.value}
-          detail={ingest.likelyRange}
+          value={bandwidth.value}
+          detail={bandwidth.likelyRange}
           resultsId={RESULTS_CARD_ID}
         />
       </div>

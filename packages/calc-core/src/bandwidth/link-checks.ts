@@ -9,11 +9,11 @@ export type LinkStatus = (typeof LINK_STATUSES)[number];
 
 /**
  * The links a user can check, and the traffic each carries:
- * - recorder-limit: the recorder's incoming bandwidth limit (carries ingest)
- * - uplink: the network link carrying all camera traffic, such as a switch uplink (carries ingest)
+ * - uplink: the network link carrying all camera traffic, such as a switch uplink
+ *   (carries the bandwidth estimate)
  * - site-upload: the site's internet upload speed (carries remote viewing)
  */
-export const LINK_KINDS = ['recorder-limit', 'uplink', 'site-upload'] as const;
+export const LINK_KINDS = ['uplink', 'site-upload'] as const;
 export type LinkKind = (typeof LINK_KINDS)[number];
 
 export interface LinkCheck {

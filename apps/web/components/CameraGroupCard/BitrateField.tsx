@@ -74,14 +74,15 @@ export function BitrateField({
   );
 }
 
-interface EnteredBitrateInputProps {
+export interface EnteredBitrateInputProps {
   id: string;
   label: string;
   value: number;
   onChange: (mbps: number) => void;
 }
 
-function EnteredBitrateInput({ id, label, value, onChange }: EnteredBitrateInputProps) {
+/** A per-camera bitrate in Mbps (0.1–100), rounded to 0.1. Also used by Bandwidth's remote viewing. */
+export function EnteredBitrateInput({ id, label, value, onChange }: EnteredBitrateInputProps) {
   const { draft, handleChange, handleBlur } = useNumberDraft({
     value,
     onChange,

@@ -78,22 +78,25 @@ config or routing changes.
 
 - Storage uses decimal units (1 TB = 10¹² bytes), matching drive labels.
 - Bitrate estimates are ranges from `packages/calc-core/src/data/bitrate-model.json`, which
-  holds **unvalidated placeholder** coefficients; Bandwidth's sub-stream rates
-  (`sub-stream-model.json`) are placeholders too. Keep the user-facing "estimate /
+  holds **unvalidated placeholder** coefficients. Keep the user-facing "estimate /
   placeholder" wording honest. Updating the numbers needs no code changes (see the README
   in that folder).
 - Storage-needed mode sizes drives for the high estimate; days-from-capacity headlines the
   worst-case (low) days.
-- Bandwidth headlines typical recorder ingest; network checks use the high estimate
-  (OK up to 70%, caution up to 90%, then over capacity; thresholds in calc-core).
+- Bandwidth is a general network bandwidth calculator (no recorder / recording wording). It
+  headlines the typical bandwidth estimate (all camera streams plus overhead). Remote viewing
+  has an on/off switch; when on, it is viewers × cameras each × the camera-weighted average
+  bitrate or a custom per-camera bitrate, with the site upload check. Network checks use the
+  high estimate (OK up to 70%, caution up to 90%, then over capacity; thresholds in calc-core).
 - PoE budget checks one switch / NVR against device groups given by PoE class (the class's
   switch-side allocation) or datasheet watts (plus an I²R cable-loss estimate, 100 m assumed
   without a length). Budget status: OK within budget less the reserve, then into reserve,
   then over budget; also port count, port standard and the 100 m run limit (calc-core `src/poe/`).
 - Shared links: `?v=<version>&s=<base64url of a compact positional array>`, built with
   `lib/share/share-codec.ts`. Each tool owns its own versions: Storage writes `v=2`
-  (`share-format-v2.ts`) and still opens `v=1` full-JSON links; Bandwidth and PoE budget
-  write `v=1` (`share-format-v1.ts`). All decoded state is validated against the tool's state schema.
+  (`share-format-v2.ts`) and still opens `v=1` full-JSON links; Bandwidth writes and reads
+  only `v=2` (`share-format-v2.ts`; its v1 links are no longer read); PoE budget writes `v=1`
+  (`share-format-v1.ts`). All decoded state is validated against the tool's state schema.
   The index tables are append-only: reordering or removing an option breaks existing links
   and needs a new format version.
 - Saved state: each tool keeps its last state in localStorage
@@ -101,11 +104,12 @@ config or routing changes.
   same versions and validation. A link in the URL wins over saved state; the default state
   clears it (`lib/share/saved-state.ts`).
 - Simple / Advanced input (`lib/input-mode.ts`): new visitors start in Simple, which is one camera
-  setup with some settings hidden at fixed values (Storage: No RAID, 0% reserve; Bandwidth: D1
-  sub-stream, main only, 4 cameras per viewer on the sub-stream, 10% overhead, only the site
-  upload check; PoE budget: 20% reserve, no cable length). The reducer
-  enforces Simple's rules after every action; switching to Simple trims the setup, with Undo.
-  The mode is an optional last item in share links; links without it open in Advanced.
+  setup with some settings hidden at fixed values (Storage: No RAID, 0% reserve; Bandwidth:
+  remote viewing off, no uplink check, 10% overhead; PoE budget: 20% reserve, no cable
+  length). The reducer enforces Simple's rules after every action; switching to Simple trims
+  the setup, with Undo. In Storage and PoE budget share links the mode is an optional last
+  item (links without it open in Advanced); Bandwidth v2 always stores it.
+
 - Camera group colours: neighbouring groups never share a colour (`lib/camera-groups/group-colors.ts`,
   enforced in the reducer for add, duplicate, delete, undo and loading a link).
 - Camera presets (the `CameraModel` type in calc-core) and the bitrate measurement campaign
