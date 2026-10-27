@@ -40,6 +40,7 @@ Bandwidth and PoE budget calculators are built; Voltage drop and Lens / FOV are 
 ```bash
 npm ci               # install from package-lock.json
 npm run dev          # web app on http://localhost:3000
+npm start            # same, and opens it in the default browser (scripts/start-dev.mjs)
 npm run check        # format check, oxlint + Stylelint, typecheck, all tests
 npm test             # calc-core (100% coverage enforced) and web tests
 npm run build        # standalone server build (Docker, Ubuntu server)

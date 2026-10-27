@@ -19,6 +19,7 @@ Web-based calculators for CCTV installers and system designers.
 ```bash
 npm ci                 # install exactly what package-lock.json records
 npm run dev            # start the web app at http://localhost:3000
+npm start              # the same, then open it in your default browser
 npm run format         # oxfmt --write
 npm run format:check   # oxfmt --check
 npm run lint           # oxlint + stylelint (CSS Modules)
