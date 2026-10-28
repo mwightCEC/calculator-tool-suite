@@ -6,6 +6,7 @@ import {
   type PoeProblem,
   type PoeResult,
 } from '@cctv/calc-core';
+import type { BarSegment } from '../../../../components/SegmentBar/SegmentBar';
 import { formatNumber, formatWatts } from '../../../../lib/format';
 import type { PoeCalculatorState } from '../_state/poe-calculator-state';
 import { PORT_STANDARD_SHORT_LABELS } from './poe-labels';
@@ -103,25 +104,17 @@ export function describeProblem(
   }
 }
 
-export interface BudgetSegment {
-  key: string;
-  label: string;
-  watts: number;
-  /** CSS colour for the bar segment and legend swatch. */
-  color: string;
-}
-
 /**
  * The budget split into each group's load, the usable watts left and what is
  * left of the reserve. Over budget, the groups fill the bar.
  */
-export function budgetSegments(state: PoeCalculatorState, result: PoeResult): BudgetSegment[] {
+export function budgetSegments(state: PoeCalculatorState, result: PoeResult): BarSegment[] {
   const groupSegments = result.groups.map((usage) => {
     const group = state.deviceGroups.find((candidate) => candidate.id === usage.groupId);
     return {
       key: usage.groupId,
       label: groupLabel(state, usage.groupId),
-      watts: usage.totalWatts,
+      value: usage.totalWatts,
       color: `var(--group-color-${group?.colorIndex ?? 0})`,
     };
   });
@@ -130,13 +123,13 @@ export function budgetSegments(state: PoeCalculatorState, result: PoeResult): Bu
     {
       key: 'free',
       label: 'Free',
-      watts: Math.max(0, result.remainingWatts),
+      value: Math.max(0, result.remainingWatts),
       color: 'var(--app-capacity-unused)',
     },
     {
       key: 'reserve',
       label: 'Reserve',
-      watts: Math.max(0, result.budgetWatts - Math.max(result.totalWatts, result.usableWatts)),
+      value: Math.max(0, result.budgetWatts - Math.max(result.totalWatts, result.usableWatts)),
       color: 'var(--app-capacity-reserve)',
     },
   ];

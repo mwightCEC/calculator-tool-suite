@@ -1,8 +1,8 @@
 'use client';
 
 import { NumberInput } from '@mantine/core';
-import { useNumberDraft } from '../../../../hooks/use-number-draft';
-import classes from './VoltageDropCalculator.module.css';
+import { useNumberDraft } from '../../hooks/use-number-draft';
+import classes from './UnitInput.module.css';
 
 interface UnitInputProps {
   id: string;
@@ -10,7 +10,7 @@ interface UnitInputProps {
   onChange: (value: number) => void;
   min: number;
   max: number;
-  /** Decimal places allowed, e.g. 2 for a datasheet current such as 0.45 A. */
+  /** Decimal places allowed, e.g. 2 for a datasheet value such as 0.45 A or 12.95 W. */
   decimals: number;
   /** Shown inside the field: V, A, W, ft or m. */
   unit: string;
@@ -37,7 +37,7 @@ export function UnitInput({ id, value, onChange, min, max, decimals, unit }: Uni
       hideControls
       rightSection={unit}
       rightSectionWidth={32}
-      classNames={{ input: classes.numberInput, section: classes.unitSection }}
+      classNames={{ input: classes.input, section: classes.unit }}
     />
   );
 }

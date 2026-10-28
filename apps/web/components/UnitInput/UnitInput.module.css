@@ -1,0 +1,8 @@
+.input {
+  width: 120px;
+}
+
+.unit {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}

@@ -30,7 +30,8 @@ Bandwidth, PoE budget and Voltage drop calculators are built; Lens / FOV is list
   `_components/`, `_lib/` (labels, result and print-summary text) and `_state/` (reducer,
   schema, share-link format).
 - Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`,
-  `CameraGroupCard`, `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export).
+  `CameraGroupCard`, `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export, `UnitInput`,
+  `SegmentBar`).
 - Shared logic: `apps/web/lib/` (`camera-groups/` group list and colours, `share/` link codec
   and URL sync hook, `saved-state.ts`, `format.ts`, camera and bitrate labels).
 - Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts`.

@@ -12,9 +12,9 @@ import { Paper, Select, Title } from '@mantine/core';
 import { FieldRow, fieldLabelId } from '../../../../components/FieldRow/FieldRow';
 import { NumberStepper } from '../../../../components/NumberStepper/NumberStepper';
 import { OptionButtons } from '../../../../components/OptionButtons/OptionButtons';
+import { UnitInput } from '../../../../components/UnitInput/UnitInput';
 import { parseOption } from '../../../../lib/camera-labels';
 import { PORT_STANDARD_SELECT_DATA, RESERVE_OPTIONS } from '../_lib/poe-labels';
-import { WattsInput } from './WattsInput';
 import classes from './PoeCalculator.module.css';
 
 interface SwitchCardProps {
@@ -42,13 +42,14 @@ export function SwitchCard({ powerSource, showReserve, onChange }: SwitchCardPro
         help="Total PoE power the switch or NVR can supply across all ports, from its datasheet. Often lower than the per-port maximum times the port count."
         controlId="poe-budget-watts"
       >
-        <WattsInput
+        <UnitInput
           id="poe-budget-watts"
           value={powerSource.budgetWatts}
           onChange={(budgetWatts) => onChange({ budgetWatts })}
           min={MIN_POE_BUDGET_WATTS}
           max={MAX_POE_BUDGET_WATTS}
           decimals={1}
+          unit="W"
         />
       </FieldRow>
 

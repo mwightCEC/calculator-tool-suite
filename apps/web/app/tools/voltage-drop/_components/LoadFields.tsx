@@ -19,6 +19,7 @@ import { Group, SegmentedControl, Select } from '@mantine/core';
 import { FieldRow, fieldLabelId } from '../../../../components/FieldRow/FieldRow';
 import { NumberStepper } from '../../../../components/NumberStepper/NumberStepper';
 import { OptionButtons } from '../../../../components/OptionButtons/OptionButtons';
+import { UnitInput } from '../../../../components/UnitInput/UnitInput';
 import { parseOption } from '../../../../lib/camera-labels';
 import { describeRun } from '../_lib/group-summary';
 import {
@@ -31,7 +32,6 @@ import type {
   VoltageDropGroupChanges,
   VoltageDropGroupState,
 } from '../_state/voltage-drop-calculator-state';
-import { UnitInput } from './UnitInput';
 import classes from './VoltageDropCalculator.module.css';
 
 const LOAD_HELP =

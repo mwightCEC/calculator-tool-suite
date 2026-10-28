@@ -13,6 +13,7 @@ import {
 import { Paper, Select, Title } from '@mantine/core';
 import { FieldRow, fieldLabelId } from '../../../../components/FieldRow/FieldRow';
 import { OptionButtons } from '../../../../components/OptionButtons/OptionButtons';
+import { UnitInput } from '../../../../components/UnitInput/UnitInput';
 import { parseOption } from '../../../../lib/camera-labels';
 import {
   CUSTOM_SUPPLY,
@@ -22,7 +23,6 @@ import {
   supplyOptions,
 } from '../_lib/voltage-drop-labels';
 import { SUPPLY_PRESETS, supplyPresetIndex } from '../_state/voltage-drop-calculator-state';
-import { UnitInput } from './UnitInput';
 import classes from './VoltageDropCalculator.module.css';
 
 interface PowerSupplyCardProps {

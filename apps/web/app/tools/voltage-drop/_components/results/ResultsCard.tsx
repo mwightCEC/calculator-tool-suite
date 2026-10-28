@@ -4,6 +4,8 @@ import type { BudgetStatus, RunStatus, VoltageDropResult } from '@cctv/calc-core
 import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
 import { Badge, Box, Button, Group, Stack, Text } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
+import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
+import { formatAmps } from '../../../../../lib/format';
 import {
   describeLimit,
   describeProblem,
@@ -19,7 +21,6 @@ import {
 import { buildShareUrl } from '../../_state/share-link';
 import type { VoltageDropCalculatorState } from '../../_state/voltage-drop-calculator-state';
 import { RunBreakdown } from './RunBreakdown';
-import { SupplyBar } from './SupplyBar';
 import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'voltage-drop-results';
@@ -100,7 +101,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         <Text className={classes.note}>{describeRating(state, result)}.</Text>
       </div>
 
-      <SupplyBar segments={supplySegments(state, result)} />
+      <SegmentBar segments={supplySegments(state, result)} formatValue={formatAmps} />
 
       {result.problems.length > 0 && (
         <Stack component="ul" gap="xs" className={classes.list} role="status">
