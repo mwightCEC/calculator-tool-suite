@@ -3,7 +3,7 @@
 Web calculators for CCTV installers and system designers, aimed at a general audience
 (not tied to one manufacturer's products). The suite carries Clinton Electronics branding and
 will be hosted on its site, but the tools don't feature Clinton products. The Storage,
-Bandwidth and PoE budget calculators are built; Voltage drop and Lens / FOV are listed as
+Bandwidth, PoE budget and Voltage drop calculators are built; Lens / FOV is listed as
 "coming soon".
 
 ## Working agreements
@@ -25,7 +25,8 @@ Bandwidth and PoE budget calculators are built; Voltage drop and Lens / FOV are 
 | `apps/web`           | Next.js 16 (App Router) + Mantine 9 UI. All calculations run client-side. |
 
 - calc-core is consumed as TypeScript source (`transpilePackages` in `next.config.ts`).
-- Each calculator lives in `apps/web/app/tools/<tool>/` (`storage`, `bandwidth`, `poe-budget`) with
+- Each calculator lives in `apps/web/app/tools/<tool>/` (`storage`, `bandwidth`, `poe-budget`,
+  `voltage-drop`) with
   `_components/`, `_lib/` (labels, result and print-summary text) and `_state/` (reducer,
   schema, share-link format).
 - Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`,
@@ -92,11 +93,16 @@ config or routing changes.
   switch-side allocation) or datasheet watts (plus an I²R cable-loss estimate, 100 m assumed
   without a length). Budget status: OK within budget less the reserve, then into reserve,
   then over budget; also port count, port standard and the 100 m run limit (calc-core `src/poe/`).
+- Voltage drop checks home runs (one cable per device) from one low-voltage supply (12 / 24 V DC,
+  24 V AC treated as resistive, or a custom voltage in Advanced), copper only. Loads by amps are
+  constant current; by watts, constant power (current rises as the voltage falls). Each run
+  gets its drop, the smallest passing wire and the longest passing run; the supply load uses
+  the same OK / into-reserve / over statuses as PoE budget (calc-core `src/voltage-drop/`).
 - Shared links: `?v=<version>&s=<base64url of a compact positional array>`, built with
   `lib/share/share-codec.ts`. Each tool owns its own versions: Storage writes `v=2`
   (`share-format-v2.ts`) and still opens `v=1` full-JSON links; Bandwidth writes and reads
-  only `v=2` (`share-format-v2.ts`; its v1 links are no longer read); PoE budget writes `v=1`
-  (`share-format-v1.ts`). All decoded state is validated against the tool's state schema.
+  only `v=2` (`share-format-v2.ts`; its v1 links are no longer read); PoE budget and Voltage drop
+  write `v=1` (`share-format-v1.ts`). All decoded state is validated against the tool's state schema.
   The index tables are append-only: reordering or removing an option breaks existing links
   and needs a new format version.
 - Saved state: each tool keeps its last state in localStorage
@@ -106,9 +112,10 @@ config or routing changes.
 - Simple / Advanced input (`lib/input-mode.ts`): new visitors start in Simple, which is one camera
   setup with some settings hidden at fixed values (Storage: No RAID, 0% reserve; Bandwidth:
   remote viewing off, no uplink check, 10% overhead; PoE budget: 20% reserve, no cable
-  length). The reducer enforces Simple's rules after every action; switching to Simple trims
+  length; Voltage drop: 10% drop limit, 20% reserve, a preset supply). The reducer enforces Simple's rules after every action; switching to Simple trims
   the setup, with Undo. In Storage and PoE budget share links the mode is an optional last
-  item (links without it open in Advanced); Bandwidth v2 always stores it.
+  item (links without it open in Advanced); Bandwidth v2 and Voltage drop v1
+  always store it.
 
 - Camera group colours: neighbouring groups never share a colour (`lib/camera-groups/group-colors.ts`,
   enforced in the reducer for add, duplicate, delete, undo and loading a link).

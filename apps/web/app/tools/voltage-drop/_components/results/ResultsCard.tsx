@@ -1,8 +1,9 @@
 'use client';
 
 import type { BudgetStatus, RunStatus, VoltageDropResult } from '@cctv/calc-core';
-import { IconAlertTriangle } from '@tabler/icons-react';
-import { Badge, Box, Group, Stack, Text } from '@mantine/core';
+import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
+import { Badge, Box, Button, Group, Stack, Text } from '@mantine/core';
+import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
 import {
   describeLimit,
   describeProblem,
@@ -15,6 +16,7 @@ import {
   supplySegments,
   worstRun,
 } from '../../_lib/result-summary';
+import { buildShareUrl } from '../../_state/share-link';
 import type { VoltageDropCalculatorState } from '../../_state/voltage-drop-calculator-state';
 import { RunBreakdown } from './RunBreakdown';
 import { SupplyBar } from './SupplyBar';
@@ -129,6 +131,14 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
           Loads given in watts draw more current as the voltage falls; the amps shown include this.
         </Text>
       )}
+
+      <Group gap="xs" grow>
+        <CopyLinkButton getShareUrl={() => buildShareUrl(state, window.location.href)} />
+        {/* Opens the print dialog with the printable summary (PrintSummary); "Save as PDF" gives a file. */}
+        <Button leftSection={<IconPrinter size={16} />} onClick={() => window.print()}>
+          Export
+        </Button>
+      </Group>
     </Box>
   );
 }
