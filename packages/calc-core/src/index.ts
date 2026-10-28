@@ -150,3 +150,39 @@ export {
   type PoeProblem,
   type PoeResult,
 } from './poe/calculate-poe';
+
+// Voltage drop calculator
+export * from './voltage-drop/options';
+export {
+  awgAreaMm2,
+  COPPER_RESISTIVITY,
+  gaugesInSystem,
+  loopOhms,
+  ohmsPerMetre,
+  WIRE_GAUGE_SPECS,
+  wireGaugeSpec,
+  type WireGaugeSpec,
+} from './voltage-drop/wire-gauges';
+export {
+  createDefaultVoltageDropInput,
+  createVoltageDropGroup,
+  DEFAULT_LOAD_AMPS,
+  DEFAULT_LOAD_WATTS,
+  deviceLoadSchema,
+  powerSupplySchema,
+  voltageDropGroupSchema,
+  voltageDropInputSchema,
+  type DeviceLoad,
+  type PowerSupply,
+  type VoltageDropGroup,
+  type VoltageDropInput,
+} from './voltage-drop/schema';
+export { maxLoopOhms, runCurrent } from './voltage-drop/run-drop';
+export {
+  calculateVoltageDrop,
+  RUN_STATUSES,
+  type RunStatus,
+  type VoltageDropGroupUsage,
+  type VoltageDropProblem,
+  type VoltageDropResult,
+} from './voltage-drop/calculate-voltage-drop';
