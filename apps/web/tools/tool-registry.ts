@@ -51,7 +51,7 @@ export const TOOLS: readonly ToolDefinition[] = [
     description: 'Calculate voltage drop over cable runs for low-voltage power.',
     icon: IconBolt,
     route: '/tools/voltage-drop',
-    status: 'coming-soon',
+    status: 'available',
   },
   {
     id: 'lens-fov',
