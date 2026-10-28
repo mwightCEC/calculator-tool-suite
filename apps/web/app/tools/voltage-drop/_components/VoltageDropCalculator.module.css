@@ -35,15 +35,6 @@
   margin-bottom: 4px;
 }
 
-.numberInput {
-  width: 120px;
-}
-
-.unitSection {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-xs);
-}
-
 .select {
   width: 100%;
   max-width: 300px;

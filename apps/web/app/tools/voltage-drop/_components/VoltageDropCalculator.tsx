@@ -8,7 +8,7 @@ import { useGroupExpansion } from '../../../../components/CameraGroupCard/use-gr
 import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
 import { ModeSwitch } from '../../../../components/ModeSwitch/ModeSwitch';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
-import { describeWorstDrop } from '../_lib/result-summary';
+import { describeWorstDeviceVolts, describeWorstDrop } from '../_lib/result-summary';
 import { useVoltageDropCalculator } from '../_state/use-voltage-drop-calculator';
 import { HowCalculated } from './HowCalculated';
 import { PowerSupplyCard } from './PowerSupplyCard';
@@ -117,7 +117,7 @@ export function VoltageDropCalculator({ header }: VoltageDropCalculatorProps) {
         <MobileResultBar
           label="Worst voltage drop"
           value={drop.value}
-          detail={drop.detail}
+          detail={describeWorstDeviceVolts(result)}
           resultsId={RESULTS_CARD_ID}
         />
       </div>

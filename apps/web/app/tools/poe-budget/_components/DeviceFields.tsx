@@ -14,6 +14,7 @@ import { Group, SegmentedControl, Select } from '@mantine/core';
 import { FieldRow, fieldLabelId } from '../../../../components/FieldRow/FieldRow';
 import { NumberStepper } from '../../../../components/NumberStepper/NumberStepper';
 import { OptionButtons } from '../../../../components/OptionButtons/OptionButtons';
+import { UnitInput } from '../../../../components/UnitInput/UnitInput';
 import { parseOption } from '../../../../lib/camera-labels';
 import { describeAllocation } from '../_lib/group-summary';
 import {
@@ -23,7 +24,6 @@ import {
 } from '../_lib/poe-labels';
 import type { PoeGroupChanges, PoeGroupState } from '../_state/poe-calculator-state';
 import { CableLengthInput } from './CableLengthInput';
-import { WattsInput } from './WattsInput';
 import classes from './PoeCalculator.module.css';
 
 const POWER_HELP =
@@ -110,13 +110,14 @@ export function DeviceFields({
           controlId={`${id}-watts`}
           note={describeAllocation(usage)}
         >
-          <WattsInput
+          <UnitInput
             id={`${id}-watts`}
             value={power.watts}
             onChange={(watts) => onChange({ power: { input: 'watts', watts } })}
             min={MIN_DEVICE_WATTS}
             max={MAX_DEVICE_WATTS}
             decimals={2}
+            unit="W"
           />
         </FieldRow>
       )}

@@ -14,6 +14,7 @@ import {
   describeRunDrop,
   describeRunLimits,
   describeSupplyLoad,
+  describeWorstDeviceVolts,
   describeWorstDrop,
   formatRunLength,
   supplySegments,
@@ -54,6 +55,7 @@ describe('headline text', () => {
       value: '5.3%',
       detail: '0.64 V drop · 11.36 V at the device',
     });
+    expect(describeWorstDeviceVolts(simpleResult)).toBe('11.36 V at the device');
     expect(describeLimit(simple)).toBe('12 V DC supply, 10% drop limit');
   });
 
@@ -75,6 +77,7 @@ describe('headline text', () => {
       value: "Can't power",
       detail: "Camera group 2: the run can't deliver the device's power",
     });
+    expect(describeWorstDeviceVolts(result)).toBeNull();
   });
 
   it('keeps the worse of two runs whichever comes first', () => {
@@ -179,16 +182,16 @@ describe('describeProblem', () => {
 describe('supplySegments', () => {
   it('splits the rating into groups, free and reserve', () => {
     expect(supplySegments(simple, simpleResult)).toEqual([
-      { key: 'g1', label: 'Devices', amps: 2, color: 'var(--group-color-0)' },
-      { key: 'free', label: 'Free', amps: 2, color: 'var(--app-capacity-unused)' },
-      { key: 'reserve', label: 'Reserve', amps: 1, color: 'var(--app-capacity-reserve)' },
+      { key: 'g1', label: 'Devices', value: 2, color: 'var(--group-color-0)' },
+      { key: 'free', label: 'Free', value: 2, color: 'var(--app-capacity-unused)' },
+      { key: 'reserve', label: 'Reserve', value: 1, color: 'var(--app-capacity-reserve)' },
     ]);
   });
 
   it('lets the groups fill the bar when over the rating', () => {
     const state = advancedAfter({ type: 'update-group', id: 'g1', changes: { deviceCount: 12 } });
     const segments = supplySegments(state, calculateVoltageDrop(state));
-    expect(segments.map((segment) => [segment.label, segment.amps])).toEqual([
+    expect(segments.map((segment) => [segment.label, segment.value])).toEqual([
       ['Camera group 1', 6],
       ['Free', 0],
       ['Reserve', 0],

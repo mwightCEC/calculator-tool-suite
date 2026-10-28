@@ -7,6 +7,7 @@ import {
   type VoltageDropProblem,
   type VoltageDropResult,
 } from '@cctv/calc-core';
+import type { BarSegment } from '../../../../components/SegmentBar/SegmentBar';
 import {
   formatAmps,
   formatNumber,
@@ -74,6 +75,12 @@ export function describeWorstDrop(
     value: formatPercent(run.dropFraction),
     detail: `${prefix}${formatVolts(run.dropVolts)} drop · ${formatVolts(run.deviceVolts)} at the device`,
   };
+}
+
+/** Short detail for the mobile bar: "11.36 V at the device", or null when the run can't power it. */
+export function describeWorstDeviceVolts(result: VoltageDropResult): string | null {
+  const { deviceVolts } = worstRun(result);
+  return deviceVolts === null ? null : `${formatVolts(deviceVolts)} at the device`;
 }
 
 /** "12 V DC supply, 10% drop limit" */
@@ -168,14 +175,6 @@ export function describeProblem(
   }
 }
 
-export interface SupplySegment {
-  key: string;
-  label: string;
-  amps: number;
-  /** CSS colour for the bar segment and legend swatch. */
-  color: string;
-}
-
 /**
  * The rated current split into each group's load, the usable amps left and
  * what is left of the reserve. Over the rating, the groups fill the bar.
@@ -183,13 +182,13 @@ export interface SupplySegment {
 export function supplySegments(
   state: VoltageDropCalculatorState,
   result: VoltageDropResult
-): SupplySegment[] {
+): BarSegment[] {
   const groupSegments = result.groups.map((usage) => {
     const group = state.deviceGroups.find((candidate) => candidate.id === usage.groupId);
     return {
       key: usage.groupId,
       label: groupLabel(state, usage.groupId),
-      amps: usage.totalAmps,
+      value: usage.totalAmps,
       color: `var(--group-color-${group?.colorIndex ?? 0})`,
     };
   });
@@ -198,13 +197,13 @@ export function supplySegments(
     {
       key: 'free',
       label: 'Free',
-      amps: Math.max(0, result.remainingAmps),
+      value: Math.max(0, result.remainingAmps),
       color: 'var(--app-capacity-unused)',
     },
     {
       key: 'reserve',
       label: 'Reserve',
-      amps: Math.max(0, result.ratedAmps - Math.max(result.totalAmps, result.usableAmps)),
+      value: Math.max(0, result.ratedAmps - Math.max(result.totalAmps, result.usableAmps)),
       color: 'var(--app-capacity-reserve)',
     },
   ];

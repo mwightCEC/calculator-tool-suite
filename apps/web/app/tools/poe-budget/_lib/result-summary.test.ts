@@ -122,7 +122,7 @@ describe('describeProblem', () => {
 
 describe('budgetSegments', () => {
   const watts = (state: PoeCalculatorState) =>
-    budgetSegments(state, calculatePoe(state)).map((segment) => [segment.key, segment.watts]);
+    budgetSegments(state, calculatePoe(state)).map((segment) => [segment.key, segment.value]);
 
   it('splits the budget into groups, free watts and the reserve', () => {
     const segments = budgetSegments(
@@ -130,9 +130,9 @@ describe('budgetSegments', () => {
       calculatePoe(createInitialPoeCalculatorState())
     );
     expect(segments.map((segment) => segment.label)).toEqual(['Devices', 'Free', 'Reserve']);
-    expect(segments[0]?.watts).toBeCloseTo(24.72);
-    expect(segments[1]?.watts).toBeCloseTo(71.28);
-    expect(segments[2]?.watts).toBe(24);
+    expect(segments[0]?.value).toBeCloseTo(24.72);
+    expect(segments[1]?.value).toBeCloseTo(71.28);
+    expect(segments[2]?.value).toBe(24);
     expect(segments[0]?.color).toBe('var(--group-color-0)');
   });
 
