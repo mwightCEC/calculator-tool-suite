@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useReducer } from 'react';
+import { useCallback, useMemo, useReducer } from 'react';
 import {
   calculateVoltageDrop,
   type CableLengthUnit,
@@ -15,13 +15,21 @@ import {
   notifySwitchedToSimple,
 } from '../../../../components/CameraGroupCard/undo-notifications';
 import type { InputMode } from '../../../../lib/input-mode';
+import { useUrlStateSync } from '../../../../lib/share/use-url-state-sync';
+import { encodeState, voltageDropShareCodec } from './share-link';
 import {
   createInitialVoltageDropCalculatorState,
   describeSwitchToSimple,
   hasCustomGroups as groupsAreCustom,
   voltageDropCalculatorReducer,
+  type VoltageDropCalculatorState,
   type VoltageDropGroupChanges,
 } from './voltage-drop-calculator-state';
+
+/** The default calculation keeps a clean URL with no share parameters. */
+const DEFAULT_STATE_ENCODED = encodeState(createInitialVoltageDropCalculatorState());
+/** Where this calculator's last state is kept in the browser. */
+const SAVED_STATE_KEY = 'cctv-tool-suite:voltage-drop-calculator';
 
 /**
  * Voltage drop calculator state, live results and actions.
@@ -34,6 +42,12 @@ export function useVoltageDropCalculator() {
     createInitialVoltageDropCalculatorState
   );
   const result = useMemo(() => calculateVoltageDrop(state), [state]);
+
+  const loadState = useCallback(
+    (restored: VoltageDropCalculatorState) => dispatch({ type: 'load-state', state: restored }),
+    []
+  );
+  useUrlStateSync(state, loadState, voltageDropShareCodec, DEFAULT_STATE_ENCODED, SAVED_STATE_KEY);
 
   const removeGroup = (id: string) => {
     const index = state.deviceGroups.findIndex((group) => group.id === id);
