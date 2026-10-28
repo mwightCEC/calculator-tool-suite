@@ -22,7 +22,7 @@
   border-style: dashed;
 }
 
-/* The power supply card and the interim summary. */
+/* The power supply card. */
 .card {
   display: flex;
   flex-direction: column;
@@ -66,8 +66,4 @@
 
 .gaugeSelect {
   width: 120px;
-}
-
-.secondaryText {
-  color: var(--app-text-secondary);
 }

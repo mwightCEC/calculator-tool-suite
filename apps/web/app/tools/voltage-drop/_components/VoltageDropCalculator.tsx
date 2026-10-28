@@ -5,11 +5,14 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, Group, Stack } from '@mantine/core';
 import { CameraGroupToolbar } from '../../../../components/CameraGroupCard/CameraGroupToolbar';
 import { useGroupExpansion } from '../../../../components/CameraGroupCard/use-group-expansion';
+import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
 import { ModeSwitch } from '../../../../components/ModeSwitch/ModeSwitch';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
+import { describeWorstDrop } from '../_lib/result-summary';
 import { useVoltageDropCalculator } from '../_state/use-voltage-drop-calculator';
-import { DropSummary } from './DropSummary';
+import { HowCalculated } from './HowCalculated';
 import { PowerSupplyCard } from './PowerSupplyCard';
+import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
 import { VoltageDropDevicesCard, VoltageDropGroupCard } from './VoltageDropGroupCard';
 import classes from './VoltageDropCalculator.module.css';
 
@@ -28,6 +31,7 @@ export function VoltageDropCalculator({ header }: VoltageDropCalculatorProps) {
   const advanced = state.inputMode === 'advanced';
   const firstGroup = state.deviceGroups[0];
   const firstUsage = firstGroup && usageByGroupId.get(firstGroup.id);
+  const drop = describeWorstDrop(state, result);
   const units = { wireSystem: state.wireSystem, cableLengthUnit: state.cableLengthUnit };
 
   return (
@@ -100,11 +104,20 @@ export function VoltageDropCalculator({ header }: VoltageDropCalculatorProps) {
             />
           )
         )}
+
+        <HowCalculated />
       </Stack>
 
       <div className={classes.results}>
-        <DropSummary result={result} />
+        <ResultsCard result={result} state={state} />
       </div>
+
+      <MobileResultBar
+        label="Worst voltage drop"
+        value={drop.value}
+        detail={drop.detail}
+        resultsId={RESULTS_CARD_ID}
+      />
     </div>
   );
 }

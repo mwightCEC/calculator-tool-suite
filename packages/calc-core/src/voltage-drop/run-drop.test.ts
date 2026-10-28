@@ -6,6 +6,11 @@ describe('runCurrent', () => {
     expect(runCurrent({ input: 'amps', amps: 0.5 }, 12, 3)).toBe(0.5);
   });
 
+  it('is null when a constant-current load would drop the whole supply voltage', () => {
+    expect(runCurrent({ input: 'amps', amps: 0.5 }, 12, 24)).toBeNull();
+    expect(runCurrent({ input: 'amps', amps: 0.5 }, 12, 23.9)).toBe(0.5);
+  });
+
   it('draws more than P / V from a constant-power load so the device still gets P', () => {
     const amps = runCurrent({ input: 'watts', watts: 6 }, 12, 1);
     expect(amps).toBeCloseTo(0.52277);
