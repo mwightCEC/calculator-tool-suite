@@ -29,6 +29,9 @@ export const formatGb = (gb: number) => `${formatNumber(gb)} GB`;
 export const formatTb = (tb: number) => `${formatNumber(tb)} TB`;
 export const formatTbPerDay = (tb: number) => `${formatNumber(tb, 2)} TB/day`;
 export const formatWatts = (watts: number) => `${formatNumber(watts, 1)} W`;
+export const formatAmps = (amps: number) => `${formatNumber(amps, 2)} A`;
+export const formatVolts = (volts: number) => `${formatNumber(volts, 2)} V`;
+export const formatPercent = (fraction: number) => `${formatNumber(fraction * 100, 1)}%`;
 export const formatDays = (days: number) =>
   `${formatNumber(days, 0)} ${days === 1 ? 'day' : 'days'}`;
 

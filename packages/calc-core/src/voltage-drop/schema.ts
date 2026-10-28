@@ -52,19 +52,31 @@ export const powerSupplySchema = z.object({
   reservePercent: z.literal(SUPPLY_RESERVE_PERCENTS),
 });
 
-export const voltageDropInputSchema = z
-  .object({
-    powerSupply: powerSupplySchema,
-    deviceGroups: z.array(voltageDropGroupSchema).min(1),
-    dropLimitPercent: z.literal(DROP_LIMIT_PERCENTS),
-    wireSystem: z.enum(WIRE_SYSTEMS),
-    cableLengthUnit: z.enum(CABLE_LENGTH_UNITS),
-  })
-  .refine(
-    (input) =>
-      input.deviceGroups.every((group) => wireGaugeSpec(group.gauge).system === input.wireSystem),
-    { message: 'Every group must use a wire size from the chosen system', path: ['deviceGroups'] }
+/** The input's fields, without the wire-system check, for schemas that extend it. */
+export const voltageDropInputShape = z.object({
+  powerSupply: powerSupplySchema,
+  deviceGroups: z.array(voltageDropGroupSchema).min(1),
+  dropLimitPercent: z.literal(DROP_LIMIT_PERCENTS),
+  wireSystem: z.enum(WIRE_SYSTEMS),
+  cableLengthUnit: z.enum(CABLE_LENGTH_UNITS),
+});
+
+/** True when every group's wire size is in the input's wire system. */
+export function groupsMatchWireSystem(input: z.infer<typeof voltageDropInputShape>): boolean {
+  return input.deviceGroups.every(
+    (group) => wireGaugeSpec(group.gauge).system === input.wireSystem
   );
+}
+
+export const WIRE_SYSTEM_MISMATCH = {
+  message: 'Every group must use a wire size from the chosen system',
+  path: ['deviceGroups'],
+};
+
+export const voltageDropInputSchema = voltageDropInputShape.refine(
+  groupsMatchWireSystem,
+  WIRE_SYSTEM_MISMATCH
+);
 
 export type DeviceLoad = z.infer<typeof deviceLoadSchema>;
 export type VoltageDropGroup = z.infer<typeof voltageDropGroupSchema>;

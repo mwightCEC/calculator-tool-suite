@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   awgAreaMm2,
+  equivalentGauge,
   gaugesInSystem,
   loopOhms,
   ohmsPerMetre,
@@ -68,5 +69,19 @@ describe('ohmsPerMetre', () => {
 describe('loopOhms', () => {
   it('counts the run out and back', () => {
     expect(loopOhms('awg-18', 100)).toBeCloseTo(2 * 100 * ohmsPerMetre('awg-18'));
+  });
+});
+
+describe('equivalentGauge', () => {
+  it.each([
+    ['awg-18', 'mm2', 'mm2-0.75'],
+    ['mm2-0.75', 'awg', 'awg-18'],
+    ['awg-14', 'mm2', 'mm2-2.5'],
+    ['mm2-1.5', 'awg', 'awg-16'],
+    ['awg-24', 'mm2', 'mm2-0.5'],
+    ['mm2-6', 'awg', 'awg-10'],
+    ['awg-12', 'awg', 'awg-12'],
+  ] as const)('%s in %s is %s', (gauge, system, expected) => {
+    expect(equivalentGauge(gauge, system)).toBe(expected);
   });
 });

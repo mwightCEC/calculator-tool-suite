@@ -1,0 +1,73 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mantine-spacing-lg);
+  align-items: start;
+  /* Room for the fixed mobile result bar below the content. */
+  padding-bottom: 72px;
+}
+
+.inputs {
+  min-width: 0;
+}
+
+/* Printing shows PrintSummary instead of the interactive page. */
+@media print {
+  .layout {
+    display: none;
+  }
+}
+
+.addGroup {
+  border-style: dashed;
+}
+
+/* The power supply card and the interim summary. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-md);
+}
+
+.cardTitle {
+  font-size: var(--mantine-font-size-md);
+  margin-bottom: 4px;
+}
+
+.numberInput {
+  width: 120px;
+}
+
+.unitSection {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.select {
+  width: 100%;
+  max-width: 300px;
+}
+
+@media (min-width: $mantine-breakpoint-lg) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    padding-bottom: 0;
+  }
+
+  /* Results stay in view while the inputs scroll. */
+  .results {
+    position: sticky;
+    top: calc(var(--app-shell-header-height) + var(--mantine-spacing-md));
+    max-height: calc(100dvh - var(--app-shell-header-height) - 2 * var(--mantine-spacing-md));
+    overflow-y: auto;
+  }
+}
+
+.gaugeSelect {
+  width: 120px;
+}
+
+.secondaryText {
+  color: var(--app-text-secondary);
+}

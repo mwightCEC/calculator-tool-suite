@@ -43,3 +43,16 @@ export function ohmsPerMetre(gauge: WireGauge): number {
 export function loopOhms(gauge: WireGauge, lengthM: number): number {
   return 2 * lengthM * ohmsPerMetre(gauge);
 }
+
+/**
+ * The size in `system` closest to `gauge` by cross-section (compared as a
+ * ratio), e.g. 18 AWG → 0.75 mm². A gauge already in `system` is kept.
+ */
+export function equivalentGauge(gauge: WireGauge, system: WireSystem): WireGauge {
+  const area = wireGaugeSpec(gauge).areaMm2;
+  const distance = (candidate: WireGauge) =>
+    Math.abs(Math.log(wireGaugeSpec(candidate).areaMm2 / area));
+  return gaugesInSystem(system).reduce((best, candidate) =>
+    distance(candidate) < distance(best) ? candidate : best
+  );
+}
