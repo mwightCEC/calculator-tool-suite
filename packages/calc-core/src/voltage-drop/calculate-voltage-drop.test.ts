@@ -63,7 +63,11 @@ describe('calculateVoltageDrop', () => {
 
   it('reports no wire when even the thickest is not enough', () => {
     const result = calculateVoltageDrop(
-      inputWith({ deviceGroups: [group({ deviceCount: 1, cableLength: 5000 })] })
+      inputWith({
+        deviceGroups: [
+          group({ deviceCount: 1, load: { input: 'amps', amps: 0.2 }, cableLength: 4000 }),
+        ],
+      })
     );
     expect(result.groups[0]?.smallestGauge).toBeNull();
     expect(result.problems).toEqual([{ kind: 'over-limit', groupId: 'g1' }]);
@@ -100,6 +104,15 @@ describe('calculateVoltageDrop', () => {
       { kind: 'into-reserve' },
       { kind: 'cannot-power', groupId: 'g1' },
     ]);
+  });
+
+  it('marks a constant-current run that would drop the whole supply voltage', () => {
+    const result = calculateVoltageDrop(
+      inputWith({ deviceGroups: [group({ deviceCount: 1, cableLength: 5000 })] })
+    );
+    expect(result.groups[0]).toEqual(
+      expect.objectContaining({ status: 'cannot-power', ampsPerDevice: 0.5, dropVolts: null })
+    );
   });
 
   it('works in metres and square millimetres', () => {

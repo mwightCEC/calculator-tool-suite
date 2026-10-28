@@ -1,0 +1,165 @@
+/* White results card with brand-blue accents, matching Storage's and Bandwidth's. */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+  border: 1px solid var(--mantine-color-default-border);
+  border-top: 4px solid var(--mantine-color-brand-6);
+  border-radius: var(--mantine-radius-md);
+  background-color: var(--mantine-color-body);
+}
+
+.card:focus {
+  outline: none;
+}
+
+.sectionLabel {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Row holding a section label and its badge. */
+.labelRow {
+  margin-bottom: 6px;
+  min-height: 22px;
+}
+
+.statusBadge {
+  flex-shrink: 0;
+  text-transform: none;
+}
+
+/* Status text in the theme's AA-contrast status colours. */
+.statusBadge[data-status='ok'] {
+  color: var(--app-status-ok);
+}
+
+.statusBadge[data-status='into-reserve'] {
+  color: var(--app-status-warn);
+}
+
+.statusBadge[data-status='over-budget'],
+.statusBadge[data-status='over-limit'],
+.statusBadge[data-status='cannot-power'] {
+  color: var(--app-status-danger);
+}
+
+.headlineValue {
+  color: var(--app-accent-text);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.figureValue {
+  color: var(--app-accent-text);
+  font-size: var(--mantine-font-size-xl);
+  font-weight: 700;
+}
+
+.secondaryText {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.note {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}
+
+/* Supply bar */
+
+.bar {
+  background-color: var(--app-capacity-unused);
+}
+
+.legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px var(--mantine-spacing-md);
+  margin: var(--mantine-spacing-xs) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--mantine-font-size-xs);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.swatch {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  outline: 1px solid var(--mantine-color-default-border);
+}
+
+.legendLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legendValue {
+  margin-inline-start: auto;
+  color: var(--app-text-secondary);
+  white-space: nowrap;
+}
+
+/* Per-group lines and problems */
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.groupRow {
+  font-size: var(--mantine-font-size-sm);
+}
+
+.groupName {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.groupValue {
+  flex-shrink: 0;
+  color: var(--app-text-secondary);
+  white-space: nowrap;
+}
+
+.problem {
+  color: var(--app-status-danger);
+}
+
+.problem[data-kind='into-reserve'] {
+  color: var(--app-status-warn);
+}
+
+.problemIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.runLimits {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.groupValue[data-status='over-limit'],
+.groupValue[data-status='cannot-power'] {
+  color: var(--app-status-danger);
+}
