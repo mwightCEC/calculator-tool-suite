@@ -135,7 +135,53 @@
 }
 
 .drivesValue {
+  margin: 0;
+  font-size: var(--mantine-font-size-md);
   font-weight: 700;
+  line-height: 1.4;
+}
+
+.driveTile {
+  width: 56px;
+}
+
+/* Recording metrics: always a 2 × 2 grid, so values have room to breathe. */
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--mantine-spacing-xs);
+  margin: 0;
+}
+
+.statBox {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  background-color: var(--mantine-color-body);
+}
+
+.statIcon {
+  order: -2;
+  color: var(--mantine-color-brand-6);
+}
+
+/* Value above its label, as in the prototype; the markup keeps dt before dd. */
+.statValue {
+  order: -1;
+  margin: 0;
+  font-size: var(--mantine-font-size-lg);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.statLabel {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-sm);
 }
 
 .drivesDetail {

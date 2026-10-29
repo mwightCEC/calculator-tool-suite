@@ -1,53 +1,48 @@
-import { isPointRange, type StorageCalculationResult, type ValueRange } from '@cctv/calc-core';
+import type { StorageCalculationResult } from '@cctv/calc-core';
 import { Text } from '@mantine/core';
-import {
-  formatMbps,
-  formatNumber,
-  formatRangeBounds,
-  formatTb,
-  formatTbPerDay,
-} from '../../../../../lib/format';
+import { formatNumber, formatTb } from '../../../../../lib/format';
+import { RAID_LABELS } from '../../_lib/storage-labels';
 import classes from './ResultsCard.module.css';
 
 interface Tile {
   label: string;
   value: string;
-  detail: string | null;
+  detail: string;
 }
 
-/** Range text for a tile, or null when the value is exact. */
-function rangeDetail(range: ValueRange, unit: string, digits?: number): string | null {
-  return isPointRange(range) ? null : `${formatRangeBounds(range, digits)} ${unit}`;
-}
-
-function buildTiles(result: StorageCalculationResult): Tile[] {
-  const approx = result.isEstimated ? '~' : '';
-  const { drives } = result;
-  // Drive count and RAID level are in the Capacity breakdown, so they have no metric here.
+/** Capacity of the drives: what's left for footage, after RAID, and in total. */
+function buildTiles(result: StorageCalculationResult, reservePercent: number): Tile[] {
+  const { drives, breakdown } = result;
+  const raid = drives.raidLevel === 'none' ? 'no RAID' : RAID_LABELS[drives.raidLevel];
   return [
     {
-      label: 'Total bitrate',
-      value: `${approx}${formatMbps(result.totalBitrateMbps.typical)}`,
-      detail: rangeDetail(result.totalBitrateMbps, 'Mbps'),
-    },
-    {
-      label: 'Daily write',
-      value: `${approx}${formatTbPerDay(result.dailyWriteTb.typical)}`,
-      detail: rangeDetail(result.dailyWriteTb, 'TB/day', 2),
+      label: 'Recording capacity',
+      value: formatTb(drives.usableCapacityTb - breakdown.reserveTb),
+      detail: `after ${reservePercent}% reserve`,
     },
     {
       label: 'Usable capacity',
       value: formatTb(drives.usableCapacityTb),
-      detail: `${formatNumber(drives.rawCapacityTb)} TB raw`,
+      detail: `${raid}, ${formatNumber(drives.driveCount, 0)} drives`,
+    },
+    {
+      label: 'Raw capacity',
+      value: formatTb(drives.rawCapacityTb),
+      detail: `${formatNumber(drives.driveCount, 0)} × ${drives.driveSizeTb} TB`,
     },
   ];
 }
 
+interface MetricTilesProps {
+  result: StorageCalculationResult;
+  reservePercent: number;
+}
+
 /** Key figures in a row, divided by rules (stacked when the card is narrow). */
-export function MetricTiles({ result }: { result: StorageCalculationResult }) {
+export function MetricTiles({ result, reservePercent }: MetricTilesProps) {
   return (
     <dl className={classes.tiles}>
-      {buildTiles(result).map((tile) => (
+      {buildTiles(result, reservePercent).map((tile) => (
         <div key={tile.label} className={classes.tile}>
           <Text component="dt" className={classes.tileLabel}>
             {tile.label}
@@ -55,11 +50,9 @@ export function MetricTiles({ result }: { result: StorageCalculationResult }) {
           <Text component="dd" className={classes.tileValue}>
             {tile.value}
           </Text>
-          {tile.detail && (
-            <Text component="dd" className={classes.tileDetail}>
-              {tile.detail}
-            </Text>
-          )}
+          <Text component="dd" className={classes.tileDetail}>
+            {tile.detail}
+          </Text>
         </div>
       ))}
     </dl>
