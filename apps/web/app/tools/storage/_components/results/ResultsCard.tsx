@@ -1,14 +1,14 @@
 'use client';
 
-import type { CalculationMode, StorageCalculationResult } from '@cctv/calc-core';
+import type { StorageCalculationResult } from '@cctv/calc-core';
 import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
-import { Badge, Box, Button, Group, Text } from '@mantine/core';
+import { Badge, Button, Group, Paper, Text, Title } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
-import { OptionButtons } from '../../../../../components/OptionButtons/OptionButtons';
 import { describeHeadline, describeWarning } from '../../_lib/result-summary';
-import { CALCULATION_MODE_OPTIONS } from '../../_lib/storage-labels';
 import { buildShareUrl } from '../../_state/share-link';
 import type { StorageCalculatorState } from '../../_state/storage-calculator-state';
+import { Disclosure } from '../Disclosure';
+import { HowCalculated } from '../HowCalculated';
 import { CapacityBar } from './CapacityBar';
 import { DrivesSummary } from './DrivesSummary';
 import { MetricTiles } from './MetricTiles';
@@ -20,58 +20,50 @@ interface ResultsCardProps {
   result: StorageCalculationResult;
   /** The inputs behind the result: group names and colours, share link. */
   state: StorageCalculatorState;
-  onModeChange: (mode: CalculationMode) => void;
 }
 
-export function ResultsCard({ result, state, onModeChange }: ResultsCardProps) {
+const RESULTS_TITLES = {
+  'storage-needed': 'Storage estimate',
+  'days-from-capacity': 'Retention estimate',
+} as const;
+
+export function ResultsCard({ result, state }: ResultsCardProps) {
   const headline = describeHeadline(result);
   const warning = describeWarning(result);
 
   return (
-    <Box
+    <Paper
       component="section"
       id={RESULTS_CARD_ID}
       tabIndex={-1}
-      aria-label="Results"
+      aria-labelledby="results-title"
+      withBorder
+      radius="lg"
       className={classes.card}
     >
-      <OptionButtons
-        value={state.mode}
-        onChange={onModeChange}
-        options={CALCULATION_MODE_OPTIONS}
-        aria-label="Calculation mode"
-      />
+      <Group justify="space-between" align="center" wrap="nowrap" gap="sm">
+        <Title order={2} id="results-title" className={classes.title}>
+          {RESULTS_TITLES[result.mode]}
+        </Title>
+        <Badge
+          variant={result.isEstimated ? 'filled' : 'light'}
+          color={result.isEstimated ? 'amber' : 'green'}
+          radius="sm"
+          className={classes.sourceBadge}
+          data-source={result.isEstimated ? 'estimated' : 'known'}
+        >
+          {result.isEstimated ? 'Estimated' : 'From known bitrates'}
+        </Badge>
+      </Group>
 
-      <div>
-        <Group justify="space-between" align="center" wrap="nowrap" className={classes.labelRow}>
-          <Text className={classes.sectionLabel}>{headline.label}</Text>
-          <Badge
-            variant={result.isEstimated ? 'filled' : 'light'}
-            color={result.isEstimated ? 'amber' : 'green'}
-            radius="sm"
-            className={classes.sourceBadge}
-            data-source={result.isEstimated ? 'estimated' : 'known'}
-          >
-            {result.isEstimated ? 'Estimated' : 'From known bitrates'}
-          </Badge>
-        </Group>
-
-        {/* Polite live region so screen readers hear the headline update as inputs change. */}
-        <div aria-live="polite" aria-atomic="true">
-          <Text className={classes.headlineValue}>{headline.value}</Text>
-          {headline.likelyRange && (
-            <Text className={classes.headlineRange}>{headline.likelyRange}</Text>
-          )}
-        </div>
+      {/* Polite live region so screen readers hear the headline update as inputs change. */}
+      <div aria-live="polite" aria-atomic="true" className={classes.hero}>
+        <Text className={classes.headlineValue}>{headline.value}</Text>
+        <Text className={classes.headlineLabel}>{headline.label}</Text>
+        {headline.likelyRange && (
+          <Text className={classes.headlineRange}>{headline.likelyRange}</Text>
+        )}
       </div>
-
-      <DrivesSummary result={result} />
-      <CapacityBar
-        breakdown={result.breakdown}
-        groups={state.cameraGroups}
-        singleSetup={state.inputMode === 'simple'}
-      />
-      <MetricTiles result={result} />
 
       {warning && (
         <Group gap={6} wrap="nowrap" className={classes.warning} role="status">
@@ -79,6 +71,21 @@ export function ResultsCard({ result, state, onModeChange }: ResultsCardProps) {
           <Text size="sm">{warning}</Text>
         </Group>
       )}
+
+      <MetricTiles result={result} />
+
+      <Disclosure title="Capacity breakdown" defaultOpened>
+        <CapacityBar
+          breakdown={result.breakdown}
+          groups={state.cameraGroups}
+          singleSetup={state.inputMode === 'simple'}
+        />
+        <DrivesSummary result={result} />
+      </Disclosure>
+
+      <Disclosure title="How estimates are calculated">
+        <HowCalculated />
+      </Disclosure>
 
       <Text className={classes.unitsNote}>
         Capacities are decimal TB (10¹² bytes), as printed on drives. Recorders and operating
@@ -92,6 +99,6 @@ export function ResultsCard({ result, state, onModeChange }: ResultsCardProps) {
           Export
         </Button>
       </Group>
-    </Box>
+    </Paper>
   );
 }

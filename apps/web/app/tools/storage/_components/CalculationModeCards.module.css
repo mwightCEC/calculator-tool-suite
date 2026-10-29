@@ -1,0 +1,42 @@
+/* The selected card fills with deep navy, as in the approved prototype. */
+
+.card {
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background-color: var(--app-surface-subtle);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.card:hover:not([data-checked]) {
+  background-color: var(--app-panel-bg);
+}
+
+.card[data-checked] {
+  border-color: var(--app-choice-selected-bg);
+  background-color: var(--app-choice-selected-bg);
+}
+
+.title {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 700;
+}
+
+.description {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.card[data-checked] .title {
+  color: var(--mantine-color-white);
+}
+
+.card[data-checked] .description {
+  color: rgb(255 255 255 / 82%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}

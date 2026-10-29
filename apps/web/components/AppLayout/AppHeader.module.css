@@ -1,9 +1,9 @@
+/* "clintonelectronics" wordmark and the suite name, as in the approved prototype header. */
 .brand {
   display: inline-flex;
   align-items: center;
+  gap: var(--mantine-spacing-sm);
   color: var(--app-header-fg);
-  font-size: var(--mantine-font-size-md);
-  font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
   border-radius: var(--mantine-radius-sm);
@@ -13,4 +13,34 @@
 .brand:focus-visible {
   outline: 2px solid var(--app-focus-ring);
   outline-offset: 2px;
+}
+
+.wordmark {
+  display: flex;
+  align-items: baseline;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.wordmarkStrong {
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+
+.wordmarkLight {
+  font-size: 1.25rem;
+  font-weight: 300;
+  opacity: 0.85;
+}
+
+.divider {
+  align-self: stretch;
+  width: 1px;
+  background-color: var(--app-header-divider);
+}
+
+.suiteName {
+  font-size: var(--mantine-font-size-md);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }

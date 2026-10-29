@@ -6,7 +6,7 @@ import {
   IconLayoutSidebarLeftExpand,
   IconMenu2,
 } from '@tabler/icons-react';
-import { ActionIcon, Group } from '@mantine/core';
+import { ActionIcon, Box, Group } from '@mantine/core';
 import { ColorSchemeToggle } from './ColorSchemeToggle';
 import { HelpButton } from './HelpButton';
 import classes from './AppHeader.module.css';
@@ -45,8 +45,15 @@ export function AppHeader({ sidebarCollapsed, onToggleSidebar, onOpenMobileNav }
           <IconMenu2 size={20} stroke={1.75} />
         </ActionIcon>
 
-        <Link href="/" className={classes.brand}>
-          Clinton Tool Suite
+        <Link href="/" className={classes.brand} aria-label="Clinton Electronics Tool Suite home">
+          <span className={classes.wordmark} aria-hidden="true">
+            <span className={classes.wordmarkStrong}>clinton</span>
+            <span className={classes.wordmarkLight}>electronics</span>
+          </span>
+          <Box component="span" visibleFrom="sm" className={classes.divider} aria-hidden="true" />
+          <Box component="span" visibleFrom="sm" className={classes.suiteName} aria-hidden="true">
+            Tool Suite
+          </Box>
         </Link>
       </Group>
 

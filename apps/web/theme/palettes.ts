@@ -18,6 +18,15 @@ export const brand: MantineColorsTuple = [
   '#003a61',
 ];
 
+/** Header gradient, left to right (approved Storage prototype). White text is AA on both ends. */
+export const headerGradient = { from: '#306CA9', to: '#294594' } as const;
+
+/** Deep navy for headline values and the selected choice card (approved Storage prototype). */
+export const ink = '#1C2B39';
+
+/** Results headline tile gradient (approved Storage prototype). */
+export const heroTile = { from: '#F3F6F9', to: '#EAF1F7' } as const;
+
 /** Neutral grays sampled from the Clinton Electronics site (light scheme). */
 export const clintonGray = {
   /** Light bands, metric tiles. */

@@ -29,6 +29,11 @@ interface CameraGroupCardProps {
   totalValue: ReactNode;
   /** The group's fields, shown while expanded. */
   children: ReactNode;
+  /**
+   * "nested" sits inside a section card: gray header with the summary always shown under the
+   * name, and a bordered body. Storage uses it; the other calculators use the default.
+   */
+  variant?: 'default' | 'nested';
 }
 
 /** A collapsible, colour-coded camera group card. Each calculator supplies its fields and totals. */
@@ -49,7 +54,9 @@ export function CameraGroupCard({
   collapsedValue,
   totalValue,
   children,
+  variant = 'default',
 }: CameraGroupCardProps) {
+  const nested = variant === 'nested';
   const bodyId = `${groupId}-body`;
 
   // Group colour as CSS variables so the stylesheet can tint the dot, badge and footer.
@@ -62,7 +69,9 @@ export function CameraGroupCard({
     <Paper
       component="section"
       withBorder
+      radius={nested ? 'lg' : undefined}
       className={classes.card}
+      data-variant={variant}
       style={colorVariables}
       aria-label={name}
     >
@@ -70,6 +79,7 @@ export function CameraGroupCard({
         name={name}
         cameraCount={cameraCount}
         countNoun={countNoun}
+        subtitle={nested ? collapsedSummary : undefined}
         expanded={expanded}
         bodyId={bodyId}
         canDuplicate={canDuplicate}
@@ -80,7 +90,7 @@ export function CameraGroupCard({
         onDelete={onDelete}
       />
 
-      {!expanded && (
+      {!expanded && !nested && (
         <Group justify="space-between" wrap="nowrap" gap="md" className={classes.summary}>
           <Text size="sm" className={classes.summaryText}>
             {collapsedSummary}

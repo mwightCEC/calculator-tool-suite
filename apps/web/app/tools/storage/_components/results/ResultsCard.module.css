@@ -1,32 +1,20 @@
-/* White results card with brand-blue accents. */
+/* Results card, following the approved prototype: headline tile, metric row, breakdown sections. */
 
 .card {
   display: flex;
   flex-direction: column;
   gap: var(--mantine-spacing-md);
   padding: var(--mantine-spacing-lg);
-  border: 1px solid var(--mantine-color-default-border);
-  border-top: 4px solid var(--mantine-color-brand-6);
-  border-radius: var(--mantine-radius-md);
-  background-color: var(--mantine-color-body);
+  container: results / inline-size;
 }
 
 .card:focus {
   outline: none;
 }
 
-.sectionLabel {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-xs);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-/* Row holding a section label and its control (info button, switch, badge). */
-.labelRow {
-  margin-bottom: 6px;
-  min-height: 22px;
+.title {
+  font-size: var(--mantine-font-size-lg);
+  letter-spacing: -0.01em;
 }
 
 .infoButton {
@@ -49,11 +37,27 @@
   color: var(--app-status-ok);
 }
 
+/* Headline tile */
+
+.hero {
+  padding: var(--mantine-spacing-xl);
+  border: 1px solid var(--app-panel-border);
+  border-radius: var(--mantine-radius-md);
+  background: var(--app-hero-bg);
+}
+
 .headlineValue {
-  color: var(--app-accent-text);
-  font-size: 2rem;
+  color: var(--app-headline-text);
+  font-size: 2.5rem;
   font-weight: 700;
-  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.headlineLabel {
+  margin-top: var(--mantine-spacing-xs);
+  font-weight: 700;
 }
 
 .headlineRange {
@@ -61,72 +65,37 @@
   font-size: var(--mantine-font-size-sm);
 }
 
-.drivesValue {
-  font-weight: 600;
+@container results (min-width: 26rem) {
+  .headlineValue {
+    font-size: 3rem;
+  }
 }
 
-.drivesDetail {
-  font-size: var(--mantine-font-size-sm);
-}
-
-.sizedNote {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-xs);
-}
-
-/* Capacity bar */
-
-.bar {
-  background-color: var(--app-capacity-unused);
-}
-
-.legend {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px var(--mantine-spacing-md);
-  margin: var(--mantine-spacing-xs) 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: var(--mantine-font-size-xs);
-}
-
-.legendItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
-
-.swatch {
-  flex-shrink: 0;
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  outline: 1px solid var(--mantine-color-default-border);
-}
-
-.legendLabel {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.legendValue {
-  margin-inline-start: auto;
-  color: var(--app-text-secondary);
-  white-space: nowrap;
-}
-
-/* Metric tiles */
+/* Metric row: stacked rows when narrow, three columns divided by rules when wide enough. */
 
 .tiles {
+  display: grid;
   margin: 0;
 }
 
 .tile {
-  padding: var(--mantine-spacing-sm);
-  border-radius: var(--mantine-radius-sm);
-  background-color: var(--app-surface-subtle);
+  display: flex;
+  flex-direction: column;
+  padding: var(--mantine-spacing-xs) 0;
+}
+
+.tile + .tile {
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+/* Value above its label, as in the prototype; the markup keeps dt before dd. */
+.tileValue {
+  order: -1;
+  margin: 0;
+  font-size: var(--mantine-font-size-md);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .tileLabel {
@@ -134,17 +103,105 @@
   font-size: var(--mantine-font-size-xs);
 }
 
-.tileValue {
-  margin: 0;
-  color: var(--app-accent-text);
-  font-size: var(--mantine-font-size-lg);
-  font-weight: 600;
-}
-
 .tileDetail {
   margin: 0;
   color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-xs);
+}
+
+@container results (min-width: 21rem) {
+  .tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--mantine-spacing-sm);
+  }
+
+  .tile {
+    padding: 0;
+  }
+
+  .tile + .tile {
+    padding-inline-start: var(--mantine-spacing-sm);
+    border-top: none;
+    border-inline-start: 1px solid var(--mantine-color-default-border);
+  }
+}
+
+/* Drives */
+
+.drivesBox {
+  padding: var(--mantine-spacing-md);
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+}
+
+.drivesValue {
+  font-weight: 700;
+}
+
+.drivesDetail {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-sm);
+}
+
+/* Capacity bar */
+
+.labelRow {
+  margin-bottom: 6px;
+  min-height: 22px;
+}
+
+.barCaption {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.bar {
+  background-color: var(--app-capacity-unused);
+}
+
+.legend {
+  display: grid;
+  gap: 4px;
+  margin: var(--mantine-spacing-sm) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--mantine-font-size-sm);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  min-width: 0;
+}
+
+.swatch {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  outline: 1px solid var(--mantine-color-default-border);
+}
+
+.legendLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legendValue {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.legendPercent {
+  min-width: 4ch;
+  color: var(--app-text-secondary);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
 }
 
 /* Warning and notes */

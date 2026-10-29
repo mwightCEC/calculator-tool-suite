@@ -4,13 +4,14 @@ import {
   MOTION_PERCENT_MAX,
   MOTION_PERCENT_MIN,
   MOTION_PERCENT_STEP,
+  RECORDING_MODES,
   SCHEDULE_HOURS_MAX,
   SCHEDULE_HOURS_MIN,
 } from '@cctv/calc-core';
-import { Group, NumberInput, Slider, Text } from '@mantine/core';
-import { FieldRow, fieldLabelId } from '../../../../../components/FieldRow/FieldRow';
-import { OptionButtons } from '../../../../../components/OptionButtons/OptionButtons';
+import { Group, NumberInput, Select, Slider, Text } from '@mantine/core';
+import { FieldRow } from '../../../../../components/FieldRow/FieldRow';
 import { useNumberDraft } from '../../../../../hooks/use-number-draft';
+import { parseOption } from '../../../../../lib/camera-labels';
 import { RECORDING_MODE_OPTIONS } from '../../_lib/storage-labels';
 import type { CameraGroupChanges, CameraGroupState } from '../../_state/storage-calculator-state';
 import classes from './RecordingFields.module.css';
@@ -20,26 +21,35 @@ interface RecordingFieldsProps {
   onChange: (changes: CameraGroupChanges) => void;
 }
 
-/** Recording mode, plus motion time or scheduled hours when they apply. */
-export function RecordingFields({ group, onChange }: RecordingFieldsProps) {
+export function RecordingModeField({ group, onChange }: RecordingFieldsProps) {
+  return (
+    <FieldRow
+      label="Recording mode"
+      help="How many hours per day are written to disk: all day, only when there is motion, or on a schedule."
+      controlId={`${group.id}-recording`}
+    >
+      <Select
+        id={`${group.id}-recording`}
+        data={RECORDING_MODE_OPTIONS}
+        value={group.recordingMode}
+        onChange={(value) => {
+          const recordingMode = parseOption(RECORDING_MODES, value);
+          if (recordingMode) {
+            onChange({ recordingMode });
+          }
+        }}
+        allowDeselect={false}
+      />
+    </FieldRow>
+  );
+}
+
+/** Motion time or scheduled hours, when the recording mode uses them. */
+export function RecordingDetailField({ group, onChange }: RecordingFieldsProps) {
   const id = group.id;
 
   return (
     <>
-      <FieldRow
-        label="Recording mode"
-        help="How many hours per day are written to disk: all day, only when there is motion, or on a schedule."
-        controlId={`${id}-recording`}
-      >
-        <OptionButtons
-          id={`${id}-recording`}
-          value={group.recordingMode}
-          onChange={(recordingMode) => onChange({ recordingMode })}
-          options={RECORDING_MODE_OPTIONS}
-          aria-labelledby={fieldLabelId(`${id}-recording`)}
-        />
-      </FieldRow>
-
       {group.recordingMode === 'motion' && (
         <FieldRow
           label="Motion time"

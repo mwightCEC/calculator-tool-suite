@@ -1,8 +1,8 @@
 'use client';
 
 import type { StorageCalculationResult } from '@cctv/calc-core';
-import { IconInfoCircle } from '@tabler/icons-react';
-import { ActionIcon, Group, Popover, Text } from '@mantine/core';
+import { IconInfoCircle, IconServer2 } from '@tabler/icons-react';
+import { ActionIcon, Group, Popover, Text, ThemeIcon } from '@mantine/core';
 import { describeDriveCount, describeRaid } from '../../_lib/result-summary';
 import classes from './ResultsCard.module.css';
 
@@ -23,29 +23,37 @@ export function DrivesSummary({ result }: { result: StorageCalculationResult }) 
   const sizedForHigh = result.mode === 'storage-needed' && result.isEstimated;
 
   return (
-    <div>
-      <Group gap={2} align="center" wrap="nowrap" className={classes.labelRow}>
-        <Text className={classes.sectionLabel}>{help.label}</Text>
-        <Popover width={280} position="bottom-start" withArrow shadow="md">
-          <Popover.Target>
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="sm"
-              aria-label={`About ${help.label.toLowerCase()}`}
-              className={classes.infoButton}
-            >
-              <IconInfoCircle size={16} stroke={1.75} />
-            </ActionIcon>
-          </Popover.Target>
-          <Popover.Dropdown>
-            <Text size="sm">{help.text}</Text>
-          </Popover.Dropdown>
-        </Popover>
-      </Group>
-      <Text className={classes.drivesValue}>{describeDriveCount(result)}</Text>
-      <Text className={classes.drivesDetail}>{describeRaid(result)}</Text>
-      {sizedForHigh && <Text className={classes.sizedNote}>Sized for the high estimate</Text>}
-    </div>
+    <Group gap="sm" align="flex-start" wrap="nowrap" className={classes.drivesBox}>
+      <ThemeIcon variant="light" size={36} radius="xl">
+        <IconServer2 size={18} stroke={1.75} />
+      </ThemeIcon>
+      <div>
+        <Group gap={2} align="center" wrap="nowrap">
+          <Text className={classes.drivesValue}>
+            {help.label}: {describeDriveCount(result)}
+          </Text>
+          <Popover width={280} position="bottom-start" withArrow shadow="md">
+            <Popover.Target>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                size="sm"
+                aria-label={`About ${help.label.toLowerCase()}`}
+                className={classes.infoButton}
+              >
+                <IconInfoCircle size={16} stroke={1.75} />
+              </ActionIcon>
+            </Popover.Target>
+            <Popover.Dropdown>
+              <Text size="sm">{help.text}</Text>
+            </Popover.Dropdown>
+          </Popover>
+        </Group>
+        <Text className={classes.drivesDetail}>
+          {describeRaid(result)}
+          {sizedForHigh && ' · sized for the high estimate'}
+        </Text>
+      </div>
+    </Group>
   );
 }

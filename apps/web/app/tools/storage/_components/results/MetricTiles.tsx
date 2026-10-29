@@ -1,5 +1,5 @@
 import { isPointRange, type StorageCalculationResult, type ValueRange } from '@cctv/calc-core';
-import { SimpleGrid, Text } from '@mantine/core';
+import { Text } from '@mantine/core';
 import {
   formatMbps,
   formatNumber,
@@ -7,7 +7,6 @@ import {
   formatTb,
   formatTbPerDay,
 } from '../../../../../lib/format';
-import { RAID_LABELS } from '../../_lib/storage-labels';
 import classes from './ResultsCard.module.css';
 
 interface Tile {
@@ -24,6 +23,7 @@ function rangeDetail(range: ValueRange, unit: string, digits?: number): string |
 function buildTiles(result: StorageCalculationResult): Tile[] {
   const approx = result.isEstimated ? '~' : '';
   const { drives } = result;
+  // Drive count and RAID level are in the Capacity breakdown, so they have no metric here.
   return [
     {
       label: 'Total bitrate',
@@ -36,11 +36,6 @@ function buildTiles(result: StorageCalculationResult): Tile[] {
       detail: rangeDetail(result.dailyWriteTb, 'TB/day', 2),
     },
     {
-      label: 'Drives',
-      value: `${drives.driveCount} × ${drives.driveSizeTb} TB`,
-      detail: drives.raidLevel === 'none' ? 'No RAID' : RAID_LABELS[drives.raidLevel],
-    },
-    {
       label: 'Usable capacity',
       value: formatTb(drives.usableCapacityTb),
       detail: `${formatNumber(drives.rawCapacityTb)} TB raw`,
@@ -48,9 +43,10 @@ function buildTiles(result: StorageCalculationResult): Tile[] {
   ];
 }
 
+/** Key figures in a row, divided by rules (stacked when the card is narrow). */
 export function MetricTiles({ result }: { result: StorageCalculationResult }) {
   return (
-    <SimpleGrid cols={2} spacing="xs" component="dl" className={classes.tiles}>
+    <dl className={classes.tiles}>
       {buildTiles(result).map((tile) => (
         <div key={tile.label} className={classes.tile}>
           <Text component="dt" className={classes.tileLabel}>
@@ -66,6 +62,6 @@ export function MetricTiles({ result }: { result: StorageCalculationResult }) {
           )}
         </div>
       ))}
-    </SimpleGrid>
+    </dl>
   );
 }

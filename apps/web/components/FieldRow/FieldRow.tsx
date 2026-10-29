@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { ActionIcon, Text, Tooltip } from '@mantine/core';
 import classes from './FieldRow.module.css';
@@ -7,6 +7,16 @@ import classes from './FieldRow.module.css';
 export function fieldLabelId(controlId: string): string {
   return `${controlId}-label`;
 }
+
+/**
+ * How FieldRows inside lay out: "row" puts the label beside the control (the default),
+ * "stacked" puts it above a full-width control, for fields arranged in a grid.
+ */
+export type FieldLayout = 'row' | 'stacked';
+
+const FieldLayoutContext = createContext<FieldLayout>('row');
+
+export const FieldLayoutProvider = FieldLayoutContext.Provider;
 
 interface FieldRowProps {
   label: string;
@@ -21,10 +31,11 @@ interface FieldRowProps {
   children: ReactNode;
 }
 
-/** One form field per row: fixed-width label with an info tooltip, control on the right. */
+/** One form field: label with an info tooltip, and the control beside or below it (FieldLayout). */
 export function FieldRow({ label, help, controlId, dimmed, note, children }: FieldRowProps) {
+  const layout = useContext(FieldLayoutContext);
   return (
-    <div className={classes.row} data-dimmed={dimmed || undefined}>
+    <div className={classes.row} data-layout={layout} data-dimmed={dimmed || undefined}>
       <div className={classes.labelCell}>
         <label id={fieldLabelId(controlId)} htmlFor={controlId} className={classes.label}>
           {label}

@@ -11,6 +11,8 @@ interface CamerasCardProps {
   totalValue: ReactNode;
   /** The camera fields. */
   children: ReactNode;
+  /** "nested" sits inside a section card that has its own heading, so the title is hidden. */
+  variant?: 'default' | 'nested';
 }
 
 /** Simple mode's single camera setup: the group card's fields and total, without group controls. */
@@ -19,20 +21,27 @@ export function CamerasCard({
   colorIndex,
   totalValue,
   children,
+  variant = 'default',
 }: CamerasCardProps) {
+  const nested = variant === 'nested';
   const colorVariables = { '--group-tint': `var(--group-tint-${colorIndex})` } as CSSProperties;
 
   return (
     <Paper
       component="section"
       withBorder
+      radius={nested ? 'lg' : undefined}
       className={classes.card}
+      data-variant={variant}
       style={colorVariables}
-      aria-labelledby="cameras-title"
+      aria-labelledby={nested ? undefined : 'cameras-title'}
+      aria-label={nested ? title : undefined}
     >
-      <Title order={2} id="cameras-title" className={classes.camerasTitle}>
-        {title}
-      </Title>
+      {!nested && (
+        <Title order={2} id="cameras-title" className={classes.camerasTitle}>
+          {title}
+        </Title>
+      )}
       <div className={classes.fields}>{children}</div>
       <Group justify="space-between" gap="md" className={classes.footer}>
         <Text size="sm">Total</Text>

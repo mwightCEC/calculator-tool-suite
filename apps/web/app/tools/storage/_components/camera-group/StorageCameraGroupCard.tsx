@@ -1,14 +1,25 @@
 'use client';
 
 import type { CameraGroupUsage } from '@cctv/calc-core';
+import { BitrateField } from '../../../../../components/CameraGroupCard/BitrateField';
 import { CameraGroupCard } from '../../../../../components/CameraGroupCard/CameraGroupCard';
 import { CamerasCard } from '../../../../../components/CameraGroupCard/CamerasCard';
-import { CameraStreamFields } from '../../../../../components/CameraGroupCard/CameraStreamFields';
+import {
+  applyEnteredBitrate,
+  CameraCountField,
+  CodecField,
+  FrameRateField,
+  ResolutionField,
+  SceneComplexityField,
+} from '../../../../../components/CameraGroupCard/CameraStreamFields';
+import { FieldLayoutProvider } from '../../../../../components/FieldRow/FieldRow';
 import { formatGb, formatMbps } from '../../../../../lib/format';
 import { summarizeGroup } from '../../_lib/group-summary';
 import type { CameraGroupChanges, CameraGroupState } from '../../_state/storage-calculator-state';
 import type { StorageCalculatorActions } from '../../_state/use-storage-calculator';
-import { RecordingFields } from './RecordingFields';
+import { Disclosure } from '../Disclosure';
+import { RecordingDetailField, RecordingModeField } from './RecordingFields';
+import classes from './StorageGroupFields.module.css';
 
 interface StorageGroupProps {
   group: CameraGroupState;
@@ -26,19 +37,46 @@ function describeTotals({ group, usage }: Pick<StorageGroupProps, 'group' | 'usa
   };
 }
 
-/** The shared stream fields plus Storage's recording fields. */
+/**
+ * The shared stream fields plus Storage's recording fields, in a grid with labels above.
+ * Bitrate sits under Advanced settings, open from the start when a known bitrate is set.
+ */
 function StorageGroupFields({ group, usage, actions }: StorageGroupProps) {
   const update = (changes: CameraGroupChanges) => actions.updateGroup(group.id, changes);
   return (
-    <CameraStreamFields
-      group={group}
-      perCameraMbps={usage.bitratePerCameraMbps}
-      onChange={update}
-      onBitrateSourceChange={(source) => actions.setBitrateSource(group.id, source)}
-      sceneComplexityHelpNote="This is separate from how many hours are recorded."
-    >
-      <RecordingFields group={group} onChange={update} />
-    </CameraStreamFields>
+    <FieldLayoutProvider value="stacked">
+      <div className={classes.grid}>
+        <div className={classes.streamRow}>
+          <CameraCountField group={group} onChange={update} />
+          <ResolutionField group={group} onChange={update} />
+          <FrameRateField group={group} onChange={update} />
+          <CodecField group={group} onChange={update} />
+        </div>
+        <div className={classes.recordingRow}>
+          <RecordingModeField group={group} onChange={update} />
+          <SceneComplexityField
+            group={group}
+            onChange={update}
+            helpNote="This is separate from how many hours are recorded."
+            control="select"
+          />
+          <RecordingDetailField group={group} onChange={update} />
+        </div>
+      </div>
+      <Disclosure
+        title="Advanced settings"
+        hint="(bitrate)"
+        defaultOpened={group.bitrate.source !== 'estimate'}
+      >
+        <BitrateField
+          idPrefix={group.id}
+          bitrate={group.bitrate}
+          perCameraMbps={usage.bitratePerCameraMbps}
+          onSourceChange={(source) => actions.setBitrateSource(group.id, source)}
+          onMbpsChange={(mbps) => applyEnteredBitrate(group, update, mbps)}
+        />
+      </Disclosure>
+    </FieldLayoutProvider>
   );
 }
 
@@ -78,6 +116,7 @@ export function StorageCameraGroupCard({
       collapsedSummary={summarizeGroup(group, usage)}
       collapsedValue={gbPerDay}
       totalValue={total}
+      variant="nested"
     >
       <StorageGroupFields group={group} usage={usage} actions={actions} />
     </CameraGroupCard>
@@ -87,7 +126,11 @@ export function StorageCameraGroupCard({
 /** Simple mode's single camera setup: the same fields, no group controls. */
 export function StorageCamerasCard({ group, usage, actions }: StorageGroupProps) {
   return (
-    <CamerasCard colorIndex={group.colorIndex} totalValue={describeTotals({ group, usage }).total}>
+    <CamerasCard
+      colorIndex={group.colorIndex}
+      totalValue={describeTotals({ group, usage }).total}
+      variant="nested"
+    >
       <StorageGroupFields group={group} usage={usage} actions={actions} />
     </CamerasCard>
   );

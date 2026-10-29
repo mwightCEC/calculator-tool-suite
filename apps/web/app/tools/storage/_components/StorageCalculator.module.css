@@ -18,13 +18,31 @@
   }
 }
 
-.addGroup {
-  border-style: dashed;
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+}
+
+.sectionHeading {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.sectionTitle {
+  font-size: var(--mantine-font-size-lg);
+  letter-spacing: -0.01em;
+}
+
+.sectionDescription {
+  color: var(--app-text-secondary);
 }
 
 @media (min-width: $mantine-breakpoint-lg) {
   .layout {
-    grid-template-columns: minmax(0, 1fr) 380px;
+    /* Inputs and results share the width about 7:5, as in the approved prototype. */
+    grid-template-columns: minmax(0, 7fr) minmax(360px, 5fr);
     padding-bottom: 0;
   }
 

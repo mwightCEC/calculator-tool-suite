@@ -5,7 +5,7 @@
 .header {
   --app-focus-ring: var(--app-header-fg);
 
-  background-color: var(--app-header-bg);
+  background: var(--app-header-bg);
   padding-inline: var(--mantine-spacing-md) var(--mantine-spacing-sm);
 }
 

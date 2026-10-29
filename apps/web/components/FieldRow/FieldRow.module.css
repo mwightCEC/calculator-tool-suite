@@ -36,6 +36,32 @@
   opacity: 0.55;
 }
 
+/* Stacked: label above a full-width control, for fields in a grid. */
+.row[data-layout='stacked'] {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+
+.row[data-layout='stacked'] .labelCell {
+  min-height: 0;
+}
+
+.row[data-layout='stacked'] .label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.row[data-layout='stacked'] .controlCell {
+  align-items: stretch;
+  min-height: 0;
+}
+
+/* Controls fill their grid cell, overriding the fixed widths used beside a label. */
+.row[data-layout='stacked'] .controlCell > :not(.note) {
+  width: 100%;
+  max-width: none;
+}
+
 /* Narrow screens: label above the control. */
 @media (max-width: $mantine-breakpoint-xs) {
   .row {

@@ -1,7 +1,7 @@
 'use client';
 
 import { IconChevronDown, IconCopy, IconTrash } from '@tabler/icons-react';
-import { ActionIcon, Badge, Group, Tooltip } from '@mantine/core';
+import { ActionIcon, Badge, Group, Text, Tooltip } from '@mantine/core';
 import { GroupNameInput } from './GroupNameInput';
 import classes from './CameraGroupCard.module.css';
 
@@ -17,6 +17,8 @@ interface CameraGroupHeaderProps {
   name: string;
   cameraCount: number;
   countNoun?: CountNoun;
+  /** One-line description under the name, shown in place of the count badge. */
+  subtitle?: string;
   expanded: boolean;
   bodyId: string;
   canDuplicate: boolean;
@@ -31,6 +33,7 @@ export function CameraGroupHeader({
   name,
   cameraCount,
   countNoun = CAMERAS,
+  subtitle,
   expanded,
   bodyId,
   canDuplicate,
@@ -57,10 +60,21 @@ export function CameraGroupHeader({
         />
       </ActionIcon>
       <span className={classes.dot} aria-hidden="true" />
-      <GroupNameInput value={name} onChange={onRename} />
-      <Badge className={classes.countBadge} radius="sm" variant="filled">
-        {cameraCount} {cameraCount === 1 ? countNoun.one : countNoun.other}
-      </Badge>
+      {subtitle ? (
+        <div className={classes.headerText}>
+          <GroupNameInput value={name} onChange={onRename} />
+          <Text size="xs" className={classes.subtitle}>
+            {subtitle}
+          </Text>
+        </div>
+      ) : (
+        <>
+          <GroupNameInput value={name} onChange={onRename} />
+          <Badge className={classes.countBadge} radius="sm" variant="filled">
+            {cameraCount} {cameraCount === 1 ? countNoun.one : countNoun.other}
+          </Badge>
+        </>
+      )}
 
       <Group gap={4} wrap="nowrap" className={classes.headerActions}>
         <Tooltip label="Duplicate group" withArrow>

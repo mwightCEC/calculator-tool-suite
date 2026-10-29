@@ -7,12 +7,19 @@ import inputClasses from './Input.module.css';
 
 export { cssVariablesResolver };
 
+/** Inter Tight (loaded with next/font in app/layout.tsx), then the system UI fonts. */
+const FONT_FAMILY =
+  'var(--font-inter-tight), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+
 export const theme = createTheme({
   colors: { brand, amber },
   primaryColor: 'brand',
   primaryShade: { light: 6, dark: 6 },
   // Picks dark text on light fills (e.g. amber badges) and white on brand.6.
   autoContrast: true,
+
+  fontFamily: FONT_FAMILY,
+  headings: { fontFamily: FONT_FAMILY },
 
   // Keyboard-only focus ring; recoloured to neutral gray in app/global.css.
   focusRing: 'auto',
