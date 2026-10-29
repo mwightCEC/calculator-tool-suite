@@ -119,9 +119,10 @@ export function storageCalculatorReducer(
       );
 
     case 'add-group':
+      // New groups go at the top, where the page has just collapsed the others.
       return withGroups(
         state,
-        addGroup(groups, (fields) => ({ ...fields, ...DEFAULT_CAMERA_GROUP_SETTINGS }))
+        addGroup(groups, (fields) => ({ ...fields, ...DEFAULT_CAMERA_GROUP_SETTINGS }), 'start')
       );
 
     case 'duplicate-group':

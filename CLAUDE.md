@@ -119,7 +119,9 @@ config or routing changes.
   Advanced); Bandwidth v2 and Voltage drop v1 always store it.
 - Storage has no input mode: camera groups and every setting are always available. Its v2
   links no longer write the old input-mode item; older links that carry it open with it
-  ignored (`share-format-v2.ts`).
+  ignored (`share-format-v2.ts`). Storage adds new camera groups at the top and collapses the
+  others; its fields keep an info icon only on Scene complexity (and RAID level / Recording
+  reserve), and Drive configuration (optional) collapses without changing the calculation.
 
 - Camera group colours: neighbouring groups never share a colour (`lib/camera-groups/group-colors.ts`,
   enforced in the reducer for add, duplicate, delete, undo and loading a link).

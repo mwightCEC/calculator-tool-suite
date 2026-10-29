@@ -50,7 +50,11 @@ export function StorageCalculator() {
                 variant="outline"
                 radius="xl"
                 leftSection={<IconPlus size={16} />}
-                onClick={actions.addGroup}
+                onClick={() => {
+                  // The new group opens at the top with the others collapsed below it.
+                  expansion.collapseAll();
+                  actions.addGroup();
+                }}
                 disabled={atGroupLimit}
               >
                 {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} camera groups` : 'Add camera group'}

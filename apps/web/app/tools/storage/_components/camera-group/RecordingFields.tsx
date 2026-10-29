@@ -23,11 +23,7 @@ interface RecordingFieldsProps {
 
 export function RecordingModeField({ group, onChange }: RecordingFieldsProps) {
   return (
-    <FieldRow
-      label="Recording mode"
-      help="How many hours per day are written to disk: all day, only when there is motion, or on a schedule."
-      controlId={`${group.id}-recording`}
-    >
+    <FieldRow label="Recording mode" controlId={`${group.id}-recording`}>
       <Select
         id={`${group.id}-recording`}
         data={RECORDING_MODE_OPTIONS}
@@ -53,7 +49,7 @@ export function RecordingDetailField({ group, onChange }: RecordingFieldsProps) 
       {group.recordingMode === 'motion' && (
         <FieldRow
           label="Motion time"
-          help="Estimated share of the day with motion, including pre- and post-event recording buffers."
+          note="Include pre- and post-event recording."
           controlId={`${id}-motion`}
         >
           <Group gap="md" wrap="nowrap">
@@ -76,11 +72,7 @@ export function RecordingDetailField({ group, onChange }: RecordingFieldsProps) 
       )}
 
       {group.recordingMode === 'schedule' && (
-        <FieldRow
-          label="Hours per day"
-          help="Hours recorded each day by the schedule."
-          controlId={`${id}-hours`}
-        >
+        <FieldRow label="Hours per day" controlId={`${id}-hours`}>
           <ScheduleHoursInput
             id={`${id}-hours`}
             value={group.scheduleHours}

@@ -21,6 +21,12 @@ describe('group list operations', () => {
     expect(groups[2]).toEqual({ id: 'g3', name: 'Camera group 3', colorIndex: 2 });
   });
 
+  it('adds at the start when asked, coloured to differ from the group below', () => {
+    const groups = addGroup(two(), (fields) => fields, 'start');
+    expect(groups.map((group) => group.id)).toEqual(['g3', 'g1', 'g2']);
+    expect(groups[0]).toEqual({ id: 'g3', name: 'Camera group 3', colorIndex: 2 });
+  });
+
   it('numbers ids after the highest, ignoring ids that are not numbered', () => {
     const groups = addGroup([{ id: 'custom', name: 'X', colorIndex: 0 }], (fields) => fields);
     expect(groups[1]?.id).toBe('g1');
