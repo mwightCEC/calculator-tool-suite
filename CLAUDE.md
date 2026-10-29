@@ -110,13 +110,16 @@ config or routing changes.
   (`cctv-tool-suite:<tool>-calculator`), stored as the same share parameters so it gets the
   same versions and validation. A link in the URL wins over saved state; the default state
   clears it (`lib/share/saved-state.ts`).
-- Simple / Advanced input (`lib/input-mode.ts`): new visitors start in Simple, which is one camera
-  setup with some settings hidden at fixed values (Storage: No RAID, 0% reserve; Bandwidth:
-  remote viewing off, no uplink check, 10% overhead; PoE budget: 20% reserve, no cable
-  length; Voltage drop: 10% drop limit, 20% reserve, a preset supply). The reducer enforces Simple's rules after every action; switching to Simple trims
-  the setup, with Undo. In Storage and PoE budget share links the mode is an optional last
-  item (links without it open in Advanced); Bandwidth v2 and Voltage drop v1
-  always store it.
+- Simple / Advanced input (`lib/input-mode.ts`), in Bandwidth, PoE budget and Voltage drop:
+  new visitors start in Simple, which is one camera setup with some settings hidden at fixed
+  values (Bandwidth: remote viewing off, no uplink check, 10% overhead; PoE budget: 20% reserve,
+  no cable length; Voltage drop: 10% drop limit, 20% reserve, a preset supply). The reducer
+  enforces Simple's rules after every action; switching to Simple trims the setup, with Undo.
+  In PoE budget share links the mode is an optional last item (links without it open in
+  Advanced); Bandwidth v2 and Voltage drop v1 always store it.
+- Storage has no input mode: camera groups and every setting are always available. Its v2
+  links no longer write the old input-mode item; older links that carry it open with it
+  ignored (`share-format-v2.ts`).
 
 - Camera group colours: neighbouring groups never share a colour (`lib/camera-groups/group-colors.ts`,
   enforced in the reducer for add, duplicate, delete, undo and loading a link).

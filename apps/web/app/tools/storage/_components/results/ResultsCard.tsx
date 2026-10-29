@@ -78,7 +78,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         <CapacityBar
           breakdown={result.breakdown}
           groups={state.cameraGroups}
-          singleSetup={state.inputMode === 'simple'}
+          singleGroup={state.cameraGroups.length === 1}
         />
         <DrivesSummary result={result} />
       </Disclosure>

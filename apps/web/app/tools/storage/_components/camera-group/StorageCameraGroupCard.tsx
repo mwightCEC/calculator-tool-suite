@@ -3,7 +3,6 @@
 import type { CameraGroupUsage } from '@cctv/calc-core';
 import { BitrateField } from '../../../../../components/CameraGroupCard/BitrateField';
 import { CameraGroupCard } from '../../../../../components/CameraGroupCard/CameraGroupCard';
-import { CamerasCard } from '../../../../../components/CameraGroupCard/CamerasCard';
 import {
   applyEnteredBitrate,
   CameraCountField,
@@ -87,7 +86,7 @@ interface StorageCameraGroupCardProps extends StorageGroupProps {
   canDelete: boolean;
 }
 
-/** An Advanced-mode Storage camera group: the shared card with recording mode and GB per day. */
+/** A Storage camera group: the shared card with recording mode and GB per day. */
 export function StorageCameraGroupCard({
   group,
   usage,
@@ -120,18 +119,5 @@ export function StorageCameraGroupCard({
     >
       <StorageGroupFields group={group} usage={usage} actions={actions} />
     </CameraGroupCard>
-  );
-}
-
-/** Simple mode's single camera setup: the same fields, no group controls. */
-export function StorageCamerasCard({ group, usage, actions }: StorageGroupProps) {
-  return (
-    <CamerasCard
-      colorIndex={group.colorIndex}
-      totalValue={describeTotals({ group, usage }).total}
-      variant="nested"
-    >
-      <StorageGroupFields group={group} usage={usage} actions={actions} />
-    </CamerasCard>
   );
 }

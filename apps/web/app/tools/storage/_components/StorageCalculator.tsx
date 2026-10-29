@@ -5,12 +5,11 @@ import { Button, Group, Paper, Stack, Text, Title } from '@mantine/core';
 import { CameraGroupToolbar } from '../../../../components/CameraGroupCard/CameraGroupToolbar';
 import { useGroupExpansion } from '../../../../components/CameraGroupCard/use-group-expansion';
 import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
-import { ModeSwitch } from '../../../../components/ModeSwitch/ModeSwitch';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
 import { describeHeadline } from '../_lib/result-summary';
 import { useStorageCalculator } from '../_state/use-storage-calculator';
 import { CalculationModeCards } from './CalculationModeCards';
-import { StorageCameraGroupCard, StorageCamerasCard } from './camera-group/StorageCameraGroupCard';
+import { StorageCameraGroupCard } from './camera-group/StorageCameraGroupCard';
 import { PrintSummary } from './print/PrintSummary';
 import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
 import { StorageSettingsSection } from './StorageSettingsSection';
@@ -24,9 +23,6 @@ export function StorageCalculator() {
   const atGroupLimit = groupCount >= MAX_CAMERA_GROUPS;
   const usageByGroupId = new Map(result.groups.map((usage) => [usage.groupId, usage]));
   const headline = describeHeadline(result);
-  const advanced = state.inputMode === 'advanced';
-  const firstGroup = state.cameraGroups[0];
-  const firstUsage = firstGroup && usageByGroupId.get(firstGroup.id);
 
   return (
     <>
@@ -47,64 +43,49 @@ export function StorageCalculator() {
                   Camera configuration
                 </Title>
                 <Text size="sm" className={classes.sectionDescription}>
-                  {advanced
-                    ? 'Add one or more camera groups. Each group can have different settings.'
-                    : 'One camera setup. Switch to Advanced for groups with different settings.'}
+                  Add one or more camera groups. Each group can have different settings.
                 </Text>
               </div>
-              {advanced && (
-                <Button
-                  variant="outline"
-                  radius="xl"
-                  leftSection={<IconPlus size={16} />}
-                  onClick={actions.addGroup}
-                  disabled={atGroupLimit}
-                >
-                  {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} camera groups` : 'Add camera group'}
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                radius="xl"
+                leftSection={<IconPlus size={16} />}
+                onClick={actions.addGroup}
+                disabled={atGroupLimit}
+              >
+                {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} camera groups` : 'Add camera group'}
+              </Button>
             </Group>
 
-            <Group justify="space-between" gap="sm">
-              <ModeSwitch value={state.inputMode} onChange={actions.setInputMode} />
-              {advanced && (
-                <CameraGroupToolbar
-                  allCollapsed={expansion.allCollapsed}
-                  onToggleAll={expansion.toggleAll}
-                  canClear={hasCustomGroups}
-                  onClear={() => {
-                    actions.clearGroups();
-                    expansion.expandAll();
-                  }}
-                />
-              )}
-            </Group>
+            <CameraGroupToolbar
+              allCollapsed={expansion.allCollapsed}
+              onToggleAll={expansion.toggleAll}
+              canClear={hasCustomGroups}
+              onClear={() => {
+                actions.clearGroups();
+                expansion.expandAll();
+              }}
+            />
 
-            {!advanced && firstGroup && firstUsage && (
-              <StorageCamerasCard group={firstGroup} usage={firstUsage} actions={actions} />
-            )}
-
-            {advanced &&
-              state.cameraGroups.map((group) => {
-                const usage = usageByGroupId.get(group.id);
-                return (
-                  usage && (
-                    <StorageCameraGroupCard
-                      key={group.id}
-                      group={group}
-                      usage={usage}
-                      expanded={expansion.isExpanded(group.id)}
-                      onToggleExpanded={() => expansion.toggle(group.id)}
-                      canDuplicate={!atGroupLimit}
-                      canDelete={groupCount > 1}
-                      actions={actions}
-                    />
-                  )
-                );
-              })}
+            {state.cameraGroups.map((group) => {
+              const usage = usageByGroupId.get(group.id);
+              return (
+                usage && (
+                  <StorageCameraGroupCard
+                    key={group.id}
+                    group={group}
+                    usage={usage}
+                    expanded={expansion.isExpanded(group.id)}
+                    onToggleExpanded={() => expansion.toggle(group.id)}
+                    canDuplicate={!atGroupLimit}
+                    canDelete={groupCount > 1}
+                    actions={actions}
+                  />
+                )
+              );
+            })}
 
             <StorageSettingsSection
-              showRaidAndReserve={advanced}
               mode={state.mode}
               storage={state.storage}
               onChange={actions.updateStorage}

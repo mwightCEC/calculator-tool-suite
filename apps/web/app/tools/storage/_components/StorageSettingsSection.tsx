@@ -39,8 +39,6 @@ interface SettingsProps {
 }
 
 interface StorageSettingsSectionProps extends SettingsProps {
-  /** Simple mode hides RAID and Reserve; they stay at No RAID and 0%. */
-  showRaidAndReserve: boolean;
   mode: CalculationMode;
 }
 
@@ -48,12 +46,7 @@ interface StorageSettingsSectionProps extends SettingsProps {
  * Storage needed: a Retention goal panel, then the drives to size.
  * Days from capacity: one Storage configuration panel with the drives entered.
  */
-export function StorageSettingsSection({
-  showRaidAndReserve,
-  mode,
-  storage,
-  onChange,
-}: StorageSettingsSectionProps) {
+export function StorageSettingsSection({ mode, storage, onChange }: StorageSettingsSectionProps) {
   if (mode === 'days-from-capacity') {
     return (
       <SettingsPanel
@@ -62,10 +55,10 @@ export function StorageSettingsSection({
         description="Enter the drives in your recorder to estimate how many days of video it can keep."
       >
         <div className={classes.grid}>
-          {showRaidAndReserve && <RaidField storage={storage} onChange={onChange} />}
+          <RaidField storage={storage} onChange={onChange} />
           <DriveCountField storage={storage} onChange={onChange} />
           <DriveSizeField storage={storage} onChange={onChange} />
-          {showRaidAndReserve && <ReserveField storage={storage} onChange={onChange} />}
+          <ReserveField storage={storage} onChange={onChange} />
         </div>
       </SettingsPanel>
     );
@@ -99,15 +92,13 @@ export function StorageSettingsSection({
         </Title>
         <div className={classes.fieldsPanel}>
           <Text size="sm" className={classes.description}>
-            {showRaidAndReserve
-              ? 'The drives are sized from this drive size, RAID level and reserve.'
-              : 'The drives are sized from this drive size.'}
+            The drives are sized from this drive size, RAID level and reserve.
           </Text>
           <FieldLayoutProvider value="stacked">
-            <div className={classes.grid} data-columns={showRaidAndReserve ? 3 : undefined}>
-              {showRaidAndReserve && <RaidField storage={storage} onChange={onChange} />}
+            <div className={classes.grid} data-columns={3}>
+              <RaidField storage={storage} onChange={onChange} />
               <DriveSizeField storage={storage} onChange={onChange} />
-              {showRaidAndReserve && <ReserveField storage={storage} onChange={onChange} />}
+              <ReserveField storage={storage} onChange={onChange} />
             </div>
           </FieldLayoutProvider>
         </div>

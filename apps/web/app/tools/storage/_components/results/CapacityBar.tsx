@@ -77,21 +77,21 @@ function formatShare(fraction: number): string {
 interface CapacityBarProps {
   breakdown: CapacityBreakdown;
   groups: CameraGroupState[];
-  /** Simple mode has one camera setup, so footage is always one segment. */
-  singleSetup: boolean;
+  /** With one group there is nothing to combine, so the Simplified switch is hidden. */
+  singleGroup: boolean;
 }
 
 /**
  * Raw drive capacity split into footage, reserve, parity and unused space.
  * "Simplified" combines all camera groups into one footage segment; the choice
- * is remembered per browser. Simple mode always shows one footage segment.
+ * is remembered per browser.
  */
-export function CapacityBar({ breakdown, groups, singleSetup }: CapacityBarProps) {
+export function CapacityBar({ breakdown, groups, singleGroup }: CapacityBarProps) {
   const [simplified, setSimplified] = useLocalStorage({
     key: SIMPLIFIED_STORAGE_KEY,
     defaultValue: false,
   });
-  const segments = buildSegments(breakdown, groups, simplified || singleSetup);
+  const segments = buildSegments(breakdown, groups, simplified && !singleGroup);
   const visible = segments.filter((segment) => segment.tb > 0);
 
   return (
@@ -106,7 +106,7 @@ export function CapacityBar({ breakdown, groups, singleSetup }: CapacityBarProps
         <Text className={classes.barCaption}>
           Based on {formatTb(breakdown.rawTb)} raw capacity
         </Text>
-        {!singleSetup && (
+        {!singleGroup && (
           <Switch
             size="xs"
             label="Simplified"
