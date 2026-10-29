@@ -9,11 +9,7 @@ import {
 import { buildPrintSummary } from './print-summary';
 
 function stateAfter(...actions: StorageCalculatorAction[]): StorageCalculatorState {
-  const advanced = storageCalculatorReducer(createInitialStorageCalculatorState(), {
-    type: 'set-input-mode',
-    inputMode: 'advanced',
-  });
-  return actions.reduce(storageCalculatorReducer, advanced);
+  return actions.reduce(storageCalculatorReducer, createInitialStorageCalculatorState());
 }
 
 function summarize(state: StorageCalculatorState) {
@@ -121,15 +117,10 @@ describe('buildPrintSummary', () => {
     ]);
   });
 
-  it('labels Simple mode and its single camera setup', () => {
-    const simple = summarize(createInitialStorageCalculatorState());
-    expect(simple.inputModeLabel).toBe('Simple mode');
-    expect(simple.groupsHeading).toBe('Cameras');
-    expect(simple.groups.map((group) => group.name)).toEqual(['Cameras']);
-    expect(simple.capacity[0]?.label).toBe('Camera footage');
-    const advanced = summarize(KNOWN_ONLY);
-    expect(advanced.inputModeLabel).toBeNull();
-    expect(advanced.groupsHeading).toBe('Camera groups');
+  it('names each group, including the default single group', () => {
+    const single = summarize(createInitialStorageCalculatorState());
+    expect(single.groups.map((group) => group.name)).toEqual(['Camera group 1']);
+    expect(single.capacity[0]?.label).toBe('Footage: Camera group 1');
   });
 
   it('adds estimate notes only when bitrates are estimated', () => {

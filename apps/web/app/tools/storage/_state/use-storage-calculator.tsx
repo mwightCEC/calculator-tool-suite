@@ -10,14 +10,11 @@ import {
 import {
   notifyGroupRemoved,
   notifyGroupsCleared,
-  notifySwitchedToSimple,
 } from '../../../../components/CameraGroupCard/undo-notifications';
-import type { InputMode } from '../../../../lib/input-mode';
 import { useUrlStateSync } from '../../../../lib/share/use-url-state-sync';
 import { encodeState, storageShareCodec } from './share-link';
 import {
   createInitialStorageCalculatorState,
-  describeSwitchToSimple,
   storageCalculatorReducer,
   type CameraGroupChanges,
   type StorageCalculatorState,
@@ -70,17 +67,7 @@ export function useStorageCalculator() {
     notifyGroupsCleared(() => dispatch({ type: 'restore-groups', groups: previous }));
   };
 
-  const setInputMode = (inputMode: InputMode) => {
-    const previous = state;
-    const changes = inputMode === 'simple' ? describeSwitchToSimple(previous) : [];
-    dispatch({ type: 'set-input-mode', inputMode });
-    if (changes.length > 0) {
-      notifySwitchedToSimple(changes, () => dispatch({ type: 'load-state', state: previous }));
-    }
-  };
-
   const actions = {
-    setInputMode,
     setMode: (mode: CalculationMode) => dispatch({ type: 'set-mode', mode }),
     updateGroup: (id: string, changes: CameraGroupChanges) =>
       dispatch({ type: 'update-group', id, changes }),

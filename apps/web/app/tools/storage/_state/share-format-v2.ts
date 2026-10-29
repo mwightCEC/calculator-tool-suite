@@ -8,14 +8,13 @@ import type {
   SceneComplexity,
 } from '@cctv/calc-core';
 import { z } from 'zod';
-import type { InputMode } from '../../../../lib/input-mode';
 import type { StorageCalculatorState } from './storage-calculator-state';
 
 /*
  * Share link format v2: a compact positional JSON array instead of the full
  * state object (about 6× shorter for typical calculations).
  *
- *   [mode, storage, groups, inputMode?]
+ *   [mode, storage, groups, retiredInputMode?]
  *   storage = [retentionDays, driveCount, driveSizeTb, raid, reservePercent]
  *   group   = [name, cameraCount, resolution, codec, frameRate, sceneComplexity,
  *              recordingMode, motionPercent, scheduleHours, bitrateSource,
@@ -26,8 +25,9 @@ import type { StorageCalculatorState } from './storage-calculator-state';
  * existing links decode to the wrong value; a change like that needs a new
  * format version. Group ids are not stored and are re-created as g1, g2, … .
  *
- * inputMode was added later as an optional last item. Links without it were
- * made before Simple mode existed, so they open in Advanced.
+ * The optional last item was the Simple / Advanced input mode (0 Advanced, 1 Simple),
+ * which Storage no longer has. Links that carry it still open with every group and
+ * setting they hold; it is read and ignored, and new links leave it out.
  */
 
 export const V2_MODES = [
@@ -71,8 +71,6 @@ export const V2_BITRATE_SOURCES = [
   'bitrate-cap',
 ] as const satisfies readonly BitrateSource[];
 
-export const V2_INPUT_MODES = ['advanced', 'simple'] as const satisfies readonly InputMode[];
-
 const index = z.int().nonnegative();
 
 /** Shape check only; value ranges are validated afterwards by the state schema. */
@@ -95,6 +93,7 @@ const payloadSchema = z.tuple([
       z.number(),
     ])
   ),
+  // Retired input mode, ignored.
   index.optional(),
 ]);
 
@@ -125,7 +124,6 @@ export function stateToV2Payload(state: StorageCalculatorState): Payload {
       group.bitrate.source === 'estimate' ? 0 : group.bitrate.mbps,
       group.colorIndex,
     ]),
-    V2_INPUT_MODES.indexOf(state.inputMode),
   ];
 }
 
@@ -140,12 +138,11 @@ export function v2PayloadToState(raw: unknown): unknown {
   if (!parsed.success) {
     return null;
   }
-  const [modeIndex, storage, groups, inputModeIndex] = parsed.data;
+  const [modeIndex, storage, groups] = parsed.data;
   const [retentionDays, driveCount, driveSizeTb, raidIndex, reservePercent] = storage;
 
   return {
     mode: V2_MODES[modeIndex],
-    inputMode: inputModeIndex === undefined ? 'advanced' : V2_INPUT_MODES[inputModeIndex],
     storage: {
       retentionDays,
       driveCount,

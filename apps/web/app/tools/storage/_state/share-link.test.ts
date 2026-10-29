@@ -8,12 +8,10 @@ import {
   SCENE_COMPLEXITIES,
 } from '@cctv/calc-core';
 import { describe, expect, it } from 'vitest';
-import { INPUT_MODES } from '../../../../lib/input-mode';
 import {
   stateToV2Payload,
   V2_BITRATE_SOURCES,
   V2_CODECS,
-  V2_INPUT_MODES,
   V2_MODES,
   V2_RAID_LEVELS,
   V2_RECORDING_MODES,
@@ -43,7 +41,6 @@ const PAGE = 'https://example.test/tools/storage';
 /** A non-default state: two groups, days mode, a bitrate cap, a non-ASCII name and the late-added resolutions. */
 function sampleState(): StorageCalculatorState {
   const actions: StorageCalculatorAction[] = [
-    { type: 'set-input-mode', inputMode: 'advanced' },
     { type: 'add-group' },
     { type: 'set-mode', mode: 'days-from-capacity' },
     { type: 'set-bitrate-source', id: 'g1', source: 'bitrate-cap' },
@@ -135,7 +132,6 @@ describe('v2 index tables', () => {
     ['scene complexities', V2_SCENE_COMPLEXITIES, SCENE_COMPLEXITIES],
     ['recording modes', V2_RECORDING_MODES, RECORDING_MODES],
     ['bitrate sources', V2_BITRATE_SOURCES, BITRATE_SOURCES],
-    ['input modes', V2_INPUT_MODES, INPUT_MODES],
   ] as const)('cover every calc-core %s option', (_label, table, options) => {
     expect([...table].sort()).toEqual([...options].sort());
   });
@@ -149,7 +145,6 @@ describe('v2 index tables', () => {
       complexities: V2_SCENE_COMPLEXITIES,
       recording: V2_RECORDING_MODES,
       sources: V2_BITRATE_SOURCES,
-      inputModes: V2_INPUT_MODES,
     }).toEqual({
       modes: ['storage-needed', 'days-from-capacity'],
       raid: ['none', 'raid1', 'raid5', 'raid6', 'raid10'],
@@ -158,7 +153,6 @@ describe('v2 index tables', () => {
       complexities: ['low', 'medium', 'high'],
       recording: ['continuous', 'motion', 'schedule'],
       sources: ['estimate', 'known-average', 'bitrate-cap'],
-      inputModes: ['advanced', 'simple'],
     });
   });
 });
@@ -283,37 +277,24 @@ describe('decodeShareParams', () => {
   });
 });
 
-describe('input mode', () => {
-  it('round-trips Simple mode', () => {
-    const state = createInitialStorageCalculatorState();
-    expect(state.inputMode).toBe('simple');
-    expect(decodeShareParams(encodeShareParams(state))).toEqual({ status: 'loaded', state });
+describe('retired input mode', () => {
+  // v2 links used to end with the Simple / Advanced input mode (0 Advanced, 1 Simple).
+  it('leaves it out of new links', () => {
+    expect(stateToV2Payload(sampleState())).toHaveLength(3);
   });
 
-  it('opens links made before Simple mode in Advanced', () => {
-    const withoutInputMode = stateToV2Payload(sampleState()).slice(0, 3);
-    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, withoutInputMode))).toEqual({
+  it.each([
+    ['Advanced', 0],
+    ['Simple', 1],
+  ])('ignores it in older %s links, keeping every group and setting', (_label, inputMode) => {
+    const state = storageCalculatorReducer(sampleState(), {
+      type: 'update-storage',
+      changes: { raidLevel: 'raid5', reservePercent: 10 },
+    });
+    const payload = [...stateToV2Payload(state), inputMode];
+    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, payload))).toEqual({
       status: 'loaded',
-      state: sampleState(),
-    });
-    const { inputMode: _omitted, ...v1State } = sampleState();
-    expect(decodeShareParams(linkParams(LEGACY_SHARE_FORMAT_VERSION, v1State))).toEqual({
-      status: 'loaded',
-      state: sampleState(),
-    });
-  });
-
-  it('rejects a Simple link that breaks Simple mode’s rules', () => {
-    const simpleIndex = V2_INPUT_MODES.indexOf('simple');
-    const twoGroups = stateToV2Payload(sampleState());
-    twoGroups[3] = simpleIndex;
-    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, twoGroups))).toEqual({
-      status: 'invalid',
-    });
-    const withRaid = stateToV2Payload(createInitialStorageCalculatorState());
-    withRaid[1][3] = V2_RAID_LEVELS.indexOf('raid5');
-    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, withRaid))).toEqual({
-      status: 'invalid',
+      state,
     });
   });
 });

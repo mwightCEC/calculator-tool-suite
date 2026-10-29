@@ -20,12 +20,11 @@ import {
   restoreGroup,
   updateGroup,
 } from '../../../../lib/camera-groups/group-list';
-import { firstGroupOnly, inputModeSchema, type InputMode } from '../../../../lib/input-mode';
 import { groupColors } from '../../../../theme/palettes';
 
 /*
  * The storage calculator's whole state: calc-core's calculation input plus
- * UI-only data (Simple or Advanced input, each group's palette colour).
+ * UI-only data (each group's palette colour).
  * Validated by a schema so it can be restored from a shared link.
  */
 
@@ -33,25 +32,9 @@ export const cameraGroupStateSchema = cameraGroupSchema.extend({
   colorIndex: colorIndexSchema,
 });
 
-/** What Simple mode fixes: the settings it hides. */
-export const SIMPLE_STORAGE_SETTINGS = {
-  raidLevel: 'none',
-  reservePercent: 0,
-} as const satisfies Partial<StorageSettings>;
-
-export const storageCalculatorStateSchema = storageCalculationInputSchema
-  .extend({
-    inputMode: inputModeSchema,
-    cameraGroups: groupListSchema(cameraGroupStateSchema),
-  })
-  .refine(
-    (state) =>
-      state.inputMode === 'advanced' ||
-      (state.cameraGroups.length === 1 &&
-        state.storage.raidLevel === SIMPLE_STORAGE_SETTINGS.raidLevel &&
-        state.storage.reservePercent === SIMPLE_STORAGE_SETTINGS.reservePercent),
-    { message: 'Simple mode has one camera group, no RAID and no reserve' }
-  );
+export const storageCalculatorStateSchema = storageCalculationInputSchema.extend({
+  cameraGroups: groupListSchema(cameraGroupStateSchema),
+});
 
 export type CameraGroupState = z.infer<typeof cameraGroupStateSchema>;
 export type StorageCalculatorState = z.infer<typeof storageCalculatorStateSchema>;
@@ -62,7 +45,6 @@ export type CameraGroupChanges = Partial<Omit<CameraGroupState, 'id' | 'colorInd
 export type StorageCalculatorAction =
   | { type: 'load-state'; state: StorageCalculatorState }
   | { type: 'set-mode'; mode: CalculationMode }
-  | { type: 'set-input-mode'; inputMode: InputMode }
   | { type: 'update-group'; id: string; changes: CameraGroupChanges }
   | { type: 'set-bitrate-source'; id: string; source: BitrateSource }
   | { type: 'add-group' }
@@ -77,7 +59,6 @@ export function createInitialStorageCalculatorState(): StorageCalculatorState {
   const input = createDefaultStorageCalculationInput();
   return {
     ...input,
-    inputMode: 'simple',
     cameraGroups: input.cameraGroups.map((group, index) => ({
       ...group,
       id: `g${index + 1}`,
@@ -103,46 +84,7 @@ function updateStorage(
   return { ...next, driveCount: normalizeDriveCount(next.raidLevel, next.driveCount) };
 }
 
-/**
- * Simple mode calculates with exactly what it shows: one camera group, no RAID
- * and no reserve. Returns the same state when it already fits.
- */
-function applySimpleRules(state: StorageCalculatorState): StorageCalculatorState {
-  if (state.inputMode === 'advanced') {
-    return state;
-  }
-  const cameraGroups = firstGroupOnly(state.cameraGroups);
-  const fits =
-    cameraGroups === state.cameraGroups &&
-    state.storage.raidLevel === SIMPLE_STORAGE_SETTINGS.raidLevel &&
-    state.storage.reservePercent === SIMPLE_STORAGE_SETTINGS.reservePercent;
-  return fits
-    ? state
-    : { ...state, cameraGroups, storage: updateStorage(state.storage, SIMPLE_STORAGE_SETTINGS) };
-}
-
-/** What switching to Simple would change, for the Undo message; empty when nothing would. */
-export function describeSwitchToSimple(state: StorageCalculatorState): string[] {
-  if (state.inputMode === 'simple') {
-    return [];
-  }
-  const removed = state.cameraGroups.length - 1;
-  return [
-    removed > 0 && `removed ${removed} camera group${removed === 1 ? '' : 's'}`,
-    state.storage.raidLevel !== SIMPLE_STORAGE_SETTINGS.raidLevel && 'RAID set to none',
-    state.storage.reservePercent !== SIMPLE_STORAGE_SETTINGS.reservePercent && 'reserve set to 0%',
-  ].filter((change) => change !== false);
-}
-
 export function storageCalculatorReducer(
-  state: StorageCalculatorState,
-  action: StorageCalculatorAction
-): StorageCalculatorState {
-  // Every action, including undos, keeps Simple mode within its rules.
-  return applySimpleRules(reduce(state, action));
-}
-
-function reduce(
   state: StorageCalculatorState,
   action: StorageCalculatorAction
 ): StorageCalculatorState {
@@ -160,11 +102,6 @@ function reduce(
 
     case 'set-mode':
       return { ...state, mode: action.mode };
-
-    case 'set-input-mode':
-      return action.inputMode === state.inputMode
-        ? state
-        : { ...state, inputMode: action.inputMode };
 
     case 'update-group':
       return withGroups(

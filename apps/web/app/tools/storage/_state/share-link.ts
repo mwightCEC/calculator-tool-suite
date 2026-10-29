@@ -24,11 +24,7 @@ export const storageShareCodec = createShareCodec({
   toPayload: stateToV2Payload,
   fromPayload: {
     [SHARE_FORMAT_VERSION]: v2PayloadToState,
-    // v1 predates Simple mode, so its links open in Advanced.
-    [LEGACY_SHARE_FORMAT_VERSION]: (payload) =>
-      typeof payload === 'object' && payload !== null
-        ? { inputMode: 'advanced', ...payload }
-        : payload,
+    [LEGACY_SHARE_FORMAT_VERSION]: (payload) => payload,
   },
   schema: storageCalculatorStateSchema,
 });
