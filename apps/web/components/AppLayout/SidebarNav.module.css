@@ -9,6 +9,47 @@
   padding: var(--mantine-spacing-xs);
 }
 
+/* All tools, with the collapse button beside it while expanded. */
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.topRow > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.collapseButton {
+  flex-shrink: 0;
+  color: var(--app-sidebar-icon);
+}
+
+/* Collapsed rail: a round tab straddling the right edge, level with All tools. */
+.expandTab {
+  position: absolute;
+  top: calc(var(--mantine-spacing-xs) + 8px);
+  right: -12px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--app-sidebar-border);
+  border-radius: 50%;
+  background-color: var(--mantine-color-body);
+  color: var(--app-sidebar-text);
+  box-shadow: var(--mantine-shadow-xs);
+}
+
+@media (hover: hover) {
+  .expandTab:hover {
+    background-color: var(--app-sidebar-hover-bg);
+  }
+}
+
 .nav .link {
   border-radius: var(--mantine-radius-sm);
   color: var(--app-sidebar-text);

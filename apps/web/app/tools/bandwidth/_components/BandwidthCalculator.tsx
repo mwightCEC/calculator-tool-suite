@@ -1,6 +1,5 @@
 'use client';
 
-import type { ReactNode } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Group, Stack } from '@mantine/core';
 import { CameraGroupToolbar } from '../../../../components/CameraGroupCard/CameraGroupToolbar';
@@ -19,13 +18,8 @@ import { RemoteViewingCard } from './RemoteViewingCard';
 import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
 import classes from './BandwidthCalculator.module.css';
 
-interface BandwidthCalculatorProps {
-  /** Server-rendered page title and introduction. */
-  header: ReactNode;
-}
-
 /** Two columns on large screens: inputs on the left, sticky results on the right. */
-export function BandwidthCalculator({ header }: BandwidthCalculatorProps) {
+export function BandwidthCalculator() {
   const { state, result, hasCustomGroups, actions } = useBandwidthCalculator();
   const expansion = useGroupExpansion(state.cameraGroups.map((group) => group.id));
   const groupCount = state.cameraGroups.length;
@@ -40,8 +34,6 @@ export function BandwidthCalculator({ header }: BandwidthCalculatorProps) {
     <>
       <div className={classes.layout}>
         <Stack gap="md" className={classes.inputs}>
-          {header}
-
           <Group justify="space-between" gap="sm">
             <ModeSwitch value={state.inputMode} onChange={actions.setInputMode} />
             {advanced && (

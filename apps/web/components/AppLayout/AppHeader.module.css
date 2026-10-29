@@ -1,8 +1,28 @@
-/* "clintonelectronics" wordmark and the suite name, as in the approved prototype header. */
-.brand {
-  display: inline-flex;
+/*
+ * Header bar from the approved prototype: wordmark | page heading ... actions.
+ * Narrow screens: menu, wordmark and actions on the first row, the title below.
+ */
+.bar {
+  display: grid;
+  grid-template-areas:
+    'menu brand actions'
+    'heading heading heading';
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-content: center;
   align-items: center;
-  gap: var(--mantine-spacing-sm);
+  gap: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  height: 100%;
+  padding-inline: var(--mantine-spacing-md);
+  color: var(--app-header-fg);
+}
+
+.menu {
+  grid-area: menu;
+}
+
+.brand {
+  grid-area: brand;
+  justify-self: start;
   color: var(--app-header-fg);
   text-decoration: none;
   white-space: nowrap;
@@ -23,24 +43,78 @@
 }
 
 .wordmarkStrong {
-  font-size: 1.375rem;
+  font-size: 1.5rem;
   font-weight: 700;
 }
 
 .wordmarkLight {
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 300;
   opacity: 0.85;
 }
 
 .divider {
-  align-self: stretch;
+  display: none;
   width: 1px;
+  height: 2.75rem;
   background-color: var(--app-header-divider);
 }
 
-.suiteName {
-  font-size: var(--mantine-font-size-md);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+.heading {
+  grid-area: heading;
+  min-width: 0;
+}
+
+.title {
+  overflow: hidden;
+  color: var(--app-header-fg);
+  font-size: var(--mantine-font-size-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subtitle {
+  display: none;
+  overflow: hidden;
+  color: var(--app-header-fg);
+  font-size: var(--mantine-font-size-sm);
+  opacity: 0.82;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  grid-area: actions;
+}
+
+@media (min-width: $mantine-breakpoint-sm) {
+  .bar {
+    grid-template-areas: 'brand divider heading actions';
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    gap: var(--mantine-spacing-lg);
+    padding-inline: var(--mantine-spacing-lg);
+  }
+
+  .wordmarkStrong {
+    font-size: 1.75rem;
+  }
+
+  .wordmarkLight {
+    font-size: 1.625rem;
+  }
+
+  .divider {
+    display: block;
+  }
+
+  .title {
+    font-size: 1.3125rem;
+  }
+
+  .subtitle {
+    display: block;
+  }
 }

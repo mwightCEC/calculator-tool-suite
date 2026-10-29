@@ -1,6 +1,5 @@
 'use client';
 
-import type { ReactNode } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Group, Paper, Stack, Text, Title } from '@mantine/core';
 import { CameraGroupToolbar } from '../../../../components/CameraGroupCard/CameraGroupToolbar';
@@ -17,13 +16,8 @@ import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
 import { StorageSettingsSection } from './StorageSettingsSection';
 import classes from './StorageCalculator.module.css';
 
-interface StorageCalculatorProps {
-  /** Server-rendered page title and introduction. */
-  header: ReactNode;
-}
-
 /** Two columns on large screens: inputs on the left, sticky results on the right. */
-export function StorageCalculator({ header }: StorageCalculatorProps) {
+export function StorageCalculator() {
   const { state, result, hasCustomGroups, actions } = useStorageCalculator();
   const expansion = useGroupExpansion(state.cameraGroups.map((group) => group.id));
   const groupCount = state.cameraGroups.length;
@@ -38,8 +32,6 @@ export function StorageCalculator({ header }: StorageCalculatorProps) {
     <>
       <div className={classes.layout}>
         <Stack gap="md" className={classes.inputs}>
-          {header}
-
           <CalculationModeCards value={state.mode} onChange={actions.setMode} />
 
           <Paper

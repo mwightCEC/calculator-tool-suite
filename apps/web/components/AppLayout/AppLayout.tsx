@@ -8,7 +8,8 @@ import { MobileNavDrawer } from './MobileNavDrawer';
 import { SidebarNav } from './SidebarNav';
 import classes from './AppLayout.module.css';
 
-const HEADER_HEIGHT = 56;
+/** Taller on wide screens, where the heading includes the subtitle; see AppHeader. */
+const HEADER_HEIGHT = { base: 96, sm: 104 };
 const NAVBAR_WIDTH_EXPANDED = 240;
 const NAVBAR_WIDTH_COLLAPSED = 64;
 /** Matches theme.breakpoints.sm, where the sidebar switches to a mobile drawer. */
@@ -57,15 +58,11 @@ export function AppLayout({ children }: { children: ReactNode }) {
       }}
     >
       <AppShell.Header>
-        <AppHeader
-          sidebarCollapsed={sidebarCollapsed}
-          onToggleSidebar={toggleSidebar}
-          onOpenMobileNav={drawer.open}
-        />
+        <AppHeader onOpenMobileNav={drawer.open} />
       </AppShell.Header>
 
       <AppShell.Navbar>
-        <SidebarNav collapsed={sidebarCollapsed} />
+        <SidebarNav collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebar} />
       </AppShell.Navbar>
 
       <MobileNavDrawer opened={drawerOpened} onClose={drawer.close} />
