@@ -2,8 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { IconLayoutGrid, type Icon } from '@tabler/icons-react';
-import { Badge, Divider, NavLink, Text, Tooltip } from '@mantine/core';
+import {
+  IconChevronRight,
+  IconLayoutGrid,
+  IconLayoutSidebarLeftCollapse,
+  type Icon,
+} from '@tabler/icons-react';
+import { ActionIcon, Badge, Divider, NavLink, Text, Tooltip, UnstyledButton } from '@mantine/core';
 import { TOOLS } from '../../tools/tool-registry';
 import classes from './SidebarNav.module.css';
 
@@ -12,21 +17,56 @@ interface SidebarNavProps {
   collapsed: boolean;
   /** Called after a navigation item is chosen (used to close the mobile drawer). */
   onNavigate?: () => void;
+  /**
+   * Collapses or expands the desktop sidebar: a button beside All tools while expanded,
+   * a tab on the rail's edge while collapsed. The mobile drawer omits it.
+   */
+  onToggleCollapsed?: () => void;
 }
 
-export function SidebarNav({ collapsed, onNavigate }: SidebarNavProps) {
+export function SidebarNav({ collapsed, onNavigate, onToggleCollapsed }: SidebarNavProps) {
   const pathname = usePathname();
 
   return (
     <nav aria-label="Tools" className={classes.nav} data-collapsed={collapsed || undefined}>
-      <SidebarItem
-        label="All tools"
-        icon={IconLayoutGrid}
-        href="/"
-        active={pathname === '/'}
-        collapsed={collapsed}
-        onNavigate={onNavigate}
-      />
+      <div className={classes.topRow}>
+        <SidebarItem
+          label="All tools"
+          icon={IconLayoutGrid}
+          href="/"
+          active={pathname === '/'}
+          collapsed={collapsed}
+          onNavigate={onNavigate}
+        />
+        {onToggleCollapsed && !collapsed && (
+          <Tooltip label="Collapse sidebar" position="right" withArrow>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size="lg"
+              onClick={onToggleCollapsed}
+              aria-label="Collapse sidebar"
+              aria-expanded
+              className={classes.collapseButton}
+            >
+              <IconLayoutSidebarLeftCollapse size={20} stroke={1.75} />
+            </ActionIcon>
+          </Tooltip>
+        )}
+      </div>
+
+      {onToggleCollapsed && collapsed && (
+        <Tooltip label="Expand sidebar" position="right" withArrow>
+          <UnstyledButton
+            onClick={onToggleCollapsed}
+            aria-label="Expand sidebar"
+            aria-expanded={false}
+            className={classes.expandTab}
+          >
+            <IconChevronRight size={14} stroke={2.25} />
+          </UnstyledButton>
+        </Tooltip>
+      )}
 
       {collapsed ? (
         <Divider className={classes.sectionDivider} />

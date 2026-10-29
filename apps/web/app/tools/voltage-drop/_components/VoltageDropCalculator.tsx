@@ -1,6 +1,5 @@
 'use client';
 
-import type { ReactNode } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Group, Stack } from '@mantine/core';
 import { CameraGroupToolbar } from '../../../../components/CameraGroupCard/CameraGroupToolbar';
@@ -17,13 +16,8 @@ import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
 import { VoltageDropDevicesCard, VoltageDropGroupCard } from './VoltageDropGroupCard';
 import classes from './VoltageDropCalculator.module.css';
 
-interface VoltageDropCalculatorProps {
-  /** Server-rendered page title and introduction. */
-  header: ReactNode;
-}
-
 /** Two columns on large screens: inputs on the left, sticky results on the right. */
-export function VoltageDropCalculator({ header }: VoltageDropCalculatorProps) {
+export function VoltageDropCalculator() {
   const { state, result, hasCustomGroups, actions } = useVoltageDropCalculator();
   const expansion = useGroupExpansion(state.deviceGroups.map((group) => group.id));
   const groupCount = state.deviceGroups.length;
@@ -39,8 +33,6 @@ export function VoltageDropCalculator({ header }: VoltageDropCalculatorProps) {
     <>
       <div className={classes.layout}>
         <Stack gap="md" className={classes.inputs}>
-          {header}
-
           <Group justify="space-between" gap="sm">
             <ModeSwitch value={state.inputMode} onChange={actions.setInputMode} />
             {advanced && (
