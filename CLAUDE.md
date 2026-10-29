@@ -30,8 +30,10 @@ Bandwidth, PoE budget and Voltage drop calculators are built; Lens / FOV is list
   `_components/`, `_lib/` (labels, result and print-summary text) and `_state/` (reducer,
   schema, share-link format).
 - Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`,
-  `CameraGroupCard`, `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export, `UnitInput`,
-  `SegmentBar`).
+  `CameraGroupCard`, `Disclosure`, `ResultsCard` (results card shell, headline tile, metric row),
+  `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export, `UnitInput`, `SegmentBar`).
+  Storage and Bandwidth use the approved-prototype results card; PoE budget and Voltage drop
+  move to it when their camera configuration is rolled out.
 - Shared logic: `apps/web/lib/` (`camera-groups/` group list and colours, `share/` link codec
   and URL sync hook, `saved-state.ts`, `format.ts`, camera and bitrate labels).
 - Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts`.
@@ -110,18 +112,20 @@ config or routing changes.
   (`cctv-tool-suite:<tool>-calculator`), stored as the same share parameters so it gets the
   same versions and validation. A link in the URL wins over saved state; the default state
   clears it (`lib/share/saved-state.ts`).
-- Simple / Advanced input (`lib/input-mode.ts`), in Bandwidth, PoE budget and Voltage drop:
-  new visitors start in Simple, which is one camera setup with some settings hidden at fixed
-  values (Bandwidth: remote viewing off, no uplink check, 10% overhead; PoE budget: 20% reserve,
-  no cable length; Voltage drop: 10% drop limit, 20% reserve, a preset supply). The reducer
-  enforces Simple's rules after every action; switching to Simple trims the setup, with Undo.
-  In PoE budget share links the mode is an optional last item (links without it open in
-  Advanced); Bandwidth v2 and Voltage drop v1 always store it.
-- Storage has no input mode: camera groups and every setting are always available. Its v2
-  links no longer write the old input-mode item; older links that carry it open with it
-  ignored (`share-format-v2.ts`). Storage adds new camera groups at the top and collapses the
-  others; its fields keep an info icon only on Scene complexity (and RAID level / Recording
-  reserve), and Drive configuration (optional) collapses without changing the calculation.
+- Simple / Advanced input (`lib/input-mode.ts`), in PoE budget and Voltage drop: new visitors
+  start in Simple, which is one camera setup with some settings hidden at fixed values (PoE
+  budget: 20% reserve, no cable length; Voltage drop: 10% drop limit, 20% reserve, a preset
+  supply). The reducer enforces Simple's rules after every action; switching to Simple trims
+  the setup, with Undo. In PoE budget share links the mode is an optional last item (links
+  without it open in Advanced); Voltage drop v1 always stores it.
+- Storage and Bandwidth have no input mode: camera groups and every setting are always
+  available. Their v2 links no longer write the old input-mode item; older links that carry
+  it open with it ignored (`share-format-v2.ts`). Both use the shared camera configuration
+  layout (`CameraConfigurationCard`, `CameraStreamGrid`, `Disclosure`): new groups are added
+  at the top and the others collapse, fields keep an info icon only where it explains
+  something (Scene complexity, RAID level, reserve, uplink, overhead, viewing bitrate), and
+  optional sections (Storage's Drive configuration; Bandwidth's Remote viewing and Network
+  check and overhead) collapse without changing the calculation.
 
 - Camera group colours: neighbouring groups never share a colour (`lib/camera-groups/group-colors.ts`,
   enforced in the reducer for add, duplicate, delete, undo and loading a link).

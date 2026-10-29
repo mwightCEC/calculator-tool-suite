@@ -20,12 +20,11 @@ import {
   restoreGroup,
   updateGroup,
 } from '../../../../lib/camera-groups/group-list';
-import { firstGroupOnly, inputModeSchema, type InputMode } from '../../../../lib/input-mode';
 import { groupColors } from '../../../../theme/palettes';
 
 /*
  * The bandwidth calculator's whole state: calc-core's bandwidth input plus
- * UI-only data (Simple or Advanced input, each group's palette colour).
+ * UI-only data (each group's palette colour).
  * Validated by a schema so it can be restored from a shared link.
  */
 
@@ -33,30 +32,8 @@ export const bandwidthGroupStateSchema = bandwidthCameraGroupSchema.extend({
   colorIndex: colorIndexSchema,
 });
 
-/** What Simple mode fixes: remote viewing and the uplink check are off, with the default overhead. */
-export const SIMPLE_BANDWIDTH_SETTINGS = {
-  overheadPercent: 10,
-} as const;
-
-const bandwidthStateShape = bandwidthInputSchema.extend({
-  inputMode: inputModeSchema,
+export const bandwidthCalculatorStateSchema = bandwidthInputSchema.extend({
   cameraGroups: groupListSchema(bandwidthGroupStateSchema),
-});
-
-/** True when the state is Advanced, or a Simple state within Simple's rules. */
-function followsSimpleRules(state: z.infer<typeof bandwidthStateShape>): boolean {
-  const fixed = SIMPLE_BANDWIDTH_SETTINGS;
-  return (
-    state.inputMode === 'advanced' ||
-    (state.cameraGroups.length === 1 &&
-      !state.remoteViewing.enabled &&
-      state.network.uplinkMbps === null &&
-      state.overheadPercent === fixed.overheadPercent)
-  );
-}
-
-export const bandwidthCalculatorStateSchema = bandwidthStateShape.refine(followsSimpleRules, {
-  message: 'Simple mode has one camera group and uses the fixed Simple settings',
 });
 
 export type BandwidthGroupState = z.infer<typeof bandwidthGroupStateSchema>;
@@ -67,7 +44,6 @@ export type BandwidthGroupChanges = Partial<Omit<BandwidthGroupState, 'id' | 'co
 
 export type BandwidthCalculatorAction =
   | { type: 'load-state'; state: BandwidthCalculatorState }
-  | { type: 'set-input-mode'; inputMode: InputMode }
   | { type: 'update-group'; id: string; changes: BandwidthGroupChanges }
   | { type: 'set-bitrate-source'; id: string; source: BitrateSource }
   | { type: 'add-group' }
@@ -84,7 +60,6 @@ export function createInitialBandwidthCalculatorState(): BandwidthCalculatorStat
   const input = createDefaultBandwidthInput();
   return {
     ...input,
-    inputMode: 'simple',
     cameraGroups: input.cameraGroups.map((group, index) => ({
       ...group,
       colorIndex: index % groupColors.length,
@@ -100,47 +75,7 @@ function withGroups(
   return cameraGroups === state.cameraGroups ? state : { ...state, cameraGroups };
 }
 
-/**
- * Simple mode calculates with exactly what it shows: one camera group and the
- * fixed Simple settings. Returns the same state when it already fits.
- */
-function applySimpleRules(state: BandwidthCalculatorState): BandwidthCalculatorState {
-  if (followsSimpleRules(state)) {
-    return state;
-  }
-  return {
-    ...state,
-    cameraGroups: firstGroupOnly(state.cameraGroups),
-    remoteViewing: { ...state.remoteViewing, enabled: false },
-    network: { ...state.network, uplinkMbps: null },
-    overheadPercent: SIMPLE_BANDWIDTH_SETTINGS.overheadPercent,
-  };
-}
-
-/** What switching to Simple would change, for the Undo message; empty when nothing would. */
-export function describeSwitchToSimple(state: BandwidthCalculatorState): string[] {
-  if (state.inputMode === 'simple') {
-    return [];
-  }
-  const { overheadPercent } = SIMPLE_BANDWIDTH_SETTINGS;
-  const removed = state.cameraGroups.length - 1;
-  return [
-    removed > 0 && `removed ${removed} camera group${removed === 1 ? '' : 's'}`,
-    state.remoteViewing.enabled && 'remote viewing turned off',
-    state.network.uplinkMbps !== null && 'uplink check turned off',
-    state.overheadPercent !== overheadPercent && `overhead set to ${overheadPercent}%`,
-  ].filter((change) => change !== false);
-}
-
 export function bandwidthCalculatorReducer(
-  state: BandwidthCalculatorState,
-  action: BandwidthCalculatorAction
-): BandwidthCalculatorState {
-  // Every action, including undos, keeps Simple mode within its rules.
-  return applySimpleRules(reduce(state, action));
-}
-
-function reduce(
   state: BandwidthCalculatorState,
   action: BandwidthCalculatorAction
 ): BandwidthCalculatorState {
@@ -150,11 +85,6 @@ function reduce(
     case 'load-state':
       // Restored state is already schema-valid; fix any neighbouring groups that share a colour.
       return { ...action.state, cameraGroups: repairGroupColors(action.state.cameraGroups) };
-
-    case 'set-input-mode':
-      return action.inputMode === state.inputMode
-        ? state
-        : { ...state, inputMode: action.inputMode };
 
     case 'update-group':
       return withGroups(
@@ -172,12 +102,14 @@ function reduce(
       );
 
     case 'add-group':
+      // New groups go at the top, where the page has just collapsed the others.
       return withGroups(
         state,
-        addGroup(groups, ({ id, name, colorIndex }) => ({
-          ...createBandwidthCameraGroup(id, name),
-          colorIndex,
-        }))
+        addGroup(
+          groups,
+          ({ id, name, colorIndex }) => ({ ...createBandwidthCameraGroup(id, name), colorIndex }),
+          'start'
+        )
       );
 
     case 'duplicate-group':

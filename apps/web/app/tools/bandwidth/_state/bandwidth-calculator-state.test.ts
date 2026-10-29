@@ -6,18 +6,11 @@ import {
   bandwidthCalculatorReducer as reduce,
   bandwidthCalculatorStateSchema,
   createInitialBandwidthCalculatorState,
-  describeSwitchToSimple,
-  SIMPLE_BANDWIDTH_SETTINGS,
   type BandwidthCalculatorAction,
   type BandwidthCalculatorState,
 } from './bandwidth-calculator-state';
 
-/** The default state switched to Advanced, so every setting can change. */
-const initial = () =>
-  reduce(createInitialBandwidthCalculatorState(), {
-    type: 'set-input-mode',
-    inputMode: 'advanced',
-  });
+const initial = createInitialBandwidthCalculatorState;
 
 /** Applies actions in order, starting from the initial state. */
 function apply(...actions: BandwidthCalculatorAction[]): BandwidthCalculatorState {
@@ -52,99 +45,28 @@ describe('initial state', () => {
   });
 });
 
-describe('input mode', () => {
-  const simple = createInitialBandwidthCalculatorState;
-  /** Advanced, with three groups and every hidden setting changed. */
-  const busy = () =>
-    apply(
+describe('camera groups and system settings', () => {
+  it('allow several groups, remote viewing, the uplink check and overhead from the default state', () => {
+    const state = apply(
       { type: 'add-group' },
       { type: 'add-group' },
-      { type: 'update-group', id: 'g1', changes: { name: 'Lobby' } },
-      {
-        type: 'update-remote-viewing',
-        changes: { enabled: true, viewers: 2, camerasPerViewer: 9, siteUploadMbps: 50 },
-      },
+      { type: 'update-remote-viewing', changes: { enabled: true, viewers: 2 } },
       { type: 'update-network', changes: { uplinkMbps: 1000 } },
       { type: 'set-overhead', overheadPercent: 20 }
     );
-
-  it('starts new visitors in Simple mode, whose fixed settings are the defaults', () => {
-    const state = simple();
-    expect(state.inputMode).toBe('simple');
-    expect(state.remoteViewing.enabled).toBe(false);
-    expect(state.network.uplinkMbps).toBeNull();
-    expect(state.overheadPercent).toBe(SIMPLE_BANDWIDTH_SETTINGS.overheadPercent);
-  });
-
-  it('keeps the first group and turns remote viewing off when switching to Simple', () => {
-    const state = reduce(busy(), { type: 'set-input-mode', inputMode: 'simple' });
-    expect(state.inputMode).toBe('simple');
-    expect(state.cameraGroups).toEqual([busy().cameraGroups[0]]);
-    // The remote viewing settings are kept for switching back; only the switch turns off.
-    expect(state.remoteViewing).toEqual({ ...busy().remoteViewing, enabled: false });
-    expect(state.network).toEqual({ uplinkMbps: null });
-    expect(state.overheadPercent).toBe(10);
+    expect(state.cameraGroups).toHaveLength(3);
+    expect(state.remoteViewing.enabled).toBe(true);
+    expect(state.network.uplinkMbps).toBe(1000);
+    expect(state.overheadPercent).toBe(20);
     expect(bandwidthCalculatorStateSchema.safeParse(state).success).toBe(true);
-  });
-
-  it('describes what switching to Simple changes, for the Undo message', () => {
-    expect(describeSwitchToSimple(busy())).toEqual([
-      'removed 2 camera groups',
-      'remote viewing turned off',
-      'uplink check turned off',
-      'overhead set to 10%',
-    ]);
-    expect(describeSwitchToSimple(initial())).toEqual([]);
-    expect(describeSwitchToSimple(simple())).toEqual([]);
-  });
-
-  it('undoes a switch by loading the previous state', () => {
-    const before = busy();
-    const switched = reduce(before, { type: 'set-input-mode', inputMode: 'simple' });
-    expect(reduce(switched, { type: 'load-state', state: before })).toEqual(before);
-  });
-
-  it('keeps everything when switching to Advanced', () => {
-    const state = simple();
-    expect(reduce(state, { type: 'set-input-mode', inputMode: 'advanced' })).toEqual({
-      ...state,
-      inputMode: 'advanced',
-    });
-  });
-
-  it('keeps Simple mode within its rules whatever the action', () => {
-    const state = simple();
-    const actions: BandwidthCalculatorAction[] = [
-      { type: 'add-group' },
-      { type: 'duplicate-group', id: 'g1' },
-      { type: 'restore-groups', groups: busy().cameraGroups },
-      { type: 'update-remote-viewing', changes: { enabled: true } },
-      { type: 'update-network', changes: { uplinkMbps: 1000 } },
-      { type: 'set-overhead', overheadPercent: 20 },
-    ];
-    for (const action of actions) {
-      const next = reduce(state, action);
-      expect(next.inputMode).toBe('simple');
-      expect(bandwidthCalculatorStateSchema.safeParse(next).success).toBe(true);
-    }
-  });
-
-  it('rejects a Simple state that breaks the rules in the schema', () => {
-    const twoGroups = { ...simple(), cameraGroups: busy().cameraGroups.slice(0, 2) };
-    const withOverhead = { ...simple(), overheadPercent: 20 };
-    const withViewing = {
-      ...simple(),
-      remoteViewing: { ...simple().remoteViewing, enabled: true },
-    };
-    expect(bandwidthCalculatorStateSchema.safeParse(twoGroups).success).toBe(false);
-    expect(bandwidthCalculatorStateSchema.safeParse(withOverhead).success).toBe(false);
-    expect(bandwidthCalculatorStateSchema.safeParse(withViewing).success).toBe(false);
   });
 });
 
 describe('group actions', () => {
-  it('adds a Bandwidth group with no recording fields', () => {
-    const added = apply({ type: 'add-group' }).cameraGroups[1];
+  it('adds a Bandwidth group at the top, with no recording fields', () => {
+    const state = apply({ type: 'add-group' });
+    expect(ids(state)).toEqual(['g2', 'g1']);
+    const added = state.cameraGroups[0];
     expect(added).toEqual(
       expect.objectContaining({ id: 'g2', name: 'Camera group 2', colorIndex: 1 })
     );
@@ -165,8 +87,9 @@ describe('group actions', () => {
       { type: 'add-group' },
       { type: 'duplicate-group', id: 'g1' }
     );
-    expect(ids(state)).toEqual(['g1', 'g3', 'g2']);
-    expect(state.cameraGroups[1]).toEqual(
+    // add-group puts g2 above g1; the copy of g1 lands right after it.
+    expect(ids(state)).toEqual(['g2', 'g1', 'g3']);
+    expect(state.cameraGroups[2]).toEqual(
       expect.objectContaining({ name: 'Camera group 1 copy', resolution: '8MP' })
     );
   });
@@ -175,7 +98,7 @@ describe('group actions', () => {
     const three = apply({ type: 'add-group' }, { type: 'add-group' });
     const removed = three.cameraGroups[1]!;
     const afterRemove = reduce(three, { type: 'remove-group', id: removed.id });
-    expect(ids(afterRemove)).toEqual(['g1', 'g3']);
+    expect(ids(afterRemove)).toEqual(['g3', 'g1']);
     expect(reduce(afterRemove, { type: 'restore-group', group: removed, index: 1 })).toEqual(three);
   });
 
@@ -279,7 +202,7 @@ describe('reducer purity', () => {
 describe('bandwidthCalculatorStateSchema', () => {
   it('rejects duplicate group ids', () => {
     const state = apply({ type: 'add-group' });
-    state.cameraGroups[1] = { ...state.cameraGroups[1]!, id: 'g1' };
+    state.cameraGroups[0] = { ...state.cameraGroups[0]!, id: 'g1' };
     expect(bandwidthCalculatorStateSchema.safeParse(state).success).toBe(false);
   });
 

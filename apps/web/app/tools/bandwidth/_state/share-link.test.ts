@@ -6,7 +6,6 @@ import {
   VIEWING_BITRATE_SOURCES,
 } from '@cctv/calc-core';
 import { describe, expect, it } from 'vitest';
-import { INPUT_MODES } from '../../../../lib/input-mode';
 import { SHARE_STATE_PARAM, SHARE_VERSION_PARAM } from '../../../../lib/share/share-codec';
 import {
   bandwidthCalculatorReducer,
@@ -18,7 +17,6 @@ import {
   stateToV2Payload,
   V2_BITRATE_SOURCES,
   V2_CODECS,
-  V2_INPUT_MODES,
   V2_RESOLUTIONS,
   V2_SCENE_COMPLEXITIES,
   V2_VIEWING_BITRATE_SOURCES,
@@ -30,7 +28,8 @@ const PAGE = 'https://example.test/tools/bandwidth';
 /** A non-default state touching every section, with a non-ASCII group name and the late-added resolutions. */
 function sampleState(): BandwidthCalculatorState {
   const actions: BandwidthCalculatorAction[] = [
-    { type: 'add-group' },
+    // Duplicating puts g2 after g1, so ids match list order as they do after decoding.
+    { type: 'duplicate-group', id: 'g1' },
     { type: 'set-bitrate-source', id: 'g1', source: 'bitrate-cap' },
     { type: 'update-group', id: 'g1', changes: { resolution: '960H' } },
     {
@@ -52,11 +51,7 @@ function sampleState(): BandwidthCalculatorState {
     { type: 'update-network', changes: { uplinkMbps: 1000 } },
     { type: 'set-overhead', overheadPercent: 20 },
   ];
-  const advanced = bandwidthCalculatorReducer(createInitialBandwidthCalculatorState(), {
-    type: 'set-input-mode',
-    inputMode: 'advanced',
-  });
-  return actions.reduce(bandwidthCalculatorReducer, advanced);
+  return actions.reduce(bandwidthCalculatorReducer, createInitialBandwidthCalculatorState());
 }
 
 /** Query parameters carrying a hand-built JSON payload, as an untrusted link might. */
@@ -68,6 +63,25 @@ function linkParams(version: string, payload: unknown): URLSearchParams {
 function roundTrip(state: BandwidthCalculatorState) {
   return decodeShareParams(new URL(buildShareUrl(state, PAGE)).searchParams);
 }
+
+describe('retired input mode', () => {
+  // v2 links used to end with the Simple / Advanced input mode (0 Advanced, 1 Simple).
+  it('leaves it out of new links', () => {
+    expect(stateToV2Payload(sampleState())).toHaveLength(4);
+  });
+
+  it.each([
+    ['Advanced', 0],
+    ['Simple', 1],
+  ])('ignores it in older %s links, keeping every group and setting', (_label, inputMode) => {
+    const state = sampleState();
+    const payload = [...stateToV2Payload(state), inputMode];
+    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, payload))).toEqual({
+      status: 'loaded',
+      state,
+    });
+  });
+});
 
 describe('encoding (v2)', () => {
   it('writes format version 2', () => {
@@ -81,7 +95,7 @@ describe('encoding (v2)', () => {
     expect(roundTrip(state)).toEqual({ status: 'loaded', state });
   });
 
-  it('round-trips the default (Simple) state, with remote viewing and every check off', () => {
+  it('round-trips the default state, with remote viewing and every check off', () => {
     const state = createInitialBandwidthCalculatorState();
     expect(roundTrip(state)).toEqual({ status: 'loaded', state });
   });
@@ -120,7 +134,6 @@ describe('v2 index tables', () => {
     ['codecs', V2_CODECS, CODECS],
     ['scene complexities', V2_SCENE_COMPLEXITIES, SCENE_COMPLEXITIES],
     ['bitrate sources', V2_BITRATE_SOURCES, BITRATE_SOURCES],
-    ['input modes', V2_INPUT_MODES, INPUT_MODES],
   ] as const)('cover every calc-core %s option', (_label, table, options) => {
     expect([...table].sort()).toEqual([...options].sort());
   });
@@ -132,14 +145,12 @@ describe('v2 index tables', () => {
       codecs: V2_CODECS,
       complexities: V2_SCENE_COMPLEXITIES,
       sources: V2_BITRATE_SOURCES,
-      inputModes: V2_INPUT_MODES,
     }).toEqual({
       viewing: ['camera', 'custom'],
       resolutions: ['1MP', '2MP', '3MP', '4MP', '5MP', '6MP', '8MP', '12MP', 'nHD', '960H'],
       codecs: ['h264', 'h265', 'mjpeg'],
       complexities: ['low', 'medium', 'high'],
       sources: ['estimate', 'known-average', 'bitrate-cap'],
-      inputModes: ['advanced', 'simple'],
     });
   });
 });
@@ -217,12 +228,6 @@ describe('decodeShareParams', () => {
       'no camera groups',
       changedLink((payload) => {
         payload[3] = [];
-      }),
-    ],
-    [
-      'a Simple link that breaks Simple mode’s rules',
-      changedLink((payload) => {
-        payload[4] = V2_INPUT_MODES.indexOf('simple');
       }),
     ],
   ])('rejects %s', (_label, params) => {

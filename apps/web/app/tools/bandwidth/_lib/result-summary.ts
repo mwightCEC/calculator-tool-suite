@@ -1,10 +1,17 @@
 import {
   isPointRange,
   type BandwidthResult,
+  type ValueRange,
   type LinkCheck,
   type RemoteViewingUsage,
 } from '@cctv/calc-core';
-import { formatLikelyRange, formatMbps, formatNumber } from '../../../../lib/format';
+import type { MetricTile } from '../../../../components/ResultsCard/ResultsPanel';
+import {
+  formatLikelyRange,
+  formatMbps,
+  formatNumber,
+  formatRangeBounds,
+} from '../../../../lib/format';
 import type { BandwidthCalculatorState } from '../_state/bandwidth-calculator-state';
 import { LINK_LABELS, VIEWING_BITRATE_SOURCE_LABELS } from './bandwidth-labels';
 
@@ -87,8 +94,7 @@ export function bandwidthSegments(
     const group = state.cameraGroups.find((candidate) => candidate.id === usage.groupId);
     return {
       key: usage.groupId,
-      // Simple mode's one setup has no visible group name.
-      label: state.inputMode === 'simple' ? 'Cameras' : (group?.name ?? usage.groupId),
+      label: group?.name ?? usage.groupId,
       mbps: usage.totalMbps.typical,
       colorIndex: group?.colorIndex ?? 0,
     };
@@ -101,6 +107,34 @@ export function bandwidthSegments(
       label: 'Overhead',
       mbps: result.bandwidthMbps.typical - streamsMbps,
       colorIndex: null,
+    },
+  ];
+}
+
+/** "~" when the range is an estimate rather than an exact figure. */
+const approx = (range: ValueRange) => (isPointRange(range) ? '' : '~');
+
+/** The results card's figure row: camera streams, the overhead allowance and the per-camera average. */
+export function buildMetricTiles(
+  state: BandwidthCalculatorState,
+  result: BandwidthResult
+): MetricTile[] {
+  const { streamsMbps, averagePerCameraMbps, bandwidthMbps } = result;
+  return [
+    {
+      label: 'Camera streams',
+      value: `${approx(streamsMbps)}${formatMbps(streamsMbps.typical)}`,
+      detail: isPointRange(streamsMbps) ? null : `${formatRangeBounds(streamsMbps)} Mbps`,
+    },
+    {
+      label: 'Overhead',
+      value: `${approx(bandwidthMbps)}${formatMbps(bandwidthMbps.typical - streamsMbps.typical)}`,
+      detail: `${state.overheadPercent}% allowance`,
+    },
+    {
+      label: 'Per camera',
+      value: `${approx(averagePerCameraMbps)}${formatMbps(averagePerCameraMbps.typical)}`,
+      detail: 'average, before overhead',
     },
   ];
 }

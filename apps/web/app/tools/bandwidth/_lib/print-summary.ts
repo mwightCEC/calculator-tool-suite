@@ -63,10 +63,6 @@ export interface GroupRow {
 }
 
 export interface PrintSummary {
-  /** "Simple mode" for Simple input, null for Advanced. */
-  inputModeLabel: string | null;
-  /** "Cameras" in Simple mode (one setup), "Camera groups" in Advanced. */
-  groupsHeading: string;
   bandwidth: ResultFigure;
   sourceLabel: string;
   keyFigures: LabelledValue[];
@@ -101,7 +97,6 @@ function groupBitrate(group: BandwidthGroupState, usage: BandwidthGroupUsage): s
 }
 
 function groupRows(state: BandwidthCalculatorState, result: BandwidthResult): GroupRow[] {
-  const simple = state.inputMode === 'simple';
   return state.cameraGroups.flatMap((group) => {
     const usage = result.groups.find((candidate) => candidate.groupId === group.id);
     if (!usage) {
@@ -111,8 +106,7 @@ function groupRows(state: BandwidthCalculatorState, result: BandwidthResult): Gr
     return [
       {
         key: group.id,
-        // Simple mode's one setup has no visible group name.
-        name: simple ? 'Cameras' : group.name,
+        name: group.name,
         cameras: formatNumber(group.cameraCount, 0),
         camera: `${RESOLUTION_LABELS[group.resolution]} · ${CODEC_LABELS[group.codec]} · ${group.frameRate} fps`,
         scene:
@@ -160,8 +154,6 @@ export function buildPrintSummary(
 ): PrintSummary {
   const viewing = result.remoteViewing;
   return {
-    inputModeLabel: state.inputMode === 'simple' ? 'Simple mode' : null,
-    groupsHeading: state.inputMode === 'simple' ? 'Cameras' : 'Camera groups',
     bandwidth: describeBandwidth(result),
     sourceLabel: result.isEstimated ? 'Estimated' : 'From known bitrates',
     keyFigures: [

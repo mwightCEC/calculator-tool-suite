@@ -1,24 +1,13 @@
 'use client';
 
 import type { CameraGroupUsage } from '@cctv/calc-core';
-import { BitrateField } from '../../../../../components/CameraGroupCard/BitrateField';
 import { CameraGroupCard } from '../../../../../components/CameraGroupCard/CameraGroupCard';
-import {
-  applyEnteredBitrate,
-  CameraCountField,
-  CodecField,
-  FrameRateField,
-  ResolutionField,
-  SceneComplexityField,
-} from '../../../../../components/CameraGroupCard/CameraStreamFields';
-import { FieldLayoutProvider } from '../../../../../components/FieldRow/FieldRow';
+import { CameraStreamGrid } from '../../../../../components/CameraGroupCard/CameraStreamGrid';
 import { formatGb, formatMbps } from '../../../../../lib/format';
 import { summarizeGroup } from '../../_lib/group-summary';
 import type { CameraGroupChanges, CameraGroupState } from '../../_state/storage-calculator-state';
 import type { StorageCalculatorActions } from '../../_state/use-storage-calculator';
-import { Disclosure } from '../Disclosure';
 import { RecordingDetailField, RecordingModeField } from './RecordingFields';
-import classes from './StorageGroupFields.module.css';
 
 interface StorageGroupProps {
   group: CameraGroupState;
@@ -36,48 +25,19 @@ function describeTotals({ group, usage }: Pick<StorageGroupProps, 'group' | 'usa
   };
 }
 
-/**
- * The shared stream fields plus Storage's recording fields, in a grid with labels above.
- * Only Scene complexity keeps its info icon.
- * Bitrate sits under Advanced settings, open from the start when a known bitrate is set.
- */
+/** The shared camera field grid with Storage's recording fields beside Scene complexity. */
 function StorageGroupFields({ group, usage, actions }: StorageGroupProps) {
   const update = (changes: CameraGroupChanges) => actions.updateGroup(group.id, changes);
   return (
-    <FieldLayoutProvider value="stacked">
-      <div className={classes.grid}>
-        <div className={classes.streamRow}>
-          <CameraCountField group={group} onChange={update} withHelp={false} />
-          <ResolutionField group={group} onChange={update} withHelp={false} />
-          <FrameRateField group={group} onChange={update} withHelp={false} />
-          <CodecField group={group} onChange={update} withHelp={false} />
-        </div>
-        <div className={classes.recordingRow}>
-          <RecordingModeField group={group} onChange={update} />
-          <SceneComplexityField
-            group={group}
-            onChange={update}
-            helpNote="This is separate from how many hours are recorded."
-            control="select"
-          />
-          <RecordingDetailField group={group} onChange={update} />
-        </div>
-      </div>
-      <Disclosure
-        title="Advanced settings"
-        hint="(bitrate)"
-        defaultOpened={group.bitrate.source !== 'estimate'}
-      >
-        <BitrateField
-          idPrefix={group.id}
-          bitrate={group.bitrate}
-          perCameraMbps={usage.bitratePerCameraMbps}
-          onSourceChange={(source) => actions.setBitrateSource(group.id, source)}
-          onMbpsChange={(mbps) => applyEnteredBitrate(group, update, mbps)}
-          withHelp={false}
-        />
-      </Disclosure>
-    </FieldLayoutProvider>
+    <CameraStreamGrid
+      group={group}
+      perCameraMbps={usage.bitratePerCameraMbps}
+      onChange={update}
+      onBitrateSourceChange={(source) => actions.setBitrateSource(group.id, source)}
+      sceneComplexityHelpNote="This is separate from how many hours are recorded."
+      beforeSceneComplexity={<RecordingModeField group={group} onChange={update} />}
+      afterSceneComplexity={<RecordingDetailField group={group} onChange={update} />}
+    />
   );
 }
 

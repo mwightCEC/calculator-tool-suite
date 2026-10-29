@@ -63,7 +63,7 @@ export function OptionalMbpsInput({ id, value, onChange }: OptionalMbpsInputProp
       hideControls
       rightSection="Mbps"
       rightSectionWidth={48}
-      classNames={{ input: classes.mbpsInput, section: classes.unitSection }}
+      classNames={{ root: classes.mbpsInput, section: classes.unitSection }}
     />
   );
 }

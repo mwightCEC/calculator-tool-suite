@@ -15,6 +15,7 @@ import {
 } from '@cctv/calc-core';
 import { IconCalendarEvent, IconServer2 } from '@tabler/icons-react';
 import { Group, Select, Text, ThemeIcon, Title } from '@mantine/core';
+import { Disclosure } from '../../../../components/Disclosure/Disclosure';
 import { FieldLayoutProvider, FieldRow } from '../../../../components/FieldRow/FieldRow';
 import { NumberStepper } from '../../../../components/NumberStepper/NumberStepper';
 import { parseOption } from '../../../../lib/camera-labels';
@@ -23,7 +24,6 @@ import {
   RAID_SELECT_DATA,
   RESERVE_SELECT_DATA,
 } from '../_lib/storage-labels';
-import { Disclosure } from './Disclosure';
 import classes from './StorageSettingsSection.module.css';
 
 const RAID_HELP =

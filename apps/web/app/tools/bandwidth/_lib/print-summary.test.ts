@@ -9,11 +9,7 @@ import {
 import { buildPrintSummary } from './print-summary';
 
 function stateAfter(...actions: BandwidthCalculatorAction[]): BandwidthCalculatorState {
-  const advanced = bandwidthCalculatorReducer(createInitialBandwidthCalculatorState(), {
-    type: 'set-input-mode',
-    inputMode: 'advanced',
-  });
-  return actions.reduce(bandwidthCalculatorReducer, advanced);
+  return actions.reduce(bandwidthCalculatorReducer, createInitialBandwidthCalculatorState());
 }
 
 function summarize(state: BandwidthCalculatorState) {
@@ -28,14 +24,9 @@ const KNOWN_ONLY: BandwidthCalculatorAction[] = [
 ];
 
 describe('buildPrintSummary', () => {
-  it('labels Simple mode and its single camera setup', () => {
-    const simple = summarize(createInitialBandwidthCalculatorState());
-    expect(simple.inputModeLabel).toBe('Simple mode');
-    expect(simple.groupsHeading).toBe('Cameras');
-    expect(simple.groups.map((group) => group.name)).toEqual(['Cameras']);
-    const advanced = summarize(stateAfter());
-    expect(advanced.inputModeLabel).toBeNull();
-    expect(advanced.groupsHeading).toBe('Camera groups');
+  it('names each group, including the default single group', () => {
+    const single = summarize(createInitialBandwidthCalculatorState());
+    expect(single.groups.map((group) => group.name)).toEqual(['Camera group 1']);
   });
 
   it('gives exact figures and no estimate notes when every bitrate is known', () => {

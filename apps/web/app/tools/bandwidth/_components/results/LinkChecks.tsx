@@ -54,13 +54,15 @@ interface LinkChecksProps {
 /** One row per link entered, or a hint when none are. */
 export function LinkChecks({ checks, remoteViewing }: LinkChecksProps) {
   return (
-    <div>
-      <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>Network checks</Text>
+    <section aria-labelledby="network-checks-title">
+      <Text component="h3" id="network-checks-title" className={classes.sectionTitle}>
+        Network checks
+      </Text>
       {checks.length === 0 ? (
         <Text className={classes.secondaryText}>
           {remoteViewing
-            ? 'Choose an uplink speed under Network checks, or enter a site upload speed under Remote viewing, to see whether the traffic fits.'
-            : 'Choose an uplink speed under Network checks to see whether the traffic fits.'}
+            ? 'Choose an uplink speed under Network check and overhead, or enter a site upload speed under Remote viewing, to see whether the traffic fits.'
+            : 'Choose an uplink speed under Network check and overhead to see whether the traffic fits.'}
         </Text>
       ) : (
         <Stack component="ul" gap="sm" className={classes.linkList}>
@@ -69,6 +71,6 @@ export function LinkChecks({ checks, remoteViewing }: LinkChecksProps) {
           ))}
         </Stack>
       )}
-    </div>
+    </section>
   );
 }

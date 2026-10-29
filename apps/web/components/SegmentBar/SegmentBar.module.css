@@ -38,3 +38,36 @@
   color: var(--app-text-secondary);
   white-space: nowrap;
 }
+
+/* Detailed (results-card) style: one column, bold values, round swatches, share of the total. */
+.root[data-detailed] .legend {
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: var(--mantine-spacing-sm);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.root[data-detailed] .legendItem {
+  gap: var(--mantine-spacing-xs);
+}
+
+.root[data-detailed] .swatch {
+  border-radius: 50%;
+}
+
+.root[data-detailed] .legendLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+.root[data-detailed] .legendValue {
+  color: var(--mantine-color-text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.legendShare {
+  min-width: 4ch;
+  color: var(--app-text-secondary);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
