@@ -56,7 +56,7 @@ export function NumberStepper({
         allowNegative={false}
         clampBehavior="none"
         hideControls
-        classNames={{ input: classes.input }}
+        classNames={{ root: classes.inputRoot, input: classes.input }}
       />
       <ActionIcon
         variant="default"

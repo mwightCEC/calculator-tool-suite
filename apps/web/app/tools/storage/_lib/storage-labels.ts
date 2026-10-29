@@ -17,6 +17,21 @@ export const CALCULATION_MODE_LABELS: Record<CalculationMode, string> = {
   'days-from-capacity': 'Days from capacity',
 };
 
+/** Choice cards at the top of the page: what to calculate and what the user knows. */
+export const CALCULATION_MODE_CARDS: Record<
+  CalculationMode,
+  { title: string; description: string }
+> = {
+  'storage-needed': {
+    title: 'Calculate storage needed',
+    description: 'I know my cameras and retention goal',
+  },
+  'days-from-capacity': {
+    title: 'Calculate retention time',
+    description: 'I know my storage capacity',
+  },
+};
+
 export const RECORDING_MODE_LABELS: Record<RecordingMode, string> = {
   continuous: 'Continuous',
   motion: 'Motion',

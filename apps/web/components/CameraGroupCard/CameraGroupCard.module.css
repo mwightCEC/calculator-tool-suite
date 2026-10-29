@@ -110,6 +110,38 @@
   font-size: var(--mantine-font-size-xs);
 }
 
+/* Nested variant (inside a section card): gray header, summary under the name, bordered body. */
+.card[data-variant='nested'] .header {
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md) var(--mantine-spacing-sm)
+    var(--mantine-spacing-xs);
+  background-color: var(--app-surface-subtle);
+}
+
+.headerText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.headerText .nameRoot {
+  display: block;
+}
+
+.subtitle {
+  padding-inline: 6px;
+  color: var(--app-text-secondary);
+}
+
+.card[data-variant='nested'] .fields {
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg) var(--mantine-spacing-md);
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+/* Simple mode's card has no header, so its fields need no divider. */
+.card[data-variant='nested'] > .fields:first-child {
+  border-top: none;
+}
+
 .footer {
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
   background-color: var(--group-tint);

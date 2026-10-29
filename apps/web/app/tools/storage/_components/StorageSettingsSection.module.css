@@ -1,0 +1,68 @@
+/* Tinted input panels (Retention goal, Storage configuration) from the approved prototype. */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+  border: 1px solid var(--app-panel-border);
+  border-radius: var(--mantine-radius-lg);
+  background-color: var(--app-panel-bg);
+}
+
+.panelHeading {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.panelTitle {
+  font-size: var(--mantine-font-size-lg);
+  line-height: 1.3;
+}
+
+.description {
+  color: var(--app-text-secondary);
+}
+
+.driveSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-sm);
+}
+
+.sectionTitle {
+  font-size: var(--mantine-font-size-md);
+}
+
+.fieldsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+  border: 1px solid var(--app-panel-border);
+  border-radius: var(--mantine-radius-lg);
+  background-color: var(--app-panel-bg);
+}
+
+/* Fields follow the panel's width: one column when narrow, then two (or three). */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mantine-spacing-md) var(--mantine-spacing-sm);
+}
+
+@media (min-width: $mantine-breakpoint-xs) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: $mantine-breakpoint-md) {
+  .grid[data-columns='3'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.select {
+  width: 100%;
+}

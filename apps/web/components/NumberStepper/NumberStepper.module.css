@@ -1,4 +1,10 @@
+/* 56px wide, shrinking (down to 44px) only when a narrow grid cell needs it. */
+.inputRoot {
+  flex: 0 1 56px;
+  min-width: 44px;
+}
+
 .input {
-  width: 56px;
+  width: 100%;
   text-align: center;
 }

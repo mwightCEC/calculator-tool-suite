@@ -11,7 +11,7 @@
   /* Keyboard focus ring must stay visible on the blue bar. */
   --app-focus-ring: var(--app-header-fg);
 
-  background-color: var(--app-header-bg);
+  background: var(--app-header-bg);
   border-bottom: none;
 }
 

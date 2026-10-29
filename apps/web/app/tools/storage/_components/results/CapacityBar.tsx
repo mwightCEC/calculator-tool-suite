@@ -68,6 +68,12 @@ function buildSegments(
   ];
 }
 
+/** Share of raw capacity as a whole percent; "<1%" keeps a small segment from reading as none. */
+function formatShare(fraction: number): string {
+  const percent = Math.round(fraction * 100);
+  return percent === 0 && fraction > 0 ? '<1%' : `${percent}%`;
+}
+
 interface CapacityBarProps {
   breakdown: CapacityBreakdown;
   groups: CameraGroupState[];
@@ -97,7 +103,9 @@ export function CapacityBar({ breakdown, groups, singleSetup }: CapacityBarProps
         gap="sm"
         className={classes.labelRow}
       >
-        <Text className={classes.sectionLabel}>Raw capacity · {formatTb(breakdown.rawTb)}</Text>
+        <Text className={classes.barCaption}>
+          Based on {formatTb(breakdown.rawTb)} raw capacity
+        </Text>
         {!singleSetup && (
           <Switch
             size="xs"
@@ -108,7 +116,7 @@ export function CapacityBar({ breakdown, groups, singleSetup }: CapacityBarProps
           />
         )}
       </Group>
-      <Progress.Root size={18} className={classes.bar}>
+      <Progress.Root size={24} radius="md" className={classes.bar}>
         {visible.map((segment) => (
           <Tooltip key={segment.key} label={`${segment.label}: ${formatTb(segment.tb)}`} withArrow>
             <Progress.Section
@@ -130,6 +138,9 @@ export function CapacityBar({ breakdown, groups, singleSetup }: CapacityBarProps
             />
             <span className={classes.legendLabel}>{segment.label}</span>
             <span className={classes.legendValue}>{formatTb(segment.tb)}</span>
+            <span className={classes.legendPercent}>
+              {formatShare(segment.tb / breakdown.rawTb)}
+            </span>
           </li>
         ))}
       </ul>
