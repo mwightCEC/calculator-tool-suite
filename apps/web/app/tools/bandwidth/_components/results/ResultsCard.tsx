@@ -1,11 +1,21 @@
 'use client';
 
 import { isBitrateModelValidated, type BandwidthResult } from '@cctv/calc-core';
-import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
-import { Badge, Box, Button, Group, Text } from '@mantine/core';
+import { IconAlertTriangle, IconPrinter, IconWorldUpload } from '@tabler/icons-react';
+import { Button, Group, Text, ThemeIcon } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
+import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
+import {
+  EstimateBadge,
+  HeadlineTile,
+  MetricRow,
+  ResultsPanel,
+} from '../../../../../components/ResultsCard/ResultsPanel';
+import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
+import { formatMbps, formatNumber } from '../../../../../lib/format';
 import {
   bandwidthSegments,
+  buildMetricTiles,
   describeBandwidth,
   describeRemoteViewing,
   describeViewing,
@@ -13,12 +23,14 @@ import {
 } from '../../_lib/result-summary';
 import type { BandwidthCalculatorState } from '../../_state/bandwidth-calculator-state';
 import { buildShareUrl } from '../../_state/share-link';
-import { BandwidthBar } from './BandwidthBar';
+import { HowCalculated } from '../HowCalculated';
 import { LinkChecks } from './LinkChecks';
-import { MetricTiles } from './MetricTiles';
 import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'bandwidth-results';
+
+const plural = (count: number, noun: string) =>
+  `${formatNumber(count, 0)} ${count === 1 ? noun : `${noun}s`}`;
 
 interface ResultsCardProps {
   result: BandwidthResult;
@@ -32,64 +44,17 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
   const warning = describeWarning(result);
 
   return (
-    <Box
-      component="section"
+    <ResultsPanel
       id={RESULTS_CARD_ID}
-      tabIndex={-1}
-      aria-label="Results"
-      className={classes.card}
+      title="Bandwidth estimate"
+      badge={<EstimateBadge isEstimated={result.isEstimated} />}
     >
-      <div>
-        <Group justify="space-between" align="center" wrap="nowrap" className={classes.labelRow}>
-          <Text className={classes.sectionLabel}>Bandwidth estimate</Text>
-          <Badge
-            variant={result.isEstimated ? 'filled' : 'light'}
-            color={result.isEstimated ? 'amber' : 'green'}
-            radius="sm"
-            className={classes.sourceBadge}
-            data-source={result.isEstimated ? 'estimated' : 'known'}
-          >
-            {result.isEstimated ? 'Estimated' : 'From known bitrates'}
-          </Badge>
-        </Group>
-
-        {/* Polite live region so screen readers hear the headline update as inputs change. */}
-        <div aria-live="polite" aria-atomic="true">
-          <Text className={classes.headlineValue}>{bandwidth.value}</Text>
-          {bandwidth.likelyRange && (
-            <Text className={classes.secondaryText}>{bandwidth.likelyRange}</Text>
-          )}
-        </div>
-        <Text className={classes.note}>
-          Peak traffic from all cameras on the local network, including {state.overheadPercent}%
-          overhead.
-        </Text>
-      </div>
-
-      <BandwidthBar segments={bandwidthSegments(state, result)} />
-
-      {viewing && (
-        <div>
-          <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>
-            Remote viewing bandwidth
-          </Text>
-          <Text className={classes.figureValue}>
-            {viewing.value}
-            {viewing.likelyRange && (
-              <Text span className={classes.secondaryText}>
-                {' '}
-                · {viewing.likelyRange}
-              </Text>
-            )}
-          </Text>
-          <Text className={classes.note}>{describeViewing(state, result)}</Text>
-        </div>
-      )}
-
-      {/* Simple mode has no link checks to enter. */}
-      {state.inputMode === 'advanced' && (
-        <LinkChecks checks={result.linkChecks} remoteViewing={state.remoteViewing.enabled} />
-      )}
+      <HeadlineTile
+        value={bandwidth.value}
+        label="Peak network bandwidth"
+        range={bandwidth.likelyRange}
+        footnote={`${plural(result.totalCameras, 'camera')} in ${plural(state.cameraGroups.length, 'group')} · includes ${state.overheadPercent}% overhead`}
+      />
 
       {warning && (
         <Group gap={6} wrap="nowrap" className={classes.warning} role="status">
@@ -98,7 +63,53 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Group>
       )}
 
-      <MetricTiles state={state} result={result} />
+      <MetricRow tiles={buildMetricTiles(state, result)} />
+
+      {viewing && (
+        <Group
+          gap="sm"
+          align="flex-start"
+          wrap="nowrap"
+          component="section"
+          aria-labelledby="remote-viewing-result-title"
+          className={classes.box}
+        >
+          <ThemeIcon variant="light" size={36} radius="md">
+            <IconWorldUpload size={20} stroke={1.75} />
+          </ThemeIcon>
+          <div>
+            <Text component="h3" id="remote-viewing-result-title" className={classes.boxTitle}>
+              Remote viewing: {viewing.value}
+            </Text>
+            {viewing.likelyRange && (
+              <Text className={classes.boxDetail}>{viewing.likelyRange}</Text>
+            )}
+            <Text className={classes.boxDetail}>{describeViewing(state, result)}</Text>
+          </div>
+        </Group>
+      )}
+
+      <LinkChecks checks={result.linkChecks} remoteViewing={state.remoteViewing.enabled} />
+
+      <Disclosure title="Traffic breakdown">
+        <SegmentBar
+          detailed
+          segments={bandwidthSegments(state, result).map((segment) => ({
+            key: segment.key,
+            label: segment.label,
+            value: segment.mbps,
+            color:
+              segment.colorIndex === null
+                ? 'var(--app-capacity-reserve)'
+                : `var(--group-color-${segment.colorIndex})`,
+          }))}
+          formatValue={formatMbps}
+        />
+      </Disclosure>
+
+      <Disclosure title="How estimates are calculated">
+        <HowCalculated />
+      </Disclosure>
 
       {result.isEstimated && (
         <Text className={classes.note}>
@@ -114,6 +125,6 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
           Export
         </Button>
       </Group>
-    </Box>
+    </ResultsPanel>
   );
 }

@@ -1,8 +1,7 @@
 'use client';
 
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Group, Paper, Stack, Text, Title } from '@mantine/core';
-import { CameraGroupToolbar } from '../../../../components/CameraGroupCard/CameraGroupToolbar';
+import { Stack } from '@mantine/core';
+import { CameraConfigurationCard } from '../../../../components/CameraGroupCard/CameraConfigurationCard';
 import { useGroupExpansion } from '../../../../components/CameraGroupCard/use-group-expansion';
 import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
@@ -30,47 +29,13 @@ export function StorageCalculator() {
         <Stack gap="md" className={classes.inputs}>
           <CalculationModeCards value={state.mode} onChange={actions.setMode} />
 
-          <Paper
-            component="section"
-            withBorder
-            radius="lg"
-            className={classes.section}
-            aria-labelledby="camera-configuration-title"
+          <CameraConfigurationCard
+            groupCount={groupCount}
+            expansion={expansion}
+            onAddGroup={actions.addGroup}
+            canClear={hasCustomGroups}
+            onClear={actions.clearGroups}
           >
-            <Group justify="space-between" align="flex-start" gap="sm">
-              <div className={classes.sectionHeading}>
-                <Title order={2} id="camera-configuration-title" className={classes.sectionTitle}>
-                  Camera configuration
-                </Title>
-                <Text size="sm" className={classes.sectionDescription}>
-                  Add one or more camera groups. Each group can have different settings.
-                </Text>
-              </div>
-              <Button
-                variant="outline"
-                radius="xl"
-                leftSection={<IconPlus size={16} />}
-                onClick={() => {
-                  // The new group opens at the top with the others collapsed below it.
-                  expansion.collapseAll();
-                  actions.addGroup();
-                }}
-                disabled={atGroupLimit}
-              >
-                {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} camera groups` : 'Add camera group'}
-              </Button>
-            </Group>
-
-            <CameraGroupToolbar
-              allCollapsed={expansion.allCollapsed}
-              onToggleAll={expansion.toggleAll}
-              canClear={hasCustomGroups}
-              onClear={() => {
-                actions.clearGroups();
-                expansion.expandAll();
-              }}
-            />
-
             {state.cameraGroups.map((group) => {
               const usage = usageByGroupId.get(group.id);
               return (
@@ -94,7 +59,7 @@ export function StorageCalculator() {
               storage={state.storage}
               onChange={actions.updateStorage}
             />
-          </Paper>
+          </CameraConfigurationCard>
         </Stack>
 
         <div className={classes.results}>

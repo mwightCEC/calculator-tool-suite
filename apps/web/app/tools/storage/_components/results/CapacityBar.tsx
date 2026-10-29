@@ -1,8 +1,9 @@
 'use client';
 
 import type { CapacityBreakdown } from '@cctv/calc-core';
-import { Group, Progress, Switch, Text, Tooltip } from '@mantine/core';
+import { Group, Switch, Text } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
+import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
 import { formatTb } from '../../../../../lib/format';
 import type { CameraGroupState } from '../../_state/storage-calculator-state';
 import classes from './ResultsCard.module.css';
@@ -68,12 +69,6 @@ function buildSegments(
   ];
 }
 
-/** Share of raw capacity as a whole percent; "<1%" keeps a small segment from reading as none. */
-function formatShare(fraction: number): string {
-  const percent = Math.round(fraction * 100);
-  return percent === 0 && fraction > 0 ? '<1%' : `${percent}%`;
-}
-
 interface CapacityBarProps {
   breakdown: CapacityBreakdown;
   groups: CameraGroupState[];
@@ -92,7 +87,6 @@ export function CapacityBar({ breakdown, groups, singleGroup }: CapacityBarProps
     defaultValue: false,
   });
   const segments = buildSegments(breakdown, groups, simplified && !singleGroup);
-  const visible = segments.filter((segment) => segment.tb > 0);
 
   return (
     <div>
@@ -116,34 +110,11 @@ export function CapacityBar({ breakdown, groups, singleGroup }: CapacityBarProps
           />
         )}
       </Group>
-      <Progress.Root size={24} radius="md" className={classes.bar}>
-        {visible.map((segment) => (
-          <Tooltip key={segment.key} label={`${segment.label}: ${formatTb(segment.tb)}`} withArrow>
-            <Progress.Section
-              value={(segment.tb / breakdown.rawTb) * 100}
-              color={segment.color}
-              aria-label={`${segment.label}: ${formatTb(segment.tb)}`}
-            />
-          </Tooltip>
-        ))}
-      </Progress.Root>
-
-      <ul className={classes.legend}>
-        {visible.map((segment) => (
-          <li key={segment.key} className={classes.legendItem}>
-            <span
-              className={classes.swatch}
-              style={{ backgroundColor: segment.color }}
-              aria-hidden="true"
-            />
-            <span className={classes.legendLabel}>{segment.label}</span>
-            <span className={classes.legendValue}>{formatTb(segment.tb)}</span>
-            <span className={classes.legendPercent}>
-              {formatShare(segment.tb / breakdown.rawTb)}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <SegmentBar
+        detailed
+        segments={segments.map(({ key, label, tb, color }) => ({ key, label, value: tb, color }))}
+        formatValue={formatTb}
+      />
     </div>
   );
 }

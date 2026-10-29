@@ -72,7 +72,7 @@ export function RecordingMetrics({ result, state }: RecordingMetricsProps) {
             {value}
           </Text>
           {detail && (
-            <Text component="dd" className={classes.tileDetail}>
+            <Text component="dd" className={classes.statDetail}>
               {detail}
             </Text>
           )}

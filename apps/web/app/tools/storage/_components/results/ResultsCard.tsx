@@ -2,12 +2,17 @@
 
 import type { StorageCalculationResult } from '@cctv/calc-core';
 import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
-import { Badge, Button, Group, Paper, Text, Title } from '@mantine/core';
+import { Button, Group, Text } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
+import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
+import {
+  EstimateBadge,
+  HeadlineTile,
+  ResultsPanel,
+} from '../../../../../components/ResultsCard/ResultsPanel';
 import { describeHeadline, describeWarning } from '../../_lib/result-summary';
 import { buildShareUrl } from '../../_state/share-link';
 import type { StorageCalculatorState } from '../../_state/storage-calculator-state';
-import { Disclosure } from '../Disclosure';
 import { HowCalculated } from '../HowCalculated';
 import { CapacityBar } from './CapacityBar';
 import { DrivesSummary } from './DrivesSummary';
@@ -33,38 +38,12 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
   const warning = describeWarning(result);
 
   return (
-    <Paper
-      component="section"
+    <ResultsPanel
       id={RESULTS_CARD_ID}
-      tabIndex={-1}
-      aria-labelledby="results-title"
-      withBorder
-      radius="lg"
-      className={classes.card}
+      title={RESULTS_TITLES[result.mode]}
+      badge={<EstimateBadge isEstimated={result.isEstimated} />}
     >
-      <Group justify="space-between" align="center" wrap="nowrap" gap="sm">
-        <Title order={2} id="results-title" className={classes.title}>
-          {RESULTS_TITLES[result.mode]}
-        </Title>
-        <Badge
-          variant={result.isEstimated ? 'filled' : 'light'}
-          color={result.isEstimated ? 'amber' : 'green'}
-          radius="sm"
-          className={classes.sourceBadge}
-          data-source={result.isEstimated ? 'estimated' : 'known'}
-        >
-          {result.isEstimated ? 'Estimated' : 'From known bitrates'}
-        </Badge>
-      </Group>
-
-      {/* Polite live region so screen readers hear the headline update as inputs change. */}
-      <div aria-live="polite" aria-atomic="true" className={classes.hero}>
-        <Text className={classes.headlineValue}>{headline.value}</Text>
-        <Text className={classes.headlineLabel}>{headline.label}</Text>
-        {headline.likelyRange && (
-          <Text className={classes.headlineRange}>{headline.likelyRange}</Text>
-        )}
-      </div>
+      <HeadlineTile value={headline.value} label={headline.label} range={headline.likelyRange} />
 
       {warning && (
         <Group gap={6} wrap="nowrap" className={classes.warning} role="status">
@@ -105,6 +84,6 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
           Export
         </Button>
       </Group>
-    </Paper>
+    </ResultsPanel>
   );
 }

@@ -15,16 +15,31 @@ interface SegmentBarProps {
   segments: BarSegment[];
   /** Formats a segment's value for the tooltip and legend, e.g. "24.7 W". */
   formatValue: (value: number) => string;
+  /**
+   * The results-card style from the approved prototype: a taller bar and a one-column
+   * legend with each value in bold and its share of the total.
+   */
+  detailed?: boolean;
 }
 
-/** A capacity split into coloured segments, with a two-column legend. Empty segments are left out. */
-export function SegmentBar({ segments, formatValue }: SegmentBarProps) {
+/** Share of the total as a whole percent; "<1%" keeps a small segment from reading as none. */
+function formatShare(fraction: number): string {
+  const percent = Math.round(fraction * 100);
+  return percent === 0 && fraction > 0 ? '<1%' : `${percent}%`;
+}
+
+/** A capacity split into coloured segments, with a legend. Empty segments are left out. */
+export function SegmentBar({ segments, formatValue, detailed = false }: SegmentBarProps) {
   const visible = segments.filter((segment) => segment.value > 0);
   const total = visible.reduce((sum, segment) => sum + segment.value, 0);
 
   return (
-    <div>
-      <Progress.Root size={18} className={classes.bar}>
+    <div data-detailed={detailed || undefined} className={classes.root}>
+      <Progress.Root
+        size={detailed ? 24 : 18}
+        radius={detailed ? 'md' : undefined}
+        className={classes.bar}
+      >
         {visible.map((segment) => (
           <Tooltip
             key={segment.key}
@@ -50,6 +65,9 @@ export function SegmentBar({ segments, formatValue }: SegmentBarProps) {
             />
             <span className={classes.legendLabel}>{segment.label}</span>
             <span className={classes.legendValue}>{formatValue(segment.value)}</span>
+            {detailed && (
+              <span className={classes.legendShare}>{formatShare(segment.value / total)}</span>
+            )}
           </li>
         ))}
       </ul>

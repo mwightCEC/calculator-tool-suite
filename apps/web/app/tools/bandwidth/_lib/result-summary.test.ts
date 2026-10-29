@@ -8,6 +8,7 @@ import {
 } from '../_state/bandwidth-calculator-state';
 import {
   bandwidthSegments,
+  buildMetricTiles,
   describeBandwidth,
   describeLinkLoad,
   describeRemoteViewing,
@@ -17,11 +18,7 @@ import {
 } from './result-summary';
 
 function stateAfter(...actions: BandwidthCalculatorAction[]): BandwidthCalculatorState {
-  const advanced = bandwidthCalculatorReducer(createInitialBandwidthCalculatorState(), {
-    type: 'set-input-mode',
-    inputMode: 'advanced',
-  });
-  return actions.reduce(bandwidthCalculatorReducer, advanced);
+  return actions.reduce(bandwidthCalculatorReducer, createInitialBandwidthCalculatorState());
 }
 
 /** 10 cameras at a known 4 Mbps, so every figure is exact. */
@@ -141,9 +138,9 @@ describe('describeWarning', () => {
 });
 
 describe('bandwidthSegments', () => {
-  it('labels Simple mode’s single setup "Cameras"', () => {
+  it('labels the default single group by its name', () => {
     const state = createInitialBandwidthCalculatorState();
-    expect(bandwidthSegments(state, calculateBandwidth(state))[0]?.label).toBe('Cameras');
+    expect(bandwidthSegments(state, calculateBandwidth(state))[0]?.label).toBe('Camera group 1');
   });
 
   it('splits the estimate into groups and overhead that add up to the total', () => {
@@ -151,8 +148,9 @@ describe('bandwidthSegments', () => {
     const result = calculateBandwidth(state);
     const segments = bandwidthSegments(state, result);
 
-    expect(segments.map((segment) => segment.key)).toEqual(['g1', 'g2', 'overhead']);
-    expect(segments[0]).toEqual({ key: 'g1', label: 'Camera group 1', mbps: 40, colorIndex: 0 });
+    // New groups are added at the top.
+    expect(segments.map((segment) => segment.key)).toEqual(['g2', 'g1', 'overhead']);
+    expect(segments[1]).toEqual({ key: 'g1', label: 'Camera group 1', mbps: 40, colorIndex: 0 });
     expect(segments[2]).toMatchObject({ label: 'Overhead', colorIndex: null });
     const total = segments.reduce((sum, segment) => sum + segment.mbps, 0);
     expect(total).toBeCloseTo(result.bandwidthMbps.typical);
@@ -162,5 +160,23 @@ describe('bandwidthSegments', () => {
     const state = stateAfter(...KNOWN_4_MBPS, { type: 'set-overhead', overheadPercent: 0 });
     const segments = bandwidthSegments(state, calculateBandwidth(state));
     expect(segments.at(-1)?.mbps).toBeCloseTo(0);
+  });
+});
+
+describe('buildMetricTiles', () => {
+  it('gives exact streams, overhead and per-camera figures for known bitrates', () => {
+    const state = stateAfter(...KNOWN_4_MBPS);
+    expect(buildMetricTiles(state, calculateBandwidth(state))).toEqual([
+      { label: 'Camera streams', value: '40 Mbps', detail: null },
+      { label: 'Overhead', value: '4 Mbps', detail: '10% allowance' },
+      { label: 'Per camera', value: '4 Mbps', detail: 'average, before overhead' },
+    ]);
+  });
+
+  it('marks estimates with "~" and gives the streams range', () => {
+    const state = stateAfter();
+    const [streams] = buildMetricTiles(state, calculateBandwidth(state));
+    expect(streams?.value).toMatch(/^~/);
+    expect(streams?.detail).toMatch(/Mbps$/);
   });
 });

@@ -6,13 +6,12 @@ import type {
   ViewingBitrateSource,
 } from '@cctv/calc-core';
 import { z } from 'zod';
-import type { InputMode } from '../../../../lib/input-mode';
 import type { BandwidthCalculatorState } from './bandwidth-calculator-state';
 
 /*
  * Bandwidth share link format v2: a compact positional JSON array.
  *
- *   [remoteViewing, network, overheadPercent, groups, inputMode]
+ *   [remoteViewing, network, overheadPercent, groups, retiredInputMode?]
  *   remoteViewing = [enabled (0/1), viewers, camerasPerViewer, bitrateSource, customMbps,
  *                    siteUploadMbps (0 = check off)]
  *   network       = [uplinkMbps (0 = check off)]
@@ -25,6 +24,10 @@ import type { BandwidthCalculatorState } from './bandwidth-calculator-state';
  * format version. They are separate from Storage's tables so each calculator's
  * links can change on their own. Group ids are not stored and are re-created
  * as g1, g2, … .
+ *
+ * The last item was the Simple / Advanced input mode (0 Advanced, 1 Simple), which
+ * Bandwidth no longer has. Links that carry it still open with every group and
+ * setting they hold; it is read and ignored, and new links leave it out.
  *
  * v2 replaced v1 when sub-streams, recorded streams and the recorder limit were
  * removed; v1 links are no longer read.
@@ -57,7 +60,6 @@ export const V2_BITRATE_SOURCES = [
   'known-average',
   'bitrate-cap',
 ] as const satisfies readonly BitrateSource[];
-export const V2_INPUT_MODES = ['advanced', 'simple'] as const satisfies readonly InputMode[];
 
 const index = z.int().nonnegative();
 
@@ -79,7 +81,8 @@ const payloadSchema = z.tuple([
       z.number(),
     ])
   ),
-  index,
+  // Retired input mode, ignored.
+  index.optional(),
 ]);
 
 type Payload = z.infer<typeof payloadSchema>;
@@ -113,7 +116,6 @@ export function stateToV2Payload(state: BandwidthCalculatorState): Payload {
       group.bitrate.source === 'estimate' ? 0 : group.bitrate.mbps,
       group.colorIndex,
     ]),
-    V2_INPUT_MODES.indexOf(state.inputMode),
   ];
 }
 
@@ -131,13 +133,12 @@ export function v2PayloadToState(raw: unknown): unknown {
   if (!parsed.success) {
     return null;
   }
-  const [remoteViewing, network, overheadPercent, groups, inputModeIndex] = parsed.data;
+  const [remoteViewing, network, overheadPercent, groups] = parsed.data;
   const [enabled, viewers, camerasPerViewer, sourceIndex, customMbps, siteUploadMbps] =
     remoteViewing;
   const [uplinkMbps] = network;
 
   return {
-    inputMode: V2_INPUT_MODES[inputModeIndex],
     remoteViewing: {
       enabled: flagToBoolean(enabled),
       viewers,

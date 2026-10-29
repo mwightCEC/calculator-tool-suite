@@ -1,0 +1,27 @@
+/* Tinted panel inside the Remote viewing and Network sections, as in Storage's Drive configuration. */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+  border: 1px solid var(--app-panel-border);
+  border-radius: var(--mantine-radius-lg);
+  background-color: var(--app-panel-bg);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mantine-spacing-md) var(--mantine-spacing-sm);
+}
+
+@media (min-width: $mantine-breakpoint-xs) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.secondaryText {
+  color: var(--app-text-secondary);
+}

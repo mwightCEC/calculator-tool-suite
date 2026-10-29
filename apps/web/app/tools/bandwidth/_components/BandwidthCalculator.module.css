@@ -18,30 +18,7 @@
   }
 }
 
-.addGroup {
-  border-style: dashed;
-}
-
-/* System settings cards (Remote viewing, Network checks, Overhead). */
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mantine-spacing-sm);
-  padding: var(--mantine-spacing-md);
-}
-
-.cardHeader {
-  margin-bottom: 4px;
-}
-
-.cardTitle {
-  font-size: var(--mantine-font-size-md);
-}
-
-.secondaryText {
-  color: var(--app-text-secondary);
-}
-
+/* Optional link-capacity input (site upload); fills its cell in a field grid. */
 .mbpsInput {
   width: 120px;
 }
@@ -53,7 +30,8 @@
 
 @media (min-width: $mantine-breakpoint-lg) {
   .layout {
-    grid-template-columns: minmax(0, 1fr) 380px;
+    /* Inputs and results share the width about 7:5, as in Storage. */
+    grid-template-columns: minmax(0, 7fr) minmax(360px, 5fr);
     padding-bottom: 0;
   }
 
