@@ -33,5 +33,7 @@ export function useGroupExpansion(groupIds: readonly string[]) {
     /** Collapses every group, or expands them all once every group is collapsed. */
     toggleAll: () => setCollapsedIds(allCollapsed ? NONE : new Set(groupIds)),
     expandAll: () => setCollapsedIds(NONE),
+    /** Collapses every current group; a group added afterwards starts expanded. */
+    collapseAll: () => setCollapsedIds(new Set(groupIds)),
   };
 }

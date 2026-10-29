@@ -39,11 +39,14 @@
 /* Stacked: label above a full-width control, for fields in a grid. */
 .row[data-layout='stacked'] {
   grid-template-columns: minmax(0, 1fr);
+  /* Top-aligned, so a note under one field doesn't push its neighbour's control down. */
+  align-content: start;
   gap: 4px;
 }
 
 .row[data-layout='stacked'] .labelCell {
-  min-height: 0;
+  /* The height of the info icon, so labels with and without one line up across a grid row. */
+  min-height: 22px;
 }
 
 .row[data-layout='stacked'] .label {
@@ -53,6 +56,7 @@
 
 .row[data-layout='stacked'] .controlCell {
   align-items: stretch;
+  justify-content: flex-start;
   min-height: 0;
 }
 

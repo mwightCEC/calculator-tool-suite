@@ -42,21 +42,26 @@ function nextGroupNumber(groups: readonly ListedGroup[]): number {
   return Math.max(0, ...numbers) + 1;
 }
 
-/** Appends a new group, coloured to differ from the group above it. */
+/**
+ * Adds a new group at the end (default) or the start of the list, coloured to
+ * differ from its neighbour.
+ */
 export function addGroup<T extends ListedGroup>(
   groups: T[],
-  create: (fields: ListedGroup) => T
+  create: (fields: ListedGroup) => T,
+  position: 'start' | 'end' = 'end'
 ): T[] {
   if (groups.length >= MAX_CAMERA_GROUPS) {
     return groups;
   }
   const number = nextGroupNumber(groups);
+  const index = position === 'start' ? 0 : groups.length;
   const group = create({
     id: `g${number}`,
     name: `Camera group ${number}`,
-    colorIndex: pickColorForInsert(groups, groups.length),
+    colorIndex: pickColorForInsert(groups, index),
   });
-  return [...groups, group];
+  return groups.toSpliced(index, 0, group);
 }
 
 /** Inserts a copy after its source, coloured to differ from both neighbours. */

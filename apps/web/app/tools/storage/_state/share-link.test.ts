@@ -41,7 +41,8 @@ const PAGE = 'https://example.test/tools/storage';
 /** A non-default state: two groups, days mode, a bitrate cap, a non-ASCII name and the late-added resolutions. */
 function sampleState(): StorageCalculatorState {
   const actions: StorageCalculatorAction[] = [
-    { type: 'add-group' },
+    // Duplicating puts g2 after g1, so ids match list order as they do after decoding.
+    { type: 'duplicate-group', id: 'g1' },
     { type: 'set-mode', mode: 'days-from-capacity' },
     { type: 'set-bitrate-source', id: 'g1', source: 'bitrate-cap' },
     { type: 'update-group', id: 'g1', changes: { resolution: '960H' } },

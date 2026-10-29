@@ -51,13 +51,19 @@ interface CameraStreamFieldsProps {
 interface StreamFieldProps {
   group: CameraStreamGroup;
   onChange: (changes: CameraStreamChanges) => void;
+  /** Show the label's info icon (default). Storage keeps it only on Scene complexity. */
+  withHelp?: boolean;
 }
 
-export function CameraCountField({ group, onChange }: StreamFieldProps) {
+export function CameraCountField({ group, onChange, withHelp = true }: StreamFieldProps) {
   return (
     <FieldRow
       label="Cameras"
-      help="Number of cameras in this group. All cameras in a group share the settings below."
+      help={
+        withHelp
+          ? 'Number of cameras in this group. All cameras in a group share the settings below.'
+          : undefined
+      }
       controlId={`${group.id}-cameras`}
     >
       <NumberStepper
@@ -72,11 +78,11 @@ export function CameraCountField({ group, onChange }: StreamFieldProps) {
   );
 }
 
-export function ResolutionField({ group, onChange }: StreamFieldProps) {
+export function ResolutionField({ group, onChange, withHelp = true }: StreamFieldProps) {
   return (
     <FieldRow
       label="Resolution"
-      help="Main-stream resolution. Higher resolutions need more bitrate."
+      help={withHelp ? 'Main-stream resolution. Higher resolutions need more bitrate.' : undefined}
       controlId={`${group.id}-resolution`}
     >
       <Select
@@ -96,11 +102,15 @@ export function ResolutionField({ group, onChange }: StreamFieldProps) {
   );
 }
 
-export function CodecField({ group, onChange }: StreamFieldProps) {
+export function CodecField({ group, onChange, withHelp = true }: StreamFieldProps) {
   return (
     <FieldRow
       label="Codec"
-      help="Video compression. H.265 usually needs less bitrate than H.264 for similar quality."
+      help={
+        withHelp
+          ? 'Video compression. H.265 usually needs less bitrate than H.264 for similar quality.'
+          : undefined
+      }
       controlId={`${group.id}-codec`}
     >
       <Select
@@ -120,11 +130,15 @@ export function CodecField({ group, onChange }: StreamFieldProps) {
   );
 }
 
-export function FrameRateField({ group, onChange }: StreamFieldProps) {
+export function FrameRateField({ group, onChange, withHelp = true }: StreamFieldProps) {
   return (
     <FieldRow
       label="Frame rate"
-      help="Frames per second the camera sends. Lower frame rates reduce bitrate, though not proportionally."
+      help={
+        withHelp
+          ? 'Frames per second the camera sends. Lower frame rates reduce bitrate, though not proportionally.'
+          : undefined
+      }
       controlId={`${group.id}-fps`}
     >
       <Select
@@ -165,12 +179,14 @@ export function SceneComplexityField({
       label="Scene complexity"
       help={[SCENE_COMPLEXITY_HELP, helpNote].filter(Boolean).join(' ')}
       controlId={controlId}
-      dimmed={!usesEstimate}
+      // The dropdown is disabled instead, so it isn't dimmed twice.
+      dimmed={!usesEstimate && control === 'buttons'}
       note={usesEstimate ? undefined : 'Not used with a known bitrate'}
     >
       {control === 'select' ? (
         <Select
           id={controlId}
+          disabled={!usesEstimate}
           data={SCENE_COMPLEXITY_OPTIONS}
           value={group.sceneComplexity}
           onChange={(value) => {

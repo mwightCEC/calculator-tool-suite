@@ -24,16 +24,6 @@
   color: var(--app-text-secondary);
 }
 
-.driveSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mantine-spacing-sm);
-}
-
-.sectionTitle {
-  font-size: var(--mantine-font-size-md);
-}
-
 .fieldsPanel {
   display: flex;
   flex-direction: column;

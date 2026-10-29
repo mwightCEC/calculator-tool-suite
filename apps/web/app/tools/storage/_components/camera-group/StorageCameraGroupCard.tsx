@@ -38,6 +38,7 @@ function describeTotals({ group, usage }: Pick<StorageGroupProps, 'group' | 'usa
 
 /**
  * The shared stream fields plus Storage's recording fields, in a grid with labels above.
+ * Only Scene complexity keeps its info icon.
  * Bitrate sits under Advanced settings, open from the start when a known bitrate is set.
  */
 function StorageGroupFields({ group, usage, actions }: StorageGroupProps) {
@@ -46,10 +47,10 @@ function StorageGroupFields({ group, usage, actions }: StorageGroupProps) {
     <FieldLayoutProvider value="stacked">
       <div className={classes.grid}>
         <div className={classes.streamRow}>
-          <CameraCountField group={group} onChange={update} />
-          <ResolutionField group={group} onChange={update} />
-          <FrameRateField group={group} onChange={update} />
-          <CodecField group={group} onChange={update} />
+          <CameraCountField group={group} onChange={update} withHelp={false} />
+          <ResolutionField group={group} onChange={update} withHelp={false} />
+          <FrameRateField group={group} onChange={update} withHelp={false} />
+          <CodecField group={group} onChange={update} withHelp={false} />
         </div>
         <div className={classes.recordingRow}>
           <RecordingModeField group={group} onChange={update} />
@@ -73,6 +74,7 @@ function StorageGroupFields({ group, usage, actions }: StorageGroupProps) {
           perCameraMbps={usage.bitratePerCameraMbps}
           onSourceChange={(source) => actions.setBitrateSource(group.id, source)}
           onMbpsChange={(mbps) => applyEnteredBitrate(group, update, mbps)}
+          withHelp={false}
         />
       </Disclosure>
     </FieldLayoutProvider>

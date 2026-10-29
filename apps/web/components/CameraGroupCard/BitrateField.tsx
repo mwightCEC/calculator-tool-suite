@@ -37,6 +37,8 @@ interface BitrateFieldProps {
   perCameraMbps: ValueRange;
   onSourceChange: (source: BitrateSource) => void;
   onMbpsChange: (mbps: number) => void;
+  /** Show the label's info icon (default). */
+  withHelp?: boolean;
 }
 
 /** Bitrate source selector plus the estimate text or an Mbps input. */
@@ -46,11 +48,12 @@ export function BitrateField({
   perCameraMbps,
   onSourceChange,
   onMbpsChange,
+  withHelp = true,
 }: BitrateFieldProps) {
   const sourceId = `${idPrefix}-bitrate-source`;
 
   return (
-    <FieldRow label="Bitrate" help={BITRATE_HELP} controlId={sourceId}>
+    <FieldRow label="Bitrate" help={withHelp ? BITRATE_HELP : undefined} controlId={sourceId}>
       <OptionButtons
         id={sourceId}
         value={bitrate.source}
@@ -104,7 +107,7 @@ export function EnteredBitrateInput({ id, label, value, onChange }: EnteredBitra
       clampBehavior="none"
       rightSection="Mbps"
       rightSectionWidth={48}
-      classNames={{ input: classes.mbpsInput, section: classes.unitSection }}
+      classNames={{ root: classes.mbpsInput, section: classes.unitSection }}
     />
   );
 }

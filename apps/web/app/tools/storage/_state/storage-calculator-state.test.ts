@@ -54,9 +54,10 @@ describe('camera groups and storage settings', () => {
 });
 
 describe('add-group', () => {
-  it('adds a numbered group with the next palette colour', () => {
+  it('adds a numbered group at the top with the next palette colour', () => {
     const state = apply({ type: 'add-group' });
-    expect(state.cameraGroups[1]).toEqual(
+    expect(ids(state)).toEqual(['g2', 'g1']);
+    expect(state.cameraGroups[0]).toEqual(
       expect.objectContaining({ id: 'g2', name: 'Camera group 2', colorIndex: 1 })
     );
   });
@@ -67,7 +68,7 @@ describe('add-group', () => {
       () => ({ type: 'add-group' }) as const
     );
     const state = apply(...actions);
-    expect(state.cameraGroups.at(-1)?.colorIndex).toBe(0);
+    expect(state.cameraGroups[0]?.colorIndex).toBe(0);
   });
 
   it('uses the next unused number after a deletion', () => {
@@ -77,7 +78,7 @@ describe('add-group', () => {
       { type: 'remove-group', id: 'g2' },
       { type: 'add-group' }
     );
-    expect(ids(state)).toEqual(['g1', 'g3', 'g4']);
+    expect(ids(state)).toEqual(['g4', 'g3', 'g1']);
   });
 
   it('stops at the group limit', () => {
@@ -91,10 +92,11 @@ describe('add-group', () => {
 
 describe('duplicate-group', () => {
   it('inserts a copy after its source with a new id and colour', () => {
-    const state = apply({ type: 'add-group' }, { type: 'duplicate-group', id: 'g1' });
-    expect(ids(state)).toEqual(['g1', 'g3', 'g2']);
+    // add-group puts g2 above g1, so the copy of g2 lands between them.
+    const state = apply({ type: 'add-group' }, { type: 'duplicate-group', id: 'g2' });
+    expect(ids(state)).toEqual(['g2', 'g3', 'g1']);
     expect(state.cameraGroups[1]).toEqual(
-      expect.objectContaining({ name: 'Camera group 1 copy', colorIndex: 2 })
+      expect.objectContaining({ name: 'Camera group 2 copy', colorIndex: 2 })
     );
   });
 
@@ -158,7 +160,7 @@ describe('remove-group and restore-group', () => {
       { type: 'restore-group', group: removed, index: 99 },
     ];
     const state = undo.reduce(reduce, two);
-    expect(ids(state)).toEqual(['g2', 'g1']);
+    expect(ids(state)).toEqual(['g1', 'g2']);
   });
 
   it('does not restore a group that is already present', () => {
@@ -195,9 +197,9 @@ describe('update-group and set-bitrate-source', () => {
       { type: 'add-group' },
       { type: 'update-group', id: 'g2', changes: { name: 'Lobby', cameraCount: 3 } }
     );
-    expect(names(state)).toEqual(['Camera group 1', 'Lobby']);
-    expect(state.cameraGroups[0]?.cameraCount).toBe(initial().cameraGroups[0]?.cameraCount);
-    expect(state.cameraGroups[1]?.cameraCount).toBe(3);
+    expect(names(state)).toEqual(['Lobby', 'Camera group 1']);
+    expect(state.cameraGroups[1]?.cameraCount).toBe(initial().cameraGroups[0]?.cameraCount);
+    expect(state.cameraGroups[0]?.cameraCount).toBe(3);
   });
 
   it('prefills an entered bitrate when leaving Estimate', () => {
@@ -279,7 +281,7 @@ describe('reducer purity', () => {
 describe('storageCalculatorStateSchema', () => {
   it('rejects duplicate group ids', () => {
     const state = apply({ type: 'add-group' });
-    state.cameraGroups[1] = { ...state.cameraGroups[1]!, id: 'g1' };
+    state.cameraGroups[0] = { ...state.cameraGroups[0]!, id: 'g1' };
     expect(storageCalculatorStateSchema.safeParse(state).success).toBe(false);
   });
 

@@ -67,8 +67,9 @@ describe('buildPrintSummary', () => {
         { type: 'update-group', id: 'g2', changes: { name: 'Parking lot' } }
       )
     );
-    expect(summary.groups.map((group) => group.name)).toEqual(['Camera group 1', 'Parking lot']);
-    expect(summary.groups[0]?.camera).toBe('4MP (1440p) · H.265 · 15 fps');
+    // New groups are added at the top.
+    expect(summary.groups.map((group) => group.name)).toEqual(['Parking lot', 'Camera group 1']);
+    expect(summary.groups[1]?.camera).toBe('4MP (1440p) · H.265 · 15 fps');
   });
 
   it('gives rows unique keys even when duplicated groups look identical', () => {

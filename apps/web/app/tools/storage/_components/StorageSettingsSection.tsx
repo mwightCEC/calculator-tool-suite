@@ -10,6 +10,7 @@ import {
   raidMinDrives,
   RESERVE_PERCENTS,
   type CalculationMode,
+  type RaidLevel,
   type StorageSettings,
 } from '@cctv/calc-core';
 import { IconCalendarEvent, IconServer2 } from '@tabler/icons-react';
@@ -22,15 +23,21 @@ import {
   RAID_SELECT_DATA,
   RESERVE_SELECT_DATA,
 } from '../_lib/storage-labels';
+import { Disclosure } from './Disclosure';
 import classes from './StorageSettingsSection.module.css';
 
 const RAID_HELP =
   'Redundancy across drives. RAID 1 and 10 mirror (half the raw capacity is usable); RAID 5 uses one drive and RAID 6 two drives of capacity for parity.';
 
-function drivesHelp(minDrives: number, driveStep: number): string {
-  const rule =
-    driveStep > 1 ? `at least ${minDrives}, in steps of ${driveStep}` : `at least ${minDrives}`;
-  return `Number of drives in the recorder. The selected RAID level needs ${rule}.`;
+/** What the RAID level needs, e.g. "Needs 4 or more drives, in pairs"; null for no RAID. */
+function driveRuleNote(level: RaidLevel): string | null {
+  if (level === 'none') {
+    return null;
+  }
+  const minDrives = raidMinDrives(level);
+  const driveStep = raidDriveStep(level);
+  const steps = driveStep === 2 ? ', in pairs' : driveStep > 2 ? `, in steps of ${driveStep}` : '';
+  return `Needs ${minDrives} or more drives${steps}`;
 }
 
 interface SettingsProps {
@@ -43,7 +50,8 @@ interface StorageSettingsSectionProps extends SettingsProps {
 }
 
 /**
- * Storage needed: a Retention goal panel, then the drives to size.
+ * Storage needed: a Retention goal panel, then the drives to size under a collapsible
+ * Drive configuration section. Collapsing it only hides the fields; they still apply.
  * Days from capacity: one Storage configuration panel with the drives entered.
  */
 export function StorageSettingsSection({ mode, storage, onChange }: StorageSettingsSectionProps) {
@@ -86,13 +94,11 @@ export function StorageSettingsSection({ mode, storage, onChange }: StorageSetti
         }
       />
 
-      <section aria-labelledby="drive-configuration-title" className={classes.driveSection}>
-        <Title order={3} id="drive-configuration-title" className={classes.sectionTitle}>
-          Drive configuration
-        </Title>
+      <Disclosure title="Drive configuration" hint="(optional)">
         <div className={classes.fieldsPanel}>
           <Text size="sm" className={classes.description}>
-            The drives are sized from this drive size, RAID level and reserve.
+            Sizes the recommended drives for this estimate from the RAID level, drive size and
+            reserve.
           </Text>
           <FieldLayoutProvider value="stacked">
             <div className={classes.grid} data-columns={3}>
@@ -102,7 +108,7 @@ export function StorageSettingsSection({ mode, storage, onChange }: StorageSetti
             </div>
           </FieldLayoutProvider>
         </div>
-      </section>
+      </Disclosure>
     </>
   );
 }
@@ -155,7 +161,7 @@ function DriveCountField({ storage, onChange }: SettingsProps) {
   const minDrives = raidMinDrives(storage.raidLevel);
   const driveStep = raidDriveStep(storage.raidLevel);
   return (
-    <FieldRow label="Drives" help={drivesHelp(minDrives, driveStep)} controlId="storage-drives">
+    <FieldRow label="Number of drives" controlId="storage-drives">
       <NumberStepper
         id="storage-drives"
         value={storage.driveCount}
@@ -173,7 +179,7 @@ function DriveSizeField({ storage, onChange }: SettingsProps) {
   return (
     <FieldRow
       label="Drive size"
-      help="Capacity per drive in decimal TB (10¹² bytes), as printed on the label. Recorders and operating systems often show binary units (TiB), which makes the same drive look about 9% smaller."
+      note="Decimal TB, as printed on drives"
       controlId="storage-drive-size"
     >
       <Select
@@ -195,7 +201,12 @@ function DriveSizeField({ storage, onChange }: SettingsProps) {
 
 function RaidField({ storage, onChange }: SettingsProps) {
   return (
-    <FieldRow label="RAID" help={RAID_HELP} controlId="storage-raid">
+    <FieldRow
+      label="RAID level"
+      help={RAID_HELP}
+      note={driveRuleNote(storage.raidLevel)}
+      controlId="storage-raid"
+    >
       <Select
         id="storage-raid"
         data={RAID_SELECT_DATA}
@@ -216,8 +227,9 @@ function RaidField({ storage, onChange }: SettingsProps) {
 function ReserveField({ storage, onChange }: SettingsProps) {
   return (
     <FieldRow
-      label="Reserve"
+      label="Recording reserve"
       help="Usable capacity kept free as headroom, for example for recorder overhead or growth."
+      note="Free space kept beyond the video storage needed"
       controlId="storage-reserve"
     >
       <Select
