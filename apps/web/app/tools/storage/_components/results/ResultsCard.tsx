@@ -12,6 +12,7 @@ import { HowCalculated } from '../HowCalculated';
 import { CapacityBar } from './CapacityBar';
 import { DrivesSummary } from './DrivesSummary';
 import { MetricTiles } from './MetricTiles';
+import { RecordingMetrics } from './RecordingMetrics';
 import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'storage-results';
@@ -72,15 +73,20 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Group>
       )}
 
-      <MetricTiles result={result} />
+      <MetricTiles result={result} reservePercent={state.storage.reservePercent} />
 
-      <Disclosure title="Capacity breakdown" defaultOpened>
+      <Disclosure title="Capacity breakdown">
         <CapacityBar
           breakdown={result.breakdown}
           groups={state.cameraGroups}
           singleGroup={state.cameraGroups.length === 1}
         />
-        <DrivesSummary result={result} />
+      </Disclosure>
+
+      <DrivesSummary result={result} />
+
+      <Disclosure title="Recording metrics">
+        <RecordingMetrics result={result} state={state} />
       </Disclosure>
 
       <Disclosure title="How estimates are calculated">
