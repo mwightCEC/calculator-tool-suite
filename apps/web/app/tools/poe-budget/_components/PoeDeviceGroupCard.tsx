@@ -3,7 +3,6 @@
 import type { CableLengthUnit, PoeGroupUsage } from '@cctv/calc-core';
 import { CameraGroupCard } from '../../../../components/CameraGroupCard/CameraGroupCard';
 import type { CountNoun } from '../../../../components/CameraGroupCard/CameraGroupHeader';
-import { CamerasCard } from '../../../../components/CameraGroupCard/CamerasCard';
 import { formatWatts } from '../../../../lib/format';
 import { summarizeGroup } from '../_lib/group-summary';
 import type { PoeGroupState } from '../_state/poe-calculator-state';
@@ -23,7 +22,7 @@ interface PoeDeviceGroupCardProps {
   actions: PoeCalculatorActions;
 }
 
-/** An Advanced-mode device group: the shared group card with the PoE fields. */
+/** A PoE device group: the shared group card with the PoE fields. */
 export function PoeDeviceGroupCard({
   group,
   usage,
@@ -54,44 +53,16 @@ export function PoeDeviceGroupCard({
       collapsedSummary={summarizeGroup(group, usage, cableLengthUnit)}
       collapsedValue={total}
       totalValue={total}
+      variant="nested"
     >
       <DeviceFields
         group={group}
         usage={usage}
         cableLengthUnit={cableLengthUnit}
-        showCableLength
         onChange={(changes) => actions.updateGroup(id, changes)}
         onPowerInputChange={(input) => actions.setPowerInput(id, input)}
         onCableLengthUnitChange={actions.setCableLengthUnit}
       />
     </CameraGroupCard>
-  );
-}
-
-interface PoeDevicesCardProps {
-  group: PoeGroupState;
-  usage: PoeGroupUsage;
-  cableLengthUnit: CableLengthUnit;
-  actions: PoeCalculatorActions;
-}
-
-/** Simple mode's single device setup; cable length stays at the 100 m assumption. */
-export function PoeDevicesCard({ group, usage, cableLengthUnit, actions }: PoeDevicesCardProps) {
-  return (
-    <CamerasCard
-      title="Devices"
-      colorIndex={group.colorIndex}
-      totalValue={formatWatts(usage.totalWatts)}
-    >
-      <DeviceFields
-        group={group}
-        usage={usage}
-        cableLengthUnit={cableLengthUnit}
-        showCableLength={false}
-        onChange={(changes) => actions.updateGroup(group.id, changes)}
-        onPowerInputChange={(input) => actions.setPowerInput(group.id, input)}
-        onCableLengthUnitChange={actions.setCableLengthUnit}
-      />
-    </CamerasCard>
   );
 }

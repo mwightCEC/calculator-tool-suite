@@ -112,12 +112,15 @@ config or routing changes.
   (`cctv-tool-suite:<tool>-calculator`), stored as the same share parameters so it gets the
   same versions and validation. A link in the URL wins over saved state; the default state
   clears it (`lib/share/saved-state.ts`).
-- Simple / Advanced input (`lib/input-mode.ts`), in PoE budget and Voltage drop: new visitors
-  start in Simple, which is one camera setup with some settings hidden at fixed values (PoE
-  budget: 20% reserve, no cable length; Voltage drop: 10% drop limit, 20% reserve, a preset
-  supply). The reducer enforces Simple's rules after every action; switching to Simple trims
-  the setup, with Undo. In PoE budget share links the mode is an optional last item (links
-  without it open in Advanced); Voltage drop v1 always stores it.
+- Simple / Advanced input (`lib/input-mode.ts`), now only in Voltage drop: new visitors
+  start in Simple, which is one camera setup with some settings hidden at fixed values (10%
+  drop limit, 20% reserve, a preset supply). The reducer enforces Simple's rules after every
+  action; switching to Simple trims the setup, with Undo. Voltage drop v1 always stores it.
+- PoE budget has no input mode either: device groups, cable lengths and the reserve are always
+  available. Its v1 links no longer write the old trailing input-mode item; older links that
+  carry it open with it ignored (`share-format-v1.ts`). It uses `CameraConfigurationCard` with
+  `noun="device"` ("Device configuration", "Add device group") below its own Switch / NVR
+  card; new groups are added at the top.
 - Storage and Bandwidth have no input mode: camera groups and every setting are always
   available. Their v2 links no longer write the old input-mode item; older links that carry
   it open with it ignored (`share-format-v2.ts`). Both use the shared camera configuration

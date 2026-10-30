@@ -8,12 +8,8 @@ import {
 } from '../_state/poe-calculator-state';
 import { buildPrintSummary } from './print-summary';
 
-function advancedAfter(...actions: PoeCalculatorAction[]): PoeCalculatorState {
-  const advanced = poeCalculatorReducer(createInitialPoeCalculatorState(), {
-    type: 'set-input-mode',
-    inputMode: 'advanced',
-  });
-  return actions.reduce(poeCalculatorReducer, advanced);
+function stateAfter(...actions: PoeCalculatorAction[]): PoeCalculatorState {
+  return actions.reduce(poeCalculatorReducer, createInitialPoeCalculatorState());
 }
 
 function summarize(state: PoeCalculatorState) {
@@ -21,10 +17,8 @@ function summarize(state: PoeCalculatorState) {
 }
 
 describe('buildPrintSummary', () => {
-  it('summarises the Simple defaults', () => {
+  it('summarises the defaults', () => {
     const summary = summarize(createInitialPoeCalculatorState());
-    expect(summary.inputModeLabel).toBe('Simple mode');
-    expect(summary.groupsHeading).toBe('Devices');
     expect(summary.usage).toEqual({ value: '24.7 W', detail: 'of 96 W usable' });
     expect(summary.statusLabel).toBe('Within budget');
     expect(summary.keyFigures).toEqual([
@@ -37,7 +31,7 @@ describe('buildPrintSummary', () => {
     expect(summary.groups).toEqual([
       {
         key: 'g1',
-        name: 'Devices',
+        name: 'Camera group 1',
         devices: '4',
         power: '6 W max',
         cable: '100 m assumed',
@@ -52,15 +46,13 @@ describe('buildPrintSummary', () => {
     expect(summary.notes).toHaveLength(3);
   });
 
-  it('uses group names, classes and cable lengths in Advanced', () => {
+  it('uses group names, classes and cable lengths', () => {
     const summary = summarize(
-      advancedAfter(
+      stateAfter(
         { type: 'set-power-input', id: 'g1', input: 'class' },
         { type: 'update-group', id: 'g1', changes: { name: 'PTZ', cableLength: 150 } }
       )
     );
-    expect(summary.inputModeLabel).toBeNull();
-    expect(summary.groupsHeading).toBe('Device groups');
     expect(summary.groups[0]).toEqual(
       expect.objectContaining({
         name: 'PTZ',
@@ -74,7 +66,7 @@ describe('buildPrintSummary', () => {
   });
 
   it('lists the problems', () => {
-    const summary = summarize(advancedAfter({ type: 'update-switch', changes: { ports: 2 } }));
+    const summary = summarize(stateAfter({ type: 'update-switch', changes: { ports: 2 } }));
     expect(summary.problems).toEqual(['4 devices but only 2 PoE ports.']);
   });
 });

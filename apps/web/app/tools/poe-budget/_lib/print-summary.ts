@@ -34,10 +34,6 @@ export interface GroupRow {
 }
 
 export interface PrintSummary {
-  /** "Simple mode" for Simple input, null for Advanced. */
-  inputModeLabel: string | null;
-  /** "Devices" in Simple mode (one setup), "Device groups" in Advanced. */
-  groupsHeading: string;
   usage: ResultFigure;
   statusLabel: string;
   keyFigures: LabelledValue[];
@@ -48,7 +44,6 @@ export interface PrintSummary {
 }
 
 function groupRows(state: PoeCalculatorState, result: PoeResult): GroupRow[] {
-  const simple = state.inputMode === 'simple';
   return state.deviceGroups.flatMap((group) => {
     const usage = result.groups.find((candidate) => candidate.groupId === group.id);
     if (!usage) {
@@ -57,8 +52,7 @@ function groupRows(state: PoeCalculatorState, result: PoeResult): GroupRow[] {
     return [
       {
         key: group.id,
-        // Simple mode's one setup has no visible group name.
-        name: simple ? 'Devices' : group.name,
+        name: group.name,
         devices: formatNumber(group.deviceCount, 0),
         power: group.power.input === 'class' ? describePower(group) : `${describePower(group)} max`,
         cable:
@@ -86,11 +80,8 @@ function notes(state: PoeCalculatorState): string[] {
 }
 
 export function buildPrintSummary(state: PoeCalculatorState, result: PoeResult): PrintSummary {
-  const simple = state.inputMode === 'simple';
   const { reservePercent } = state.powerSource;
   return {
-    inputModeLabel: simple ? 'Simple mode' : null,
-    groupsHeading: simple ? 'Devices' : 'Device groups',
     usage: describeUsage(result),
     statusLabel: BUDGET_STATUS_LABELS[result.budgetStatus],
     keyFigures: [
