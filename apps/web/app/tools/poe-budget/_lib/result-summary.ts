@@ -6,6 +6,7 @@ import {
   type PoeProblem,
   type PoeResult,
 } from '@cctv/calc-core';
+import type { MetricTile } from '../../../../components/ResultsCard/ResultsPanel';
 import type { BarSegment } from '../../../../components/SegmentBar/SegmentBar';
 import { formatNumber, formatWatts } from '../../../../lib/format';
 import type { PoeCalculatorState } from '../_state/poe-calculator-state';
@@ -55,6 +56,37 @@ export function describePorts(result: PoeResult): string {
   return result.enoughPorts
     ? `${formatNumber(result.totalDevices, 0)} of ${ports} used`
     : `${plural(result.totalDevices, 'device')} for ${ports}`;
+}
+
+/** The figures under the headline: what's left, the budget and its reserve, the ports. */
+export function buildMetricTiles(state: PoeCalculatorState, result: PoeResult): MetricTile[] {
+  const { reservePercent } = state.powerSource;
+  const over = result.remainingWatts < 0;
+  return [
+    {
+      label: over ? 'Over by' : 'Remaining',
+      value: formatWatts(Math.abs(result.remainingWatts)),
+      detail: over ? 'past the usable budget' : 'before the reserve',
+    },
+    {
+      label: 'PoE budget',
+      value: formatWatts(result.budgetWatts),
+      detail:
+        reservePercent === 0
+          ? 'no reserve'
+          : `${reservePercent}% reserve (${formatWatts(result.reserveWatts)})`,
+    },
+    {
+      label: 'Ports',
+      value: `${formatNumber(result.totalDevices, 0)} of ${formatNumber(result.ports, 0)}`,
+      detail: result.enoughPorts ? 'PoE ports used' : 'not enough PoE ports',
+    },
+  ];
+}
+
+/** "4 devices in 1 group", under the headline. */
+export function describeDevices(state: PoeCalculatorState, result: PoeResult): string {
+  return `${plural(result.totalDevices, 'device')} in ${plural(state.deviceGroups.length, 'group')}`;
 }
 
 function groupLabel(state: PoeCalculatorState, groupId: string): string {

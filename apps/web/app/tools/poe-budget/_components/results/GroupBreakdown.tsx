@@ -13,7 +13,9 @@ interface GroupBreakdownProps {
 export function GroupBreakdown({ state, result }: GroupBreakdownProps) {
   return (
     <div>
-      <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>By group</Text>
+      <Text component="h3" className={classes.sectionTitle}>
+        By group
+      </Text>
       <Stack component="ul" gap={4} className={classes.list}>
         {result.groups.map((usage) => {
           const group = state.deviceGroups.find((candidate) => candidate.id === usage.groupId);

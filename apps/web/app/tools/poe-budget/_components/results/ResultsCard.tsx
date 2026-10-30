@@ -2,21 +2,28 @@
 
 import type { BudgetStatus, PoeResult } from '@cctv/calc-core';
 import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
-import { Badge, Box, Button, Group, Stack, Text } from '@mantine/core';
+import { Badge, Button, Group, Stack, Text } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
+import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
+import {
+  HeadlineTile,
+  MetricRow,
+  ResultsPanel,
+} from '../../../../../components/ResultsCard/ResultsPanel';
 import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
 import { formatWatts } from '../../../../../lib/format';
 import {
   BUDGET_STATUS_LABELS,
   budgetSegments,
+  buildMetricTiles,
   describeBudget,
-  describePorts,
+  describeDevices,
   describeProblem,
-  describeRemaining,
   describeUsage,
 } from '../../_lib/result-summary';
 import type { PoeCalculatorState } from '../../_state/poe-calculator-state';
 import { buildShareUrl } from '../../_state/share-link';
+import { HowCalculated } from '../HowCalculated';
 import { GroupBreakdown } from './GroupBreakdown';
 import classes from './ResultsCard.module.css';
 
@@ -39,45 +46,27 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
   const usesWatts = state.deviceGroups.some((group) => group.power.input === 'watts');
 
   return (
-    <Box
-      component="section"
+    <ResultsPanel
       id={RESULTS_CARD_ID}
-      tabIndex={-1}
-      aria-label="Results"
-      className={classes.card}
+      title="PoE budget"
+      badge={
+        <Badge
+          variant="light"
+          color={STATUS_BADGE_COLORS[result.budgetStatus]}
+          radius="sm"
+          className={classes.statusBadge}
+          data-status={result.budgetStatus}
+        >
+          {BUDGET_STATUS_LABELS[result.budgetStatus]}
+        </Badge>
+      }
     >
-      <div>
-        <Group justify="space-between" align="center" wrap="nowrap" className={classes.labelRow}>
-          <Text className={classes.sectionLabel}>PoE budget used</Text>
-          <Badge
-            variant="light"
-            color={STATUS_BADGE_COLORS[result.budgetStatus]}
-            radius="sm"
-            className={classes.statusBadge}
-            data-status={result.budgetStatus}
-          >
-            {BUDGET_STATUS_LABELS[result.budgetStatus]}
-          </Badge>
-        </Group>
-
-        {/* Polite live region so screen readers hear the headline update as inputs change. */}
-        <div aria-live="polite" aria-atomic="true">
-          <Text className={classes.headlineValue}>{usage.value}</Text>
-          <Text className={classes.secondaryText}>
-            {usage.detail} · {describeRemaining(result)}
-          </Text>
-        </div>
-        <Text className={classes.note}>{describeBudget(state, result)}.</Text>
-      </div>
-
-      <SegmentBar segments={budgetSegments(state, result)} formatValue={formatWatts} />
-
-      <div>
-        <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>Ports</Text>
-        <Text className={classes.figureValue}>{describePorts(result)}</Text>
-      </div>
-
-      <GroupBreakdown state={state} result={result} />
+      <HeadlineTile
+        value={usage.value}
+        label="PoE budget used"
+        range={usage.detail}
+        footnote={`${describeDevices(state, result)} · ${describeBudget(state, result)}`}
+      />
 
       {result.problems.length > 0 && (
         <Stack component="ul" gap="xs" className={classes.list} role="status">
@@ -103,6 +92,19 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Stack>
       )}
 
+      <MetricRow tiles={buildMetricTiles(state, result)} />
+
+      <Disclosure title="Power breakdown">
+        <Stack gap="md">
+          <SegmentBar detailed segments={budgetSegments(state, result)} formatValue={formatWatts} />
+          <GroupBreakdown state={state} result={result} />
+        </Stack>
+      </Disclosure>
+
+      <Disclosure title="How this is calculated">
+        <HowCalculated />
+      </Disclosure>
+
       {usesWatts && (
         <Text className={classes.note}>
           Watts include an estimated cable loss. A switch that reserves power by PoE class may set
@@ -117,6 +119,6 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
           Export
         </Button>
       </Group>
-    </Box>
+    </ResultsPanel>
   );
 }
