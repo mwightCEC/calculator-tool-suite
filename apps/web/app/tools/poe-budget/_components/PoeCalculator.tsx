@@ -7,11 +7,10 @@ import { MobileResultBar } from '../../../../components/MobileResultBar/MobileRe
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
 import { describeUsage } from '../_lib/result-summary';
 import { usePoeCalculator } from '../_state/use-poe-calculator';
-import { HowCalculated } from './HowCalculated';
 import { PoeDeviceGroupCard } from './PoeDeviceGroupCard';
 import { PrintSummary } from './PrintSummary';
 import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
-import { SwitchCard } from './SwitchCard';
+import { SwitchSection } from './SwitchSection';
 import classes from './PoeCalculator.module.css';
 
 /** Two columns on large screens: inputs on the left, sticky results on the right. */
@@ -27,8 +26,6 @@ export function PoeCalculator() {
     <>
       <div className={classes.layout}>
         <Stack gap="md" className={classes.inputs}>
-          <SwitchCard powerSource={state.powerSource} onChange={actions.updateSwitch} />
-
           <CameraConfigurationCard
             noun="device"
             groupCount={groupCount}
@@ -55,9 +52,9 @@ export function PoeCalculator() {
                 )
               );
             })}
-          </CameraConfigurationCard>
 
-          <HowCalculated />
+            <SwitchSection powerSource={state.powerSource} onChange={actions.updateSwitch} />
+          </CameraConfigurationCard>
         </Stack>
 
         <div className={classes.results}>

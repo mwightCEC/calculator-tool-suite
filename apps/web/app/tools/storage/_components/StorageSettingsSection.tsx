@@ -1,6 +1,5 @@
 'use client';
 
-import type { ReactNode } from 'react';
 import {
   DRIVE_SIZES_TB,
   MAX_DRIVE_COUNT,
@@ -14,10 +13,11 @@ import {
   type StorageSettings,
 } from '@cctv/calc-core';
 import { IconCalendarEvent, IconServer2 } from '@tabler/icons-react';
-import { Group, Select, Text, ThemeIcon, Title } from '@mantine/core';
+import { Group, Select, Text } from '@mantine/core';
 import { Disclosure } from '../../../../components/Disclosure/Disclosure';
 import { FieldLayoutProvider, FieldRow } from '../../../../components/FieldRow/FieldRow';
 import { NumberStepper } from '../../../../components/NumberStepper/NumberStepper';
+import { SettingsPanel } from '../../../../components/SettingsPanel/SettingsPanel';
 import { parseOption } from '../../../../lib/camera-labels';
 import {
   DRIVE_SIZE_SELECT_DATA,
@@ -110,50 +110,6 @@ export function StorageSettingsSection({ mode, storage, onChange }: StorageSetti
         </div>
       </Disclosure>
     </>
-  );
-}
-
-interface SettingsPanelProps {
-  icon: ReactNode;
-  title: string;
-  /** Id of the control the title labels, when the panel holds a single control. */
-  titleFor?: string;
-  description: string;
-  /** A single control beside the title, e.g. the retention stepper. */
-  control?: ReactNode;
-  /** Fields below the title. */
-  children?: ReactNode;
-}
-
-/** Tinted panel with an icon, title and description, as in the approved prototype. */
-function SettingsPanel({
-  icon,
-  title,
-  titleFor,
-  description,
-  control,
-  children,
-}: SettingsPanelProps) {
-  return (
-    <section className={classes.panel} aria-label={title}>
-      <Group justify="space-between" align="center" gap="md" className={classes.panelHeader}>
-        <Group gap="md" wrap="nowrap" align="center" className={classes.panelHeading}>
-          <ThemeIcon variant="light" size={40} radius="md">
-            {icon}
-          </ThemeIcon>
-          <div>
-            <Title order={3} className={classes.panelTitle}>
-              {titleFor ? <label htmlFor={titleFor}>{title}</label> : title}
-            </Title>
-            <Text size="sm" className={classes.description}>
-              {description}
-            </Text>
-          </div>
-        </Group>
-        {control}
-      </Group>
-      {children && <FieldLayoutProvider value="stacked">{children}</FieldLayoutProvider>}
-    </section>
   );
 }
 

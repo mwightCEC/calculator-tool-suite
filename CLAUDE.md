@@ -31,9 +31,12 @@ Bandwidth, PoE budget and Voltage drop calculators are built; Lens / FOV is list
   schema, share-link format).
 - Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`,
   `CameraGroupCard`, `Disclosure`, `ResultsCard` (results card shell, headline tile, metric row),
-  `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export, `UnitInput`, `SegmentBar`).
-  Storage and Bandwidth use the approved-prototype results card; PoE budget and Voltage drop
-  move to it when their camera configuration is rolled out.
+  `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export, `UnitInput`, `SegmentBar`,
+  `SettingsPanel` (tinted icon panel for settings below the groups)).
+  Storage, Bandwidth and PoE budget use the approved-prototype layout: the camera / device
+  configuration card first, with the tool's settings inside it below the groups (PoE budget's
+  Switch / NVR is a `SettingsPanel`), and a 7:5 inputs / results split. Voltage drop moves to it
+  next, with its power supply in the device configuration card the same way.
 - Shared logic: `apps/web/lib/` (`camera-groups/` group list and colours, `share/` link codec
   and URL sync hook, `saved-state.ts`, `format.ts`, camera and bitrate labels).
 - Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts`.

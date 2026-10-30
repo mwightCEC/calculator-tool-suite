@@ -8,6 +8,8 @@ import {
 } from '../_state/poe-calculator-state';
 import {
   budgetSegments,
+  buildMetricTiles,
+  describeDevices,
   describeBudget,
   describePorts,
   describeProblem,
@@ -48,6 +50,38 @@ describe('headline text', () => {
     const result = calculatePoe(state);
     expect(describeBudget(state, result)).toBe('120 W budget, no reserve');
     expect(describePorts(result)).toBe('4 devices for 1 PoE port');
+  });
+});
+
+describe('buildMetricTiles', () => {
+  it('shows what is left, the budget with its reserve, and the ports', () => {
+    const state = createInitialPoeCalculatorState();
+    expect(buildMetricTiles(state, calculatePoe(state))).toEqual([
+      { label: 'Remaining', value: '71.3 W', detail: 'before the reserve' },
+      { label: 'PoE budget', value: '120 W', detail: '20% reserve (24 W)' },
+      { label: 'Ports', value: '4 of 8', detail: 'PoE ports used' },
+    ]);
+  });
+
+  it('shows how far over, no reserve and too few ports', () => {
+    const state = stateAfter(...CLASS_4, {
+      type: 'update-switch',
+      changes: { reservePercent: 0, ports: 2, budgetWatts: 100 },
+    });
+    expect(buildMetricTiles(state, calculatePoe(state))).toEqual([
+      { label: 'Over by', value: '20 W', detail: 'past the usable budget' },
+      { label: 'PoE budget', value: '100 W', detail: 'no reserve' },
+      { label: 'Ports', value: '4 of 2', detail: 'not enough PoE ports' },
+    ]);
+  });
+});
+
+describe('describeDevices', () => {
+  it('counts devices and groups', () => {
+    const one = createInitialPoeCalculatorState();
+    expect(describeDevices(one, calculatePoe(one))).toBe('4 devices in 1 group');
+    const two = stateAfter({ type: 'add-group' });
+    expect(describeDevices(two, calculatePoe(two))).toBe('8 devices in 2 groups');
   });
 });
 
