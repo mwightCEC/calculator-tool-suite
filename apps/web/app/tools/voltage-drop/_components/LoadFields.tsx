@@ -16,7 +16,11 @@ import {
   type WireSystem,
 } from '@cctv/calc-core';
 import { Group, SegmentedControl, Select } from '@mantine/core';
-import { FieldRow, fieldLabelId } from '../../../../components/FieldRow/FieldRow';
+import {
+  FieldLayoutProvider,
+  FieldRow,
+  fieldLabelId,
+} from '../../../../components/FieldRow/FieldRow';
 import { NumberStepper } from '../../../../components/NumberStepper/NumberStepper';
 import { OptionButtons } from '../../../../components/OptionButtons/OptionButtons';
 import { UnitInput } from '../../../../components/UnitInput/UnitInput';
@@ -52,7 +56,10 @@ interface LoadFieldsProps {
   onCableLengthUnitChange: (unit: CableLengthUnit) => void;
 }
 
-/** A device group's fields: count, load per device, wire size and run length. */
+/**
+ * A device group's fields in a grid with labels above: count, load per device,
+ * wire size and run length. Info icons only where they explain something.
+ */
 export function LoadFields({
   group,
   usage,
@@ -67,128 +74,120 @@ export function LoadFields({
   const { load } = group;
 
   return (
-    <>
-      <FieldRow
-        label="Devices"
-        help="Number of cameras or other devices in this group, each on its own run from the supply. All devices in a group share the settings below."
-        controlId={`${id}-devices`}
-      >
-        <NumberStepper
-          id={`${id}-devices`}
-          value={group.deviceCount}
-          onChange={(deviceCount) => onChange({ deviceCount })}
-          min={1}
-          max={MAX_CAMERAS_PER_GROUP}
-          unitLabel="device"
-        />
-      </FieldRow>
+    <FieldLayoutProvider value="stacked">
+      <div className={classes.fields}>
+        <div className={classes.fieldGrid}>
+          <FieldRow label="Devices" controlId={`${id}-devices`}>
+            <NumberStepper
+              id={`${id}-devices`}
+              value={group.deviceCount}
+              onChange={(deviceCount) => onChange({ deviceCount })}
+              min={1}
+              max={MAX_CAMERAS_PER_GROUP}
+              unitLabel="device"
+            />
+          </FieldRow>
 
-      <FieldRow label="Load given as" help={LOAD_HELP} controlId={`${id}-load-input`}>
-        <OptionButtons
-          id={`${id}-load-input`}
-          value={load.input}
-          onChange={onLoadInputChange}
-          options={LOAD_INPUT_OPTIONS}
-          aria-labelledby={fieldLabelId(`${id}-load-input`)}
-        />
-      </FieldRow>
+          <FieldRow label="Load given as" help={LOAD_HELP} controlId={`${id}-load-input`}>
+            <OptionButtons
+              id={`${id}-load-input`}
+              value={load.input}
+              onChange={onLoadInputChange}
+              options={LOAD_INPUT_OPTIONS}
+              aria-labelledby={fieldLabelId(`${id}-load-input`)}
+            />
+          </FieldRow>
 
-      {load.input === 'amps' ? (
-        <FieldRow
-          label="Current draw"
-          help="Maximum current per device from the datasheet, with IR and any heater on."
-          controlId={`${id}-amps`}
-        >
-          <UnitInput
-            id={`${id}-amps`}
-            value={load.amps}
-            onChange={(amps) => onChange({ load: { input: 'amps', amps } })}
-            min={MIN_LOAD_AMPS}
-            max={MAX_LOAD_AMPS}
-            decimals={2}
-            unit="A"
-          />
-        </FieldRow>
-      ) : (
-        <FieldRow
-          label="Max power draw"
-          help="Maximum power consumption per device from the datasheet, with IR and any heater on."
-          controlId={`${id}-watts`}
-        >
-          <UnitInput
-            id={`${id}-watts`}
-            value={load.watts}
-            onChange={(watts) => onChange({ load: { input: 'watts', watts } })}
-            min={MIN_LOAD_WATTS}
-            max={MAX_LOAD_WATTS}
-            decimals={2}
-            unit="W"
-          />
-        </FieldRow>
-      )}
+          {load.input === 'amps' ? (
+            <FieldRow label="Current draw" controlId={`${id}-amps`}>
+              <UnitInput
+                id={`${id}-amps`}
+                value={load.amps}
+                onChange={(amps) => onChange({ load: { input: 'amps', amps } })}
+                min={MIN_LOAD_AMPS}
+                max={MAX_LOAD_AMPS}
+                decimals={2}
+                unit="A"
+              />
+            </FieldRow>
+          ) : (
+            <FieldRow label="Max power draw" controlId={`${id}-watts`}>
+              <UnitInput
+                id={`${id}-watts`}
+                value={load.watts}
+                onChange={(watts) => onChange({ load: { input: 'watts', watts } })}
+                min={MIN_LOAD_WATTS}
+                max={MAX_LOAD_WATTS}
+                decimals={2}
+                unit="W"
+              />
+            </FieldRow>
+          )}
 
-      <FieldRow label="Wire size" help={GAUGE_HELP} controlId={`${id}-gauge`}>
-        <Group gap="xs" wrap="nowrap">
-          <Select
-            id={`${id}-gauge`}
-            data={gaugeSelectData(wireSystem)}
-            value={group.gauge}
-            onChange={(value) => {
-              const gauge = parseOption(WIRE_GAUGES, value);
-              if (gauge) {
-                onChange({ gauge });
-              }
-            }}
-            allowDeselect={false}
-            className={classes.gaugeSelect}
-          />
-          <SegmentedControl
-            size="xs"
-            color="brand"
-            value={wireSystem}
-            onChange={(value) => {
-              const system = parseOption(WIRE_SYSTEMS, value);
-              if (system) {
-                onWireSystemChange(system);
-              }
-            }}
-            data={WIRE_SYSTEM_OPTIONS}
-            aria-label="Wire size system"
-          />
-        </Group>
-      </FieldRow>
+          <FieldRow label="Wire size" help={GAUGE_HELP} controlId={`${id}-gauge`}>
+            <Group gap="xs" wrap="nowrap">
+              <Select
+                id={`${id}-gauge`}
+                data={gaugeSelectData(wireSystem)}
+                value={group.gauge}
+                onChange={(value) => {
+                  const gauge = parseOption(WIRE_GAUGES, value);
+                  if (gauge) {
+                    onChange({ gauge });
+                  }
+                }}
+                allowDeselect={false}
+                className={classes.gaugeSelect}
+              />
+              <SegmentedControl
+                size="xs"
+                color="brand"
+                value={wireSystem}
+                onChange={(value) => {
+                  const system = parseOption(WIRE_SYSTEMS, value);
+                  if (system) {
+                    onWireSystemChange(system);
+                  }
+                }}
+                data={WIRE_SYSTEM_OPTIONS}
+                aria-label="Wire size system"
+              />
+            </Group>
+          </FieldRow>
 
-      <FieldRow
-        label="Run length"
-        help={LENGTH_HELP}
-        controlId={`${id}-length`}
-        note={describeRun(usage)}
-      >
-        <Group gap="xs" wrap="nowrap">
-          <UnitInput
-            id={`${id}-length`}
-            value={group.cableLength}
-            onChange={(cableLength) => onChange({ cableLength })}
-            min={0.1}
-            max={MAX_RUN_LENGTH}
-            decimals={1}
-            unit={cableLengthUnit}
-          />
-          <SegmentedControl
-            size="xs"
-            color="brand"
-            value={cableLengthUnit}
-            onChange={(value) => {
-              const unit = parseOption(CABLE_LENGTH_UNITS, value);
-              if (unit) {
-                onCableLengthUnitChange(unit);
-              }
-            }}
-            data={CABLE_LENGTH_UNIT_OPTIONS}
-            aria-label="Run length unit"
-          />
-        </Group>
-      </FieldRow>
-    </>
+          <FieldRow
+            label="Run length"
+            help={LENGTH_HELP}
+            controlId={`${id}-length`}
+            note={describeRun(usage)}
+          >
+            <Group gap="xs" wrap="nowrap">
+              <UnitInput
+                id={`${id}-length`}
+                value={group.cableLength}
+                onChange={(cableLength) => onChange({ cableLength })}
+                min={0.1}
+                max={MAX_RUN_LENGTH}
+                decimals={1}
+                unit={cableLengthUnit}
+              />
+              <SegmentedControl
+                size="xs"
+                color="brand"
+                value={cableLengthUnit}
+                onChange={(value) => {
+                  const unit = parseOption(CABLE_LENGTH_UNITS, value);
+                  if (unit) {
+                    onCableLengthUnitChange(unit);
+                  }
+                }}
+                data={CABLE_LENGTH_UNIT_OPTIONS}
+                aria-label="Run length unit"
+              />
+            </Group>
+          </FieldRow>
+        </div>
+      </div>
+    </FieldLayoutProvider>
   );
 }

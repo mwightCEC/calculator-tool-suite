@@ -33,10 +33,10 @@ Bandwidth, PoE budget and Voltage drop calculators are built; Lens / FOV is list
   `CameraGroupCard`, `Disclosure`, `ResultsCard` (results card shell, headline tile, metric row),
   `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export, `UnitInput`, `SegmentBar`,
   `SettingsPanel` (tinted icon panel for settings below the groups)).
-  Storage, Bandwidth and PoE budget use the approved-prototype layout: the camera / device
-  configuration card first, with the tool's settings inside it below the groups (PoE budget's
-  Switch / NVR is a `SettingsPanel`), and a 7:5 inputs / results split. Voltage drop moves to it
-  next, with its power supply in the device configuration card the same way.
+  Every calculator uses the approved-prototype layout: the camera / device configuration card
+  first, with the tool's settings inside it below the groups (PoE budget's Switch / NVR and
+  Voltage drop's Power supply are `SettingsPanel`s), and a 7:5 inputs / results split. Storage,
+  Bandwidth and PoE budget use the shared results card; Voltage drop moves to it next.
 - Shared logic: `apps/web/lib/` (`camera-groups/` group list and colours, `share/` link codec
   and URL sync hook, `saved-state.ts`, `format.ts`, camera and bitrate labels).
 - Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts`.
@@ -100,7 +100,7 @@ config or routing changes.
   without a length). Budget status: OK within budget less the reserve, then into reserve,
   then over budget; also port count, port standard and the 100 m run limit (calc-core `src/poe/`).
 - Voltage drop checks home runs (one cable per device) from one low-voltage supply (12 / 24 V DC,
-  24 V AC treated as resistive, or a custom voltage in Advanced), copper only. Loads by amps are
+  24 V AC treated as resistive, or a custom voltage), copper only. Loads by amps are
   constant current; by watts, constant power (current rises as the voltage falls). Each run
   gets its drop, the smallest passing wire and the longest passing run; the supply load uses
   the same OK / into-reserve / over statuses as PoE budget (calc-core `src/voltage-drop/`).
@@ -115,15 +115,13 @@ config or routing changes.
   (`cctv-tool-suite:<tool>-calculator`), stored as the same share parameters so it gets the
   same versions and validation. A link in the URL wins over saved state; the default state
   clears it (`lib/share/saved-state.ts`).
-- Simple / Advanced input (`lib/input-mode.ts`), now only in Voltage drop: new visitors
-  start in Simple, which is one camera setup with some settings hidden at fixed values (10%
-  drop limit, 20% reserve, a preset supply). The reducer enforces Simple's rules after every
-  action; switching to Simple trims the setup, with Undo. Voltage drop v1 always stores it.
-- PoE budget has no input mode either: device groups, cable lengths and the reserve are always
-  available. Its v1 links no longer write the old trailing input-mode item; older links that
-  carry it open with it ignored (`share-format-v1.ts`). It uses `CameraConfigurationCard` with
-  `noun="device"` ("Device configuration", "Add device group") below its own Switch / NVR
-  card; new groups are added at the top.
+- No calculator has a Simple / Advanced input mode any more; every group and setting is always
+  available. Old links that carry the mode open with it ignored.
+- PoE budget and Voltage drop use `CameraConfigurationCard` with `noun="device"` ("Device
+  configuration", "Add device group"); new groups are added at the top. PoE budget's v1 links
+  no longer write the old trailing input-mode item. Voltage drop's v1 links start with it, so
+  that slot stays: new links write 0 (the old Advanced) and reading ignores it
+  (`share-format-v1.ts`).
 - Storage and Bandwidth have no input mode: camera groups and every setting are always
   available. Their v2 links no longer write the old input-mode item; older links that carry
   it open with it ignored (`share-format-v2.ts`). Both use the shared camera configuration

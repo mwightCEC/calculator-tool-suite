@@ -8,12 +8,8 @@ import {
 } from '../_state/voltage-drop-calculator-state';
 import { buildPrintSummary } from './print-summary';
 
-function advancedAfter(...actions: VoltageDropCalculatorAction[]): VoltageDropCalculatorState {
-  const advanced = voltageDropCalculatorReducer(createInitialVoltageDropCalculatorState(), {
-    type: 'set-input-mode',
-    inputMode: 'advanced',
-  });
-  return actions.reduce(voltageDropCalculatorReducer, advanced);
+function stateAfter(...actions: VoltageDropCalculatorAction[]): VoltageDropCalculatorState {
+  return actions.reduce(voltageDropCalculatorReducer, createInitialVoltageDropCalculatorState());
 }
 
 function summarize(state: VoltageDropCalculatorState) {
@@ -21,10 +17,8 @@ function summarize(state: VoltageDropCalculatorState) {
 }
 
 describe('buildPrintSummary', () => {
-  it('summarises the Simple defaults', () => {
+  it('summarises the defaults', () => {
     const summary = summarize(createInitialVoltageDropCalculatorState());
-    expect(summary.inputModeLabel).toBe('Simple mode');
-    expect(summary.groupsHeading).toBe('Devices');
     expect(summary.drop.value).toMatch(/%$/);
     expect(summary.statusLabel).toBe('Within limit');
     expect(summary.keyFigures).toEqual([
@@ -37,7 +31,7 @@ describe('buildPrintSummary', () => {
     expect(summary.runs).toEqual([
       expect.objectContaining({
         key: 'g1',
-        name: 'Devices',
+        name: 'Camera group 1',
         devices: '4',
         load: '0.5 A',
         wire: '18 AWG',
@@ -53,23 +47,21 @@ describe('buildPrintSummary', () => {
     expect(summary.notes).toHaveLength(3);
   });
 
-  it('uses group names and adds the AC and watts notes in Advanced', () => {
+  it('uses group names and adds the AC and watts notes', () => {
     const summary = summarize(
-      advancedAfter(
+      stateAfter(
         { type: 'update-supply', changes: { kind: 'ac', volts: 24 } },
         { type: 'set-load-input', id: 'g1', input: 'watts' },
         { type: 'update-group', id: 'g1', changes: { name: 'PTZ' } }
       )
     );
-    expect(summary.inputModeLabel).toBeNull();
-    expect(summary.groupsHeading).toBe('Device groups');
     expect(summary.runs[0]).toEqual(expect.objectContaining({ name: 'PTZ', load: '6 W' }));
     expect(summary.notes).toHaveLength(5);
   });
 
   it('lists the problems and runs no listed wire can fix', () => {
     const summary = summarize(
-      advancedAfter({
+      stateAfter({
         type: 'update-group',
         id: 'g1',
         changes: { load: { input: 'amps', amps: 0.2 }, cableLength: 4000 },

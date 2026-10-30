@@ -6,13 +6,12 @@ import {
   WIRE_SYSTEMS,
 } from '@cctv/calc-core';
 import { describe, expect, it } from 'vitest';
-import { INPUT_MODES } from '../../../../lib/input-mode';
 import { SHARE_STATE_PARAM, SHARE_VERSION_PARAM } from '../../../../lib/share/share-codec';
 import {
   stateToV1Payload,
   V1_CABLE_LENGTH_UNITS,
-  V1_INPUT_MODES,
   V1_LOAD_INPUTS,
+  V1_RETIRED_INPUT_MODE,
   V1_SUPPLY_KINDS,
   V1_WIRE_GAUGES,
   V1_WIRE_SYSTEMS,
@@ -27,11 +26,11 @@ import {
 
 const PAGE = 'https://example.test/tools/voltage-drop';
 
-/** A non-default Advanced state touching every field, with a non-ASCII group name. */
+/** A non-default state touching every field, with a non-ASCII group name. */
 function sampleState(): VoltageDropCalculatorState {
   const actions: VoltageDropCalculatorAction[] = [
-    { type: 'set-input-mode', inputMode: 'advanced' },
-    { type: 'add-group' },
+    // A copy goes just after its source, so g2 stays second as a link re-creates it.
+    { type: 'duplicate-group', id: 'g1' },
     {
       type: 'update-supply',
       changes: { kind: 'ac', volts: 28, ratedAmps: 7.5, reservePercent: 10 },
@@ -72,11 +71,10 @@ describe('encoding (v1)', () => {
 
   it('round-trips the state exactly', () => {
     const state = sampleState();
-    expect(state.inputMode).toBe('advanced');
     expect(roundTrip(state)).toEqual({ status: 'loaded', state });
   });
 
-  it('round-trips the default Simple state', () => {
+  it('round-trips the default state', () => {
     const state = createInitialVoltageDropCalculatorState();
     expect(roundTrip(state)).toEqual({ status: 'loaded', state });
   });
@@ -86,11 +84,29 @@ describe('encoding (v1)', () => {
   });
 });
 
+describe('retired input mode', () => {
+  // v1 links start with the old Simple / Advanced input mode (0 Advanced, 1 Simple).
+  it('writes Advanced in new links', () => {
+    expect(stateToV1Payload(sampleState())[0]).toBe(V1_RETIRED_INPUT_MODE);
+  });
+
+  it.each([
+    ['Advanced', 0],
+    ['Simple', 1],
+  ])('ignores it in older %s links, keeping every group and setting', (_label, inputMode) => {
+    const payload = stateToV1Payload(sampleState());
+    payload[0] = inputMode;
+    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, payload))).toEqual({
+      status: 'loaded',
+      state: sampleState(),
+    });
+  });
+});
+
 describe('v1 index tables', () => {
   // The tables are part of the link format. If calc-core's options change, these
   // tests fail: append new options to the tables, or create a new format version.
   it.each([
-    ['input modes', V1_INPUT_MODES, INPUT_MODES],
     ['supply kinds', V1_SUPPLY_KINDS, SUPPLY_KINDS],
     ['wire systems', V1_WIRE_SYSTEMS, WIRE_SYSTEMS],
     ['cable length units', V1_CABLE_LENGTH_UNITS, CABLE_LENGTH_UNITS],
@@ -102,14 +118,12 @@ describe('v1 index tables', () => {
 
   it('keep their published order (append only; reordering breaks existing links)', () => {
     expect({
-      inputModes: V1_INPUT_MODES,
       kinds: V1_SUPPLY_KINDS,
       systems: V1_WIRE_SYSTEMS,
       units: V1_CABLE_LENGTH_UNITS,
       loads: V1_LOAD_INPUTS,
       gauges: V1_WIRE_GAUGES,
     }).toEqual({
-      inputModes: ['advanced', 'simple'],
       kinds: ['dc', 'ac'],
       systems: ['awg', 'mm2'],
       units: ['ft', 'm'],
@@ -159,12 +173,6 @@ describe('decodeShareParams', () => {
   it.each([
     ['an unknown version', () => linkParams('99', stateToV1Payload(sampleState()))],
     ['a state object instead of an array', () => linkParams(SHARE_FORMAT_VERSION, sampleState())],
-    [
-      'a Simple link that breaks Simple mode’s rules',
-      tampered((payload) => {
-        payload[0] = V1_INPUT_MODES.indexOf('simple');
-      }),
-    ],
     [
       'an out-of-range supply kind',
       tampered((payload) => {

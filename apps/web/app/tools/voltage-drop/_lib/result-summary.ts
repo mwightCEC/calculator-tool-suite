@@ -50,24 +50,17 @@ export interface ResultFigure {
   detail: string;
 }
 
-/** Simple mode's one setup has no visible group name. */
 function groupLabel(state: VoltageDropCalculatorState, groupId: string): string {
-  if (state.inputMode === 'simple') {
-    return 'Devices';
-  }
   return state.deviceGroups.find((group) => group.id === groupId)?.name ?? groupId;
 }
 
-/** The headline: "5.3%", "0.64 V drop · 11.36 V at the device", naming the group in Advanced. */
+/** The headline: "5.3%", "0.64 V drop · 11.36 V at the device", naming the group when there are several. */
 export function describeWorstDrop(
   state: VoltageDropCalculatorState,
   result: VoltageDropResult
 ): ResultFigure {
   const run = worstRun(result);
-  const prefix =
-    state.inputMode === 'advanced' && result.groups.length > 1
-      ? `${groupLabel(state, run.groupId)}: `
-      : '';
+  const prefix = result.groups.length > 1 ? `${groupLabel(state, run.groupId)}: ` : '';
   if (run.dropFraction === null || run.dropVolts === null || run.deviceVolts === null) {
     return { value: "Can't power", detail: `${prefix}the run can't deliver the device's power` };
   }

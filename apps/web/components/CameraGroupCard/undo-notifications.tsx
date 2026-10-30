@@ -33,8 +33,3 @@ export function notifyGroupRemoved(group: { id: string; name: string }, onUndo: 
 export function notifyGroupsCleared(onUndo: () => void) {
   notifyWithUndo('groups-cleared', 'Cleared the camera groups', onUndo);
 }
-
-/** Switching to Simple trims the setup to fit; Undo puts the Advanced setup back. */
-export function notifySwitchedToSimple(changes: string[], onUndo: () => void) {
-  notifyWithUndo('switched-to-simple', `Switched to Simple: ${changes.join(', ')}`, onUndo);
-}

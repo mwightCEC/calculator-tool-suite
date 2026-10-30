@@ -41,10 +41,6 @@ export interface RunRow {
 }
 
 export interface PrintSummary {
-  /** "Simple mode" for Simple input, null for Advanced. */
-  inputModeLabel: string | null;
-  /** "Devices" in Simple mode (one setup), "Device groups" in Advanced. */
-  groupsHeading: string;
   drop: ResultFigure;
   statusLabel: string;
   keyFigures: LabelledValue[];
@@ -55,7 +51,6 @@ export interface PrintSummary {
 }
 
 function runRows(state: VoltageDropCalculatorState, result: VoltageDropResult): RunRow[] {
-  const simple = state.inputMode === 'simple';
   return state.deviceGroups.flatMap((group) => {
     const usage = result.groups.find((candidate) => candidate.groupId === group.id);
     if (!usage) {
@@ -64,8 +59,7 @@ function runRows(state: VoltageDropCalculatorState, result: VoltageDropResult): 
     return [
       {
         key: group.id,
-        // Simple mode's one setup has no visible group name.
-        name: simple ? 'Devices' : group.name,
+        name: group.name,
         devices: formatNumber(group.deviceCount, 0),
         load: describeLoad(group),
         wire: describeGauge(group.gauge),
@@ -100,12 +94,9 @@ export function buildPrintSummary(
   state: VoltageDropCalculatorState,
   result: VoltageDropResult
 ): PrintSummary {
-  const simple = state.inputMode === 'simple';
   const supply = describeSupplyLoad(result);
   const { reservePercent } = state.powerSupply;
   return {
-    inputModeLabel: simple ? 'Simple mode' : null,
-    groupsHeading: simple ? 'Devices' : 'Device groups',
     drop: describeWorstDrop(state, result),
     statusLabel: RUN_STATUS_LABELS[worstRun(result).status],
     keyFigures: [

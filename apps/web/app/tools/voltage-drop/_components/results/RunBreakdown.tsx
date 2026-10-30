@@ -11,13 +11,9 @@ interface RunBreakdownProps {
 
 /** Drop and device voltage per group, with the smallest wire and longest run that pass. */
 export function RunBreakdown({ state, result }: RunBreakdownProps) {
-  const simple = state.inputMode === 'simple';
-
   return (
     <div>
-      <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>
-        {simple ? 'Per run' : 'By group'}
-      </Text>
+      <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>By group</Text>
       <Stack component="ul" gap="xs" className={classes.list}>
         {result.groups.map((usage) => {
           const group = state.deviceGroups.find((candidate) => candidate.id === usage.groupId);
@@ -25,9 +21,7 @@ export function RunBreakdown({ state, result }: RunBreakdownProps) {
             group && (
               <li key={group.id}>
                 <Group justify="space-between" wrap="nowrap" gap="sm" className={classes.groupRow}>
-                  <span className={classes.groupName}>
-                    {simple ? 'Drop · at device' : group.name}
-                  </span>
+                  <span className={classes.groupName}>{group.name}</span>
                   <span className={classes.groupValue} data-status={usage.status}>
                     {describeRunDrop(usage)}
                   </span>

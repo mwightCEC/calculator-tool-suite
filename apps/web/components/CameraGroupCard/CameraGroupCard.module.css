@@ -8,12 +8,6 @@
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
 }
 
-/* Simple mode's Cameras card title, matching the other input cards' titles. */
-.camerasTitle {
-  font-size: var(--mantine-font-size-md);
-  padding: var(--mantine-spacing-md) var(--mantine-spacing-md) 0;
-}
-
 .headerActions {
   margin-inline-start: auto;
 }
