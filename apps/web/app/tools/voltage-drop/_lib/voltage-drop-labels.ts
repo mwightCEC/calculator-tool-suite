@@ -50,17 +50,17 @@ export function describeGauge(gauge: WireGauge): string {
   return system === 'awg' ? `${size} AWG` : `${size} mm²`;
 }
 
-/** Value of the supply choice that sets any other voltage (Advanced only). */
+/** Value of the supply choice that sets any other voltage. */
 export const CUSTOM_SUPPLY = 'custom';
 
-/** Supply choices: each preset by index, then Custom when Advanced. */
-export function supplyOptions(withCustom: boolean) {
-  const presets = SUPPLY_PRESETS.map((preset, index) => ({
+/** Supply choices: each preset by index, then Custom. */
+export const SUPPLY_OPTIONS = [
+  ...SUPPLY_PRESETS.map((preset, index) => ({
     value: String(index),
     label: describeSupply(preset),
-  }));
-  return withCustom ? [...presets, { value: CUSTOM_SUPPLY, label: 'Custom' }] : presets;
-}
+  })),
+  { value: CUSTOM_SUPPLY, label: 'Custom' },
+];
 
 export const SUPPLY_KIND_OPTIONS = toOptions(SUPPLY_KINDS, SUPPLY_KIND_LABELS);
 export const LOAD_INPUT_OPTIONS = toOptions(LOAD_INPUTS, LOAD_INPUT_LABELS);

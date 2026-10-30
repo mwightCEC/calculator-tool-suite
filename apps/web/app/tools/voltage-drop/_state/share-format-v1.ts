@@ -6,13 +6,12 @@ import type {
   WireSystem,
 } from '@cctv/calc-core';
 import { z } from 'zod';
-import type { InputMode } from '../../../../lib/input-mode';
 import type { VoltageDropCalculatorState } from './voltage-drop-calculator-state';
 
 /*
  * Voltage drop share link format v1: a compact positional JSON array.
  *
- *   [inputMode, supply, dropLimitPercent, wireSystem, cableLengthUnit, groups]
+ *   [retiredInputMode, supply, dropLimitPercent, wireSystem, cableLengthUnit, groups]
  *   supply = [supplyKind, volts, ratedAmps, reservePercent]
  *   group  = [name, deviceCount, loadInput, load, gauge, cableLength, colorIndex]
  *            load is the amps or the watts per device, depending on loadInput.
@@ -21,10 +20,12 @@ import type { VoltageDropCalculatorState } from './voltage-drop-calculator-state
  * format: only ever append to them. Reordering or removing an entry would make
  * existing links decode to the wrong value; a change like that needs a new
  * format version. Group ids are not stored and are re-created as g1, g2, … .
- * The input mode is always stored, so every link opens in the mode it was made in.
+ * The first item was the Simple / Advanced input mode (0 Advanced, 1 Simple), now
+ * retired: new links write 0 and reading ignores it, so older links still open.
  */
 
-export const V1_INPUT_MODES = ['advanced', 'simple'] as const satisfies readonly InputMode[];
+/** Written in the retired input mode slot: 0, which was Advanced. */
+export const V1_RETIRED_INPUT_MODE = 0;
 export const V1_SUPPLY_KINDS = ['dc', 'ac'] as const satisfies readonly SupplyKind[];
 export const V1_WIRE_SYSTEMS = ['awg', 'mm2'] as const satisfies readonly WireSystem[];
 export const V1_CABLE_LENGTH_UNITS = ['ft', 'm'] as const satisfies readonly CableLengthUnit[];
@@ -64,7 +65,7 @@ type Payload = z.infer<typeof payloadSchema>;
 export function stateToV1Payload(state: VoltageDropCalculatorState): Payload {
   const { kind, volts, ratedAmps, reservePercent } = state.powerSupply;
   return [
-    V1_INPUT_MODES.indexOf(state.inputMode),
+    V1_RETIRED_INPUT_MODE,
     [V1_SUPPLY_KINDS.indexOf(kind), volts, ratedAmps, reservePercent],
     state.dropLimitPercent,
     V1_WIRE_SYSTEMS.indexOf(state.wireSystem),
@@ -84,19 +85,17 @@ export function stateToV1Payload(state: VoltageDropCalculatorState): Payload {
 /**
  * Turns a decoded v1 payload back into a state-shaped object, or null when the
  * shape is wrong. An out-of-range index becomes undefined, so the caller's
- * voltageDropCalculatorStateSchema check (which also covers counts, ranges and
- * Simple mode's rules) rejects it.
+ * voltageDropCalculatorStateSchema check (which also covers counts and ranges) rejects it.
  */
 export function v1PayloadToState(raw: unknown): unknown {
   const parsed = payloadSchema.safeParse(raw);
   if (!parsed.success) {
     return null;
   }
-  const [inputModeIndex, supply, dropLimitPercent, systemIndex, unitIndex, groups] = parsed.data;
+  const [, supply, dropLimitPercent, systemIndex, unitIndex, groups] = parsed.data;
   const [kindIndex, volts, ratedAmps, reservePercent] = supply;
 
   return {
-    inputMode: V1_INPUT_MODES[inputModeIndex],
     powerSupply: { kind: V1_SUPPLY_KINDS[kindIndex], volts, ratedAmps, reservePercent },
     dropLimitPercent,
     wireSystem: V1_WIRE_SYSTEMS[systemIndex],

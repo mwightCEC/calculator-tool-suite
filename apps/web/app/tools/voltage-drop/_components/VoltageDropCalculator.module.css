@@ -18,31 +18,31 @@
   }
 }
 
-.addGroup {
-  border-style: dashed;
+/* Device group and Power supply fields: columns follow the card's width, not the viewport. */
+.fields {
+  container-type: inline-size;
 }
 
-/* The power supply card. */
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mantine-spacing-sm);
-  padding: var(--mantine-spacing-md);
+.fieldGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mantine-spacing-md) var(--mantine-spacing-sm);
 }
 
-.cardTitle {
-  font-size: var(--mantine-font-size-md);
-  margin-bottom: 4px;
+@container (min-width: 22rem) {
+  .fieldGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .select {
   width: 100%;
-  max-width: 300px;
 }
 
 @media (min-width: $mantine-breakpoint-lg) {
   .layout {
-    grid-template-columns: minmax(0, 1fr) 380px;
+    /* Inputs and results share the width about 7:5, as in the other calculators. */
+    grid-template-columns: minmax(0, 7fr) minmax(360px, 5fr);
     padding-bottom: 0;
   }
 

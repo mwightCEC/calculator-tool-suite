@@ -29,12 +29,11 @@ import {
   restoreGroup,
   updateGroup,
 } from '../../../../lib/camera-groups/group-list';
-import { firstGroupOnly, inputModeSchema, type InputMode } from '../../../../lib/input-mode';
 import { groupColors } from '../../../../theme/palettes';
 
 /*
  * The voltage drop calculator's whole state: calc-core's voltage drop input
- * plus UI-only data (Simple or Advanced input, each group's palette colour).
+ * plus UI-only data (each group's palette colour).
  * Validated by a schema so it can be restored from a shared link.
  */
 
@@ -42,7 +41,7 @@ export const voltageDropGroupStateSchema = voltageDropGroupSchema.extend({
   colorIndex: colorIndexSchema,
 });
 
-/** The supplies offered as one choice; Advanced can also set any other voltage. */
+/** The supplies offered as one choice; Custom sets any other voltage. */
 export const SUPPLY_PRESETS: readonly Pick<PowerSupply, 'kind' | 'volts'>[] = [
   { kind: 'dc', volts: 12 },
   { kind: 'dc', volts: 24 },
@@ -57,35 +56,14 @@ export function supplyPresetIndex(supply: Pick<PowerSupply, 'kind' | 'volts'>): 
   return index === -1 ? undefined : index;
 }
 
-/** What Simple mode fixes: a 10% drop limit, a 20% reserve and a preset supply. */
-export const SIMPLE_VOLTAGE_DROP_SETTINGS = {
-  dropLimitPercent: 10,
-  reservePercent: 20,
-  supply: SUPPLY_PRESETS[0] as Pick<PowerSupply, 'kind' | 'volts'>,
-} as const;
-
 const voltageDropStateShape = voltageDropInputShape.extend({
-  inputMode: inputModeSchema,
   deviceGroups: groupListSchema(voltageDropGroupStateSchema),
 });
 
-/** True when the state is Advanced, or a Simple state within Simple's rules. */
-function followsSimpleRules(state: z.infer<typeof voltageDropStateShape>): boolean {
-  const fixed = SIMPLE_VOLTAGE_DROP_SETTINGS;
-  return (
-    state.inputMode === 'advanced' ||
-    (state.deviceGroups.length === 1 &&
-      state.dropLimitPercent === fixed.dropLimitPercent &&
-      state.powerSupply.reservePercent === fixed.reservePercent &&
-      supplyPresetIndex(state.powerSupply) !== undefined)
-  );
-}
-
-export const voltageDropCalculatorStateSchema = voltageDropStateShape
-  .refine(groupsMatchWireSystem, WIRE_SYSTEM_MISMATCH)
-  .refine(followsSimpleRules, {
-    message: 'Simple mode has one device group and uses the fixed Simple settings',
-  });
+export const voltageDropCalculatorStateSchema = voltageDropStateShape.refine(
+  groupsMatchWireSystem,
+  WIRE_SYSTEM_MISMATCH
+);
 
 export type VoltageDropGroupState = z.infer<typeof voltageDropGroupStateSchema>;
 export type VoltageDropCalculatorState = z.infer<typeof voltageDropCalculatorStateSchema>;
@@ -95,7 +73,6 @@ export type VoltageDropGroupChanges = Partial<Omit<VoltageDropGroupState, 'id' |
 
 export type VoltageDropCalculatorAction =
   | { type: 'load-state'; state: VoltageDropCalculatorState }
-  | { type: 'set-input-mode'; inputMode: InputMode }
   | { type: 'update-group'; id: string; changes: VoltageDropGroupChanges }
   | { type: 'set-load-input'; id: string; input: LoadInput }
   | { type: 'add-group' }
@@ -113,7 +90,6 @@ export function createInitialVoltageDropCalculatorState(): VoltageDropCalculator
   const input = createDefaultVoltageDropInput();
   return {
     ...input,
-    inputMode: 'simple',
     deviceGroups: input.deviceGroups.map((group, index) => ({
       ...group,
       colorIndex: index % groupColors.length,
@@ -153,7 +129,7 @@ function newGroup(
 
 /** True when the groups differ from what Clear would leave. */
 export function hasCustomGroups(state: VoltageDropCalculatorState): boolean {
-  const cleared = reduce(state, { type: 'clear-groups' }).deviceGroups;
+  const cleared = voltageDropCalculatorReducer(state, { type: 'clear-groups' }).deviceGroups;
   return JSON.stringify(state.deviceGroups) !== JSON.stringify(cleared);
 }
 
@@ -165,48 +141,7 @@ function withGroups(
   return deviceGroups === state.deviceGroups ? state : { ...state, deviceGroups };
 }
 
-/**
- * Simple mode calculates with exactly what it shows: one device group, the
- * fixed limit and reserve, and a preset supply. Returns the same state when it already fits.
- */
-function applySimpleRules(state: VoltageDropCalculatorState): VoltageDropCalculatorState {
-  if (followsSimpleRules(state)) {
-    return state;
-  }
-  const fixed = SIMPLE_VOLTAGE_DROP_SETTINGS;
-  const supply = supplyPresetIndex(state.powerSupply) === undefined ? fixed.supply : {};
-  return {
-    ...state,
-    deviceGroups: firstGroupOnly(state.deviceGroups),
-    dropLimitPercent: fixed.dropLimitPercent,
-    powerSupply: { ...state.powerSupply, ...supply, reservePercent: fixed.reservePercent },
-  };
-}
-
-/** What switching to Simple would change, for the Undo message; empty when nothing would. */
-export function describeSwitchToSimple(state: VoltageDropCalculatorState): string[] {
-  if (state.inputMode === 'simple') {
-    return [];
-  }
-  const fixed = SIMPLE_VOLTAGE_DROP_SETTINGS;
-  const removed = state.deviceGroups.length - 1;
-  return [
-    removed > 0 && `removed ${removed} device group${removed === 1 ? '' : 's'}`,
-    supplyPresetIndex(state.powerSupply) === undefined && 'supply set to 12 V DC',
-    state.dropLimitPercent !== fixed.dropLimitPercent && 'drop limit set to 10%',
-    state.powerSupply.reservePercent !== fixed.reservePercent && 'reserve set to 20%',
-  ].filter((change) => change !== false);
-}
-
 export function voltageDropCalculatorReducer(
-  state: VoltageDropCalculatorState,
-  action: VoltageDropCalculatorAction
-): VoltageDropCalculatorState {
-  // Every action, including undos, keeps Simple mode within its rules.
-  return applySimpleRules(reduce(state, action));
-}
-
-function reduce(
   state: VoltageDropCalculatorState,
   action: VoltageDropCalculatorAction
 ): VoltageDropCalculatorState {
@@ -216,11 +151,6 @@ function reduce(
     case 'load-state':
       // Restored state is already schema-valid; fix any neighbouring groups that share a colour.
       return { ...action.state, deviceGroups: repairGroupColors(action.state.deviceGroups) };
-
-    case 'set-input-mode':
-      return action.inputMode === state.inputMode
-        ? state
-        : { ...state, inputMode: action.inputMode };
 
     case 'update-group':
       return withGroups(
@@ -239,7 +169,7 @@ function reduce(
     case 'add-group':
       return withGroups(
         state,
-        addGroup(groups, (fields) => newGroup(state, fields))
+        addGroup(groups, (fields) => newGroup(state, fields), 'start')
       );
 
     case 'duplicate-group':
