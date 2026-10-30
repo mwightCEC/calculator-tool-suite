@@ -1,6 +1,6 @@
 /*
- * Header bar from the approved prototype: wordmark | page heading ... actions.
- * Narrow screens: menu, wordmark and actions on the first row, the title below.
+ * Header bar from the approved prototype: logo | page heading ... actions.
+ * Narrow screens: menu, logo and actions on the first row, the title below.
  */
 .bar {
   display: grid;
@@ -35,22 +35,11 @@
   outline-offset: 2px;
 }
 
-.wordmark {
-  display: flex;
-  align-items: baseline;
-  line-height: 1;
-  letter-spacing: -0.04em;
-}
-
-.wordmarkStrong {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.wordmarkLight {
-  font-size: 1.375rem;
-  font-weight: 300;
-  opacity: 0.85;
+/* The logo is 380 × 35; the width follows the height. */
+.logo {
+  display: block;
+  width: auto;
+  height: 1.125rem;
 }
 
 .divider {
@@ -98,12 +87,13 @@
     padding-inline: var(--mantine-spacing-lg);
   }
 
-  .wordmarkStrong {
-    font-size: 1.75rem;
-  }
-
-  .wordmarkLight {
-    font-size: 1.625rem;
+  /*
+   * Sized so the divider after it lines up with the expanded sidebar's right
+   * edge (NAVBAR_WIDTH_EXPANDED, 240px): padding + logo + gap + 1px divider.
+   */
+  .logo {
+    width: calc(240px - 2 * var(--mantine-spacing-lg) - 1px);
+    height: auto;
   }
 
   .divider {
