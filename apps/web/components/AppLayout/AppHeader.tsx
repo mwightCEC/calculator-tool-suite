@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { IconMenu2 } from '@tabler/icons-react';
@@ -14,7 +15,7 @@ interface AppHeaderProps {
 }
 
 /**
- * Wordmark, then the page heading: the open tool's title and subtitle, or the suite's.
+ * Logo, then the page heading: the open tool's title and subtitle, or the suite's.
  * The heading is the page's h1. Narrow screens put it on a second row, without the subtitle.
  */
 export function AppHeader({ onOpenMobileNav }: AppHeaderProps) {
@@ -34,10 +35,15 @@ export function AppHeader({ onOpenMobileNav }: AppHeaderProps) {
       </ActionIcon>
 
       <Link href="/" className={classes.brand} aria-label="Clinton Electronics Tool Suite home">
-        <span className={classes.wordmark} aria-hidden="true">
-          <span className={classes.wordmarkStrong}>clinton</span>
-          <span className={classes.wordmarkLight}>electronics</span>
-        </span>
+        {/* White logo on the blue header (both colour schemes); SVGs are served unoptimized. */}
+        <Image
+          src="/Clinton_Logo_White.svg"
+          alt=""
+          width={380}
+          height={35}
+          priority
+          className={classes.logo}
+        />
       </Link>
 
       <span className={classes.divider} aria-hidden="true" />
