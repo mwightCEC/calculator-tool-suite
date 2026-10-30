@@ -35,8 +35,9 @@ Bandwidth, PoE budget and Voltage drop calculators are built; Lens / FOV is list
   `SettingsPanel` (tinted icon panel for settings below the groups)).
   Every calculator uses the approved-prototype layout: the camera / device configuration card
   first, with the tool's settings inside it below the groups (PoE budget's Switch / NVR and
-  Voltage drop's Power supply are `SettingsPanel`s), and a 7:5 inputs / results split. Storage,
-  Bandwidth and PoE budget use the shared results card; Voltage drop moves to it next.
+  Voltage drop's Power supply are `SettingsPanel`s), a 7:5 inputs / results split, and the
+  shared results card (title and badge, headline tile, metric row, then collapsible breakdown
+  and "How this is calculated" sections).
 - Shared logic: `apps/web/lib/` (`camera-groups/` group list and colours, `share/` link codec
   and URL sync hook, `saved-state.ts`, `format.ts`, camera and bitrate labels).
 - Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts`.

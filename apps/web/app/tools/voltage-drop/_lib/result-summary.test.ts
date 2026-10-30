@@ -7,12 +7,14 @@ import {
   type VoltageDropCalculatorState,
 } from '../_state/voltage-drop-calculator-state';
 import {
+  buildMetricTiles,
+  describeDevices,
   describeLimit,
   describeProblem,
-  describeRating,
   describeRemaining,
   describeRunDrop,
   describeRunLimits,
+  describeStatus,
   describeSupplyLoad,
   describeWorstDeviceVolts,
   describeWorstDrop,
@@ -113,9 +115,6 @@ describe('supply text', () => {
   it('describes the defaults', () => {
     expect(describeSupplyLoad(defaultResult)).toEqual({ value: '2 A', detail: 'of 4 A usable' });
     expect(describeRemaining(defaultResult)).toBe('2 A left');
-    expect(describeRating(defaults, defaultResult)).toBe(
-      '5 A rated less a 20% reserve (1 A) · 24 W output'
-    );
   });
 
   it('describes no reserve and an overload', () => {
@@ -125,7 +124,54 @@ describe('supply text', () => {
     );
     const result = calculateVoltageDrop(state);
     expect(describeRemaining(result)).toBe('1 A over the usable rating');
-    expect(describeRating(state, result)).toBe('5 A rated, no reserve · 72 W output');
+  });
+});
+
+describe('buildMetricTiles', () => {
+  it('shows the supply load, what is left and the rating with its reserve', () => {
+    expect(buildMetricTiles(defaults, defaultResult)).toEqual([
+      { label: 'Supply load', value: '2 A', detail: '24 W output' },
+      { label: 'Remaining', value: '2 A', detail: 'before the reserve' },
+      { label: 'Supply rating', value: '5 A', detail: '20% reserve (1 A)' },
+    ]);
+  });
+
+  it('shows how far over and no reserve', () => {
+    const state = stateAfter(
+      { type: 'update-supply', changes: { reservePercent: 0 } },
+      { type: 'update-group', id: 'g1', changes: { deviceCount: 12 } }
+    );
+    expect(buildMetricTiles(state, calculateVoltageDrop(state))).toEqual([
+      { label: 'Supply load', value: '6 A', detail: '72 W output' },
+      { label: 'Over by', value: '1 A', detail: 'past the usable rating' },
+      { label: 'Supply rating', value: '5 A', detail: 'no reserve' },
+    ]);
+  });
+});
+
+describe('describeStatus', () => {
+  const statusAfter = (...actions: VoltageDropCalculatorAction[]) =>
+    describeStatus(calculateVoltageDrop(stateAfter(...actions)));
+
+  it('passes when every run and the supply are within their limits', () => {
+    expect(describeStatus(defaultResult)).toEqual({ status: 'ok', label: 'Within limits' });
+  });
+
+  it('shows a failing run first, then the supply', () => {
+    expect(
+      statusAfter(LONG_RUN, { type: 'update-group', id: 'g1', changes: { deviceCount: 12 } })
+    ).toEqual({ status: 'over-limit', label: 'Over limit' });
+    expect(statusAfter({ type: 'update-group', id: 'g1', changes: { deviceCount: 9 } })).toEqual({
+      status: 'into-reserve',
+      label: 'Into reserve',
+    });
+  });
+});
+
+describe('describeDevices', () => {
+  it('counts devices and groups', () => {
+    expect(describeDevices(defaults)).toBe('4 devices in 1 group');
+    expect(describeDevices(stateAfter({ type: 'add-group' }))).toBe('8 devices in 2 groups');
   });
 });
 
