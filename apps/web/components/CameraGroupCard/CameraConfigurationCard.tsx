@@ -9,6 +9,8 @@ import type { useGroupExpansion } from './use-group-expansion';
 import classes from './CameraConfigurationCard.module.css';
 
 interface CameraConfigurationCardProps {
+  /** What the groups hold: "camera" (the default) or "device" (PoE loads aren't all cameras). */
+  noun?: 'camera' | 'device';
   groupCount: number;
   /** The page's group expansion, so adding and clearing can collapse or expand the cards. */
   expansion: ReturnType<typeof useGroupExpansion>;
@@ -26,6 +28,7 @@ interface CameraConfigurationCardProps {
  * Collapse all / Clear all, then the cards.
  */
 export function CameraConfigurationCard({
+  noun = 'camera',
   groupCount,
   expansion,
   onAddGroup,
@@ -34,6 +37,7 @@ export function CameraConfigurationCard({
   children,
 }: CameraConfigurationCardProps) {
   const atGroupLimit = groupCount >= MAX_CAMERA_GROUPS;
+  const title = noun === 'camera' ? 'Camera configuration' : 'Device configuration';
 
   return (
     <Paper
@@ -46,10 +50,10 @@ export function CameraConfigurationCard({
       <Group justify="space-between" align="flex-start" gap="sm">
         <div className={classes.heading}>
           <Title order={2} id="camera-configuration-title" className={classes.title}>
-            Camera configuration
+            {title}
           </Title>
           <Text size="sm" className={classes.description}>
-            Add one or more camera groups. Each group can have different settings.
+            Add one or more {noun} groups. Each group can have different settings.
           </Text>
         </div>
         <Button
@@ -63,7 +67,7 @@ export function CameraConfigurationCard({
           }}
           disabled={atGroupLimit}
         >
-          {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} camera groups` : 'Add camera group'}
+          {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} ${noun} groups` : `Add ${noun} group`}
         </Button>
       </Group>
 

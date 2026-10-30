@@ -18,21 +18,35 @@
   }
 }
 
-.addGroup {
-  border-style: dashed;
-}
-
-/* The Switch / NVR card. */
+/* The Switch / NVR card, styled like the device configuration card below it. */
 .card {
   display: flex;
   flex-direction: column;
   gap: var(--mantine-spacing-sm);
-  padding: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
 }
 
 .cardTitle {
-  font-size: var(--mantine-font-size-md);
+  font-size: var(--mantine-font-size-lg);
+  letter-spacing: -0.01em;
   margin-bottom: 4px;
+}
+
+/* A device group's fields: columns follow the card's width, not the viewport. */
+.deviceFields {
+  container-type: inline-size;
+}
+
+.deviceGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mantine-spacing-md) var(--mantine-spacing-sm);
+}
+
+@container (min-width: 22rem) {
+  .deviceGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .numberInput {

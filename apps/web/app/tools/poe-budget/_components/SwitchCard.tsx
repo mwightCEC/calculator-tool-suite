@@ -19,17 +19,16 @@ import classes from './PoeCalculator.module.css';
 
 interface SwitchCardProps {
   powerSource: PoeSwitch;
-  /** The reserve is an Advanced setting; Simple keeps 20%. */
-  showReserve: boolean;
   onChange: (changes: Partial<PoeSwitch>) => void;
 }
 
 /** The PoE switch, or an NVR with built-in PoE ports, that powers the devices. */
-export function SwitchCard({ powerSource, showReserve, onChange }: SwitchCardProps) {
+export function SwitchCard({ powerSource, onChange }: SwitchCardProps) {
   return (
     <Paper
       component="section"
       withBorder
+      radius="lg"
       className={classes.card}
       aria-labelledby="poe-switch-title"
     >
@@ -88,26 +87,24 @@ export function SwitchCard({ powerSource, showReserve, onChange }: SwitchCardPro
         />
       </FieldRow>
 
-      {showReserve && (
-        <FieldRow
-          label="Budget reserve"
-          help="Share of the budget kept free as headroom for start-up surges, heaters in cold weather and devices added later."
-          controlId="poe-reserve"
-        >
-          <OptionButtons
-            id="poe-reserve"
-            value={String(powerSource.reservePercent)}
-            onChange={(value) => {
-              const reservePercent = parseOption(POE_RESERVE_PERCENTS, value);
-              if (reservePercent !== undefined) {
-                onChange({ reservePercent });
-              }
-            }}
-            options={RESERVE_OPTIONS}
-            aria-labelledby={fieldLabelId('poe-reserve')}
-          />
-        </FieldRow>
-      )}
+      <FieldRow
+        label="Budget reserve"
+        help="Share of the budget kept free as headroom for start-up surges, heaters in cold weather and devices added later."
+        controlId="poe-reserve"
+      >
+        <OptionButtons
+          id="poe-reserve"
+          value={String(powerSource.reservePercent)}
+          onChange={(value) => {
+            const reservePercent = parseOption(POE_RESERVE_PERCENTS, value);
+            if (reservePercent !== undefined) {
+              onChange({ reservePercent });
+            }
+          }}
+          options={RESERVE_OPTIONS}
+          aria-labelledby={fieldLabelId('poe-reserve')}
+        />
+      </FieldRow>
     </Paper>
   );
 }

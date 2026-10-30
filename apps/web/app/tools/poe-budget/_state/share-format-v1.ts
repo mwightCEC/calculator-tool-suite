@@ -1,12 +1,11 @@
 import type { CableLengthUnit, PortStandard, PowerInput } from '@cctv/calc-core';
 import { z } from 'zod';
-import type { InputMode } from '../../../../lib/input-mode';
 import type { PoeCalculatorState } from './poe-calculator-state';
 
 /*
  * PoE budget share link format v1: a compact positional JSON array.
  *
- *   [switch, cableLengthUnit, groups, inputMode?]
+ *   [switch, cableLengthUnit, groups, retiredInputMode?]
  *   switch = [budgetWatts, ports, portStandard, reservePercent]
  *   group  = [name, deviceCount, powerInput, power, cableLength, colorIndex]
  *            power is the PoE class (0–8) or the watts, depending on powerInput;
@@ -17,8 +16,9 @@ import type { PoeCalculatorState } from './poe-calculator-state';
  * existing links decode to the wrong value; a change like that needs a new
  * format version. Group ids are not stored and are re-created as g1, g2, … .
  *
- * inputMode is an optional last item, as in the other calculators' links;
- * links without it open in Advanced.
+ * The optional last item was the Simple / Advanced input mode (0 Advanced, 1 Simple),
+ * which PoE budget no longer has. Links that carry it still open with every group and
+ * setting they hold; it is read and ignored, and new links leave it out.
  */
 
 export const V1_PORT_STANDARDS = [
@@ -29,7 +29,6 @@ export const V1_PORT_STANDARDS = [
 ] as const satisfies readonly PortStandard[];
 export const V1_POWER_INPUTS = ['watts', 'class'] as const satisfies readonly PowerInput[];
 export const V1_CABLE_LENGTH_UNITS = ['ft', 'm'] as const satisfies readonly CableLengthUnit[];
-export const V1_INPUT_MODES = ['advanced', 'simple'] as const satisfies readonly InputMode[];
 
 const index = z.int().nonnegative();
 
@@ -38,6 +37,7 @@ const payloadSchema = z.tuple([
   z.tuple([z.number(), z.number(), index, z.number()]),
   index,
   z.array(z.tuple([z.string(), z.number(), index, z.number(), z.number(), z.number()])),
+  // Retired input mode, ignored.
   index.optional(),
 ]);
 
@@ -59,7 +59,6 @@ export function stateToV1Payload(state: PoeCalculatorState): Payload {
       group.cableLength ?? NOT_GIVEN,
       group.colorIndex,
     ]),
-    V1_INPUT_MODES.indexOf(state.inputMode),
   ];
 }
 
@@ -74,11 +73,10 @@ export function v1PayloadToState(raw: unknown): unknown {
   if (!parsed.success) {
     return null;
   }
-  const [powerSource, unitIndex, groups, inputModeIndex] = parsed.data;
+  const [powerSource, unitIndex, groups] = parsed.data;
   const [budgetWatts, ports, standardIndex, reservePercent] = powerSource;
 
   return {
-    inputMode: inputModeIndex === undefined ? 'advanced' : V1_INPUT_MODES[inputModeIndex],
     powerSource: {
       budgetWatts,
       ports,

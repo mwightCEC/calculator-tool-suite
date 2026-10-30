@@ -57,11 +57,7 @@ export function describePorts(result: PoeResult): string {
     : `${plural(result.totalDevices, 'device')} for ${ports}`;
 }
 
-/** Simple mode's one setup has no visible group name. */
 function groupLabel(state: PoeCalculatorState, groupId: string): string {
-  if (state.inputMode === 'simple') {
-    return 'Devices';
-  }
   return state.deviceGroups.find((group) => group.id === groupId)?.name ?? groupId;
 }
 

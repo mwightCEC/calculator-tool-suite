@@ -23,9 +23,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
   return (
     <PrintLayout
       title="PoE budget summary"
-      meta={['Clinton Tool Suite', 'PoE budget', summary.inputModeLabel]
-        .filter(Boolean)
-        .join(' · ')}
+      meta="Clinton Tool Suite · PoE budget"
       getShareUrl={getShareUrl}
     >
       <section className={classes.result}>
@@ -51,7 +49,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
         </p>
       ))}
 
-      <h2 className={classes.heading}>{summary.groupsHeading}</h2>
+      <h2 className={classes.heading}>Device groups</h2>
       <table className={classes.table}>
         <thead>
           <tr>

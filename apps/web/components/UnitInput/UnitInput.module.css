@@ -6,3 +6,8 @@
   color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-xs);
 }
+
+/* Labels above (a FieldRow grid): the field fills its cell, so the unit stays inside it. */
+[data-layout='stacked'] .input {
+  width: 100%;
+}

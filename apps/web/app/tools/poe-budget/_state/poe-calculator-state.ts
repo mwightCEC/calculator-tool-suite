@@ -23,43 +23,20 @@ import {
   restoreGroup,
   updateGroup,
 } from '../../../../lib/camera-groups/group-list';
-import { firstGroupOnly, inputModeSchema, type InputMode } from '../../../../lib/input-mode';
 import { groupColors } from '../../../../theme/palettes';
 
 /*
  * The PoE budget calculator's whole state: calc-core's PoE input plus UI-only
- * data (Simple or Advanced input, each group's palette colour). Validated by a
- * schema so it can be restored from a shared link.
+ * data (each group's palette colour). Validated by a schema so it can be
+ * restored from a shared link.
  */
 
 export const poeGroupStateSchema = poeDeviceGroupSchema.extend({
   colorIndex: colorIndexSchema,
 });
 
-/** What Simple mode fixes: a 20% reserve and no cable lengths (100 m assumed). */
-export const SIMPLE_POE_SETTINGS = {
-  reservePercent: 20,
-  cableLength: null,
-} as const;
-
-const poeStateShape = poeInputSchema.extend({
-  inputMode: inputModeSchema,
+export const poeCalculatorStateSchema = poeInputSchema.extend({
   deviceGroups: groupListSchema(poeGroupStateSchema),
-});
-
-/** True when the state is Advanced, or a Simple state within Simple's rules. */
-function followsSimpleRules(state: z.infer<typeof poeStateShape>): boolean {
-  const fixed = SIMPLE_POE_SETTINGS;
-  return (
-    state.inputMode === 'advanced' ||
-    (state.deviceGroups.length === 1 &&
-      state.deviceGroups[0]?.cableLength === fixed.cableLength &&
-      state.powerSource.reservePercent === fixed.reservePercent)
-  );
-}
-
-export const poeCalculatorStateSchema = poeStateShape.refine(followsSimpleRules, {
-  message: 'Simple mode has one device group and uses the fixed Simple settings',
 });
 
 export type PoeGroupState = z.infer<typeof poeGroupStateSchema>;
@@ -70,7 +47,6 @@ export type PoeGroupChanges = Partial<Omit<PoeGroupState, 'id' | 'colorIndex'>>;
 
 export type PoeCalculatorAction =
   | { type: 'load-state'; state: PoeCalculatorState }
-  | { type: 'set-input-mode'; inputMode: InputMode }
   | { type: 'update-group'; id: string; changes: PoeGroupChanges }
   | { type: 'set-power-input'; id: string; input: PowerInput }
   | { type: 'add-group' }
@@ -86,7 +62,6 @@ export function createInitialPoeCalculatorState(): PoeCalculatorState {
   const input = createDefaultPoeInput();
   return {
     ...input,
-    inputMode: 'simple',
     deviceGroups: input.deviceGroups.map((group, index) => ({
       ...group,
       colorIndex: index % groupColors.length,
@@ -115,59 +90,16 @@ function withGroups(state: PoeCalculatorState, deviceGroups: PoeGroupState[]): P
   return deviceGroups === state.deviceGroups ? state : { ...state, deviceGroups };
 }
 
-/**
- * Simple mode calculates with exactly what it shows: one device group, the
- * fixed reserve and no cable length. Returns the same state when it already fits.
- */
-function applySimpleRules(state: PoeCalculatorState): PoeCalculatorState {
-  if (followsSimpleRules(state)) {
-    return state;
-  }
-  const fixed = SIMPLE_POE_SETTINGS;
-  return {
-    ...state,
-    deviceGroups: firstGroupOnly(state.deviceGroups).map((group) => ({
-      ...group,
-      cableLength: fixed.cableLength,
-    })),
-    powerSource: { ...state.powerSource, reservePercent: fixed.reservePercent },
-  };
-}
-
-/** What switching to Simple would change, for the Undo message; empty when nothing would. */
-export function describeSwitchToSimple(state: PoeCalculatorState): string[] {
-  if (state.inputMode === 'simple') {
-    return [];
-  }
-  const fixed = SIMPLE_POE_SETTINGS;
-  const removed = state.deviceGroups.length - 1;
-  return [
-    removed > 0 && `removed ${removed} device group${removed === 1 ? '' : 's'}`,
-    state.deviceGroups[0]?.cableLength !== fixed.cableLength && 'cable length cleared',
-    state.powerSource.reservePercent !== fixed.reservePercent && 'reserve set to 20%',
-  ].filter((change) => change !== false);
-}
-
 export function poeCalculatorReducer(
   state: PoeCalculatorState,
   action: PoeCalculatorAction
 ): PoeCalculatorState {
-  // Every action, including undos, keeps Simple mode within its rules.
-  return applySimpleRules(reduce(state, action));
-}
-
-function reduce(state: PoeCalculatorState, action: PoeCalculatorAction): PoeCalculatorState {
   const groups = state.deviceGroups;
 
   switch (action.type) {
     case 'load-state':
       // Restored state is already schema-valid; fix any neighbouring groups that share a colour.
       return { ...action.state, deviceGroups: repairGroupColors(action.state.deviceGroups) };
-
-    case 'set-input-mode':
-      return action.inputMode === state.inputMode
-        ? state
-        : { ...state, inputMode: action.inputMode };
 
     case 'update-group':
       return withGroups(
@@ -184,12 +116,14 @@ function reduce(state: PoeCalculatorState, action: PoeCalculatorAction): PoeCalc
       );
 
     case 'add-group':
+      // New groups go at the top, where the page has just collapsed the others.
       return withGroups(
         state,
-        addGroup(groups, ({ id, name, colorIndex }) => ({
-          ...createPoeDeviceGroup(id, name),
-          colorIndex,
-        }))
+        addGroup(
+          groups,
+          ({ id, name, colorIndex }) => ({ ...createPoeDeviceGroup(id, name), colorIndex }),
+          'start'
+        )
       );
 
     case 'duplicate-group':

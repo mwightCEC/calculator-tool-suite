@@ -1,6 +1,5 @@
 import { CABLE_LENGTH_UNITS, PORT_STANDARDS, POWER_INPUTS } from '@cctv/calc-core';
 import { describe, expect, it } from 'vitest';
-import { INPUT_MODES } from '../../../../lib/input-mode';
 import { SHARE_STATE_PARAM, SHARE_VERSION_PARAM } from '../../../../lib/share/share-codec';
 import {
   createInitialPoeCalculatorState,
@@ -11,7 +10,6 @@ import {
 import {
   stateToV1Payload,
   V1_CABLE_LENGTH_UNITS,
-  V1_INPUT_MODES,
   V1_PORT_STANDARDS,
   V1_POWER_INPUTS,
 } from './share-format-v1';
@@ -19,11 +17,11 @@ import { buildShareUrl, decodeShareParams, encodeState, SHARE_FORMAT_VERSION } f
 
 const PAGE = 'https://example.test/tools/poe-budget';
 
-/** A non-default Advanced state touching every field, with a non-ASCII group name. */
+/** A non-default state touching every field, with a non-ASCII group name. */
 function sampleState(): PoeCalculatorState {
   const actions: PoeCalculatorAction[] = [
-    { type: 'set-input-mode', inputMode: 'advanced' },
-    { type: 'add-group' },
+    // A copy goes after its source, so the ids match the positions a link re-creates.
+    { type: 'duplicate-group', id: 'g1' },
     {
       type: 'update-switch',
       changes: { budgetWatts: 370.5, ports: 24, portStandard: 'bt-type3', reservePercent: 10 },
@@ -61,7 +59,7 @@ describe('encoding (v1)', () => {
     expect(roundTrip(state)).toEqual({ status: 'loaded', state });
   });
 
-  it('round-trips the default Simple state', () => {
+  it('round-trips the default state', () => {
     const state = createInitialPoeCalculatorState();
     expect(roundTrip(state)).toEqual({ status: 'loaded', state });
   });
@@ -85,7 +83,6 @@ describe('v1 index tables', () => {
     ['port standards', V1_PORT_STANDARDS, PORT_STANDARDS],
     ['power inputs', V1_POWER_INPUTS, POWER_INPUTS],
     ['cable length units', V1_CABLE_LENGTH_UNITS, CABLE_LENGTH_UNITS],
-    ['input modes', V1_INPUT_MODES, INPUT_MODES],
   ] as const)('cover every %s option', (_label, table, options) => {
     expect([...table].sort()).toEqual([...options].sort());
   });
@@ -95,30 +92,28 @@ describe('v1 index tables', () => {
       standards: V1_PORT_STANDARDS,
       inputs: V1_POWER_INPUTS,
       units: V1_CABLE_LENGTH_UNITS,
-      inputModes: V1_INPUT_MODES,
     }).toEqual({
       standards: ['af', 'at', 'bt-type3', 'bt-type4'],
       inputs: ['watts', 'class'],
       units: ['ft', 'm'],
-      inputModes: ['advanced', 'simple'],
     });
   });
 });
 
-describe('input mode', () => {
-  it('opens links without an input mode in Advanced', () => {
-    const withoutInputMode = stateToV1Payload(sampleState()).slice(0, 3);
-    expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, withoutInputMode))).toEqual({
-      status: 'loaded',
-      state: sampleState(),
-    });
+describe('retired input mode', () => {
+  // v1 links used to end with the Simple / Advanced input mode (0 Advanced, 1 Simple).
+  it('leaves it out of new links', () => {
+    expect(stateToV1Payload(sampleState())).toHaveLength(3);
   });
 
-  it('rejects a Simple link that breaks Simple mode’s rules', () => {
-    const payload = stateToV1Payload(sampleState());
-    payload[3] = V1_INPUT_MODES.indexOf('simple');
+  it.each([
+    ['Advanced', 0],
+    ['Simple', 1],
+  ])('ignores it in older %s links, keeping every group and setting', (_label, inputMode) => {
+    const payload = [...stateToV1Payload(sampleState()), inputMode];
     expect(decodeShareParams(linkParams(SHARE_FORMAT_VERSION, payload))).toEqual({
-      status: 'invalid',
+      status: 'loaded',
+      state: sampleState(),
     });
   });
 });

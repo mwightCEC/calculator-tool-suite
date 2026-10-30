@@ -15,12 +15,8 @@ import {
   describeUsage,
 } from './result-summary';
 
-function advancedAfter(...actions: PoeCalculatorAction[]): PoeCalculatorState {
-  const advanced = poeCalculatorReducer(createInitialPoeCalculatorState(), {
-    type: 'set-input-mode',
-    inputMode: 'advanced',
-  });
-  return actions.reduce(poeCalculatorReducer, advanced);
+function stateAfter(...actions: PoeCalculatorAction[]): PoeCalculatorState {
+  return actions.reduce(poeCalculatorReducer, createInitialPoeCalculatorState());
 }
 
 /** Four class 4 devices: exactly 120 W, so 24 W into the 20% reserve. */
@@ -40,12 +36,12 @@ describe('headline text', () => {
   });
 
   it('says how far over the usable budget the load is', () => {
-    const result = calculatePoe(advancedAfter(...CLASS_4));
+    const result = calculatePoe(stateAfter(...CLASS_4));
     expect(describeRemaining(result)).toBe('24 W over the usable budget');
   });
 
   it('describes a budget with no reserve, and devices that outnumber the ports', () => {
-    const state = advancedAfter({
+    const state = stateAfter({
       type: 'update-switch',
       changes: { reservePercent: 0, ports: 1 },
     });
@@ -57,7 +53,7 @@ describe('headline text', () => {
 
 describe('describeProblem', () => {
   it('describes going over the budget and running short of ports', () => {
-    const state = advancedAfter({
+    const state = stateAfter({
       type: 'update-switch',
       changes: { budgetWatts: 20, ports: 3 },
     });
@@ -69,7 +65,7 @@ describe('describeProblem', () => {
   });
 
   it('describes using the reserve', () => {
-    const state = advancedAfter(...CLASS_4);
+    const state = stateAfter(...CLASS_4);
     const result = calculatePoe(state);
     expect(describeProblem({ kind: 'into-reserve' }, state, result)).toBe(
       'Uses part of the 20% reserve. It fits the budget, but leaves little headroom for heaters, start-up surges or more devices.'
@@ -77,7 +73,7 @@ describe('describeProblem', () => {
   });
 
   it('names the group and the class it needs when ports fall short', () => {
-    const state = advancedAfter(
+    const state = stateAfter(
       {
         type: 'update-group',
         id: 'g1',
@@ -96,7 +92,7 @@ describe('describeProblem', () => {
   });
 
   it('gives the cable limit in the input unit', () => {
-    const feet = advancedAfter({ type: 'update-group', id: 'g1', changes: { cableLength: 400 } });
+    const feet = stateAfter({ type: 'update-group', id: 'g1', changes: { cableLength: 400 } });
     const metres = poeCalculatorReducer(feet, { type: 'set-cable-length-unit', unit: 'm' });
     const problem = { kind: 'cable-too-long', groupId: 'g1' } as const;
     expect(describeProblem(problem, feet, calculatePoe(feet))).toBe(
@@ -107,7 +103,7 @@ describe('describeProblem', () => {
     );
   });
 
-  it('calls the group "Devices" in Simple mode', () => {
+  it('names the group', () => {
     const state = poeCalculatorReducer(createInitialPoeCalculatorState(), {
       type: 'update-group',
       id: 'g1',
@@ -115,7 +111,7 @@ describe('describeProblem', () => {
     });
     const result = calculatePoe(state);
     expect(describeProblem({ kind: 'port-standard', groupId: 'g1' }, state, result)).toMatch(
-      /^Devices: /
+      /^Camera group 1: /
     );
   });
 });
@@ -129,7 +125,7 @@ describe('budgetSegments', () => {
       createInitialPoeCalculatorState(),
       calculatePoe(createInitialPoeCalculatorState())
     );
-    expect(segments.map((segment) => segment.label)).toEqual(['Devices', 'Free', 'Reserve']);
+    expect(segments.map((segment) => segment.label)).toEqual(['Camera group 1', 'Free', 'Reserve']);
     expect(segments[0]?.value).toBeCloseTo(24.72);
     expect(segments[1]?.value).toBeCloseTo(71.28);
     expect(segments[2]?.value).toBe(24);
@@ -137,7 +133,7 @@ describe('budgetSegments', () => {
   });
 
   it('shrinks the reserve as the load runs into it', () => {
-    const state = advancedAfter(...CLASS_4, {
+    const state = stateAfter(...CLASS_4, {
       type: 'update-group',
       id: 'g1',
       changes: { deviceCount: 3 },
@@ -147,7 +143,7 @@ describe('budgetSegments', () => {
       ['free', 6],
       ['reserve', 24],
     ]);
-    const into = advancedAfter(...CLASS_4, {
+    const into = stateAfter(...CLASS_4, {
       type: 'update-switch',
       changes: { budgetWatts: 130 },
     });
@@ -159,7 +155,7 @@ describe('budgetSegments', () => {
   });
 
   it('leaves only the groups when over budget', () => {
-    const state = advancedAfter(...CLASS_4, {
+    const state = stateAfter(...CLASS_4, {
       type: 'update-switch',
       changes: { budgetWatts: 100 },
     });

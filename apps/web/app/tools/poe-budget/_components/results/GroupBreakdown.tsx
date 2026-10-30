@@ -1,7 +1,6 @@
 import type { PoeResult } from '@cctv/calc-core';
 import { Group, Stack, Text } from '@mantine/core';
 import { formatNumber, formatWatts } from '../../../../../lib/format';
-import { describePower } from '../../_lib/group-summary';
 import type { PoeCalculatorState } from '../../_state/poe-calculator-state';
 import classes from './ResultsCard.module.css';
 
@@ -10,15 +9,11 @@ interface GroupBreakdownProps {
   result: PoeResult;
 }
 
-/** Count × per-device allocation = total, one line per group ("Devices" in Simple mode). */
+/** Count × per-device allocation = total, one line per group. */
 export function GroupBreakdown({ state, result }: GroupBreakdownProps) {
-  const simple = state.inputMode === 'simple';
-
   return (
     <div>
-      <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>
-        {simple ? 'Per device' : 'By group'}
-      </Text>
+      <Text className={`${classes.sectionLabel} ${classes.labelRow}`}>By group</Text>
       <Stack component="ul" gap={4} className={classes.list}>
         {result.groups.map((usage) => {
           const group = state.deviceGroups.find((candidate) => candidate.id === usage.groupId);
@@ -32,9 +27,7 @@ export function GroupBreakdown({ state, result }: GroupBreakdownProps) {
                 gap="sm"
                 className={classes.groupRow}
               >
-                <span className={classes.groupName}>
-                  {simple ? `${describePower(group)} device` : group.name}
-                </span>
+                <span className={classes.groupName}>{group.name}</span>
                 <span className={classes.groupValue}>
                   {formatNumber(group.deviceCount, 0)} × {formatWatts(usage.perDeviceWatts)} ={' '}
                   {formatWatts(usage.totalWatts)}
