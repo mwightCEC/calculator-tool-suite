@@ -7,6 +7,7 @@ import {
   type VoltageDropProblem,
   type VoltageDropResult,
 } from '@cctv/calc-core';
+import type { MetricTile } from '../../../../components/ResultsCard/ResultsPanel';
 import type { BarSegment } from '../../../../components/SegmentBar/SegmentBar';
 import {
   formatAmps,
@@ -119,18 +120,63 @@ export function describeRemaining(result: VoltageDropResult): string {
     : `${formatAmps(-result.remainingAmps)} over the usable rating`;
 }
 
-/** "5 A rated less a 20% reserve (1 A) · 24 W output", or no reserve. */
-export function describeRating(
+export interface ResultStatus {
+  /** The deciding check's status, for the badge colour. */
+  status: RunStatus | BudgetStatus;
+  label: string;
+}
+
+/**
+ * The card's badge: the worst run when one fails, then the supply when it is
+ * into its reserve or over, otherwise "Within limits".
+ */
+export function describeStatus(result: VoltageDropResult): ResultStatus {
+  const run = worstRun(result).status;
+  if (run !== 'ok') {
+    return { status: run, label: RUN_STATUS_LABELS[run] };
+  }
+  if (result.supplyStatus !== 'ok') {
+    return { status: result.supplyStatus, label: SUPPLY_STATUS_LABELS[result.supplyStatus] };
+  }
+  return { status: 'ok', label: 'Within limits' };
+}
+
+const plural = (count: number, noun: string) =>
+  `${formatNumber(count, 0)} ${count === 1 ? noun : `${noun}s`}`;
+
+/** "4 devices in 1 group", under the headline. */
+export function describeDevices(state: VoltageDropCalculatorState): string {
+  const devices = state.deviceGroups.reduce((total, group) => total + group.deviceCount, 0);
+  return `${plural(devices, 'device')} in ${plural(state.deviceGroups.length, 'group')}`;
+}
+
+/** The figures under the headline: the supply load, what's left, the rating and its reserve. */
+export function buildMetricTiles(
   state: VoltageDropCalculatorState,
   result: VoltageDropResult
-): string {
-  const rated = `${formatAmps(result.ratedAmps)} rated`;
+): MetricTile[] {
   const { reservePercent } = state.powerSupply;
-  const reserve =
-    reservePercent === 0
-      ? `${rated}, no reserve`
-      : `${rated} less a ${reservePercent}% reserve (${formatAmps(result.reserveAmps)})`;
-  return `${reserve} · ${formatWatts(result.totalWatts)} output`;
+  const over = result.remainingAmps < 0;
+  return [
+    {
+      label: 'Supply load',
+      value: formatAmps(result.totalAmps),
+      detail: `${formatWatts(result.totalWatts)} output`,
+    },
+    {
+      label: over ? 'Over by' : 'Remaining',
+      value: formatAmps(Math.abs(result.remainingAmps)),
+      detail: over ? 'past the usable rating' : 'before the reserve',
+    },
+    {
+      label: 'Supply rating',
+      value: formatAmps(result.ratedAmps),
+      detail:
+        reservePercent === 0
+          ? 'no reserve'
+          : `${reservePercent}% reserve (${formatAmps(result.reserveAmps)})`,
+    },
+  ];
 }
 
 /** What would fix a run: a thicker wire and/or a shorter run. */

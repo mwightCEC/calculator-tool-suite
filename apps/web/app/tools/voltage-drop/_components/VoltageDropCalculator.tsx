@@ -7,7 +7,6 @@ import { MobileResultBar } from '../../../../components/MobileResultBar/MobileRe
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
 import { describeWorstDeviceVolts, describeWorstDrop } from '../_lib/result-summary';
 import { useVoltageDropCalculator } from '../_state/use-voltage-drop-calculator';
-import { HowCalculated } from './HowCalculated';
 import { PrintSummary } from './PrintSummary';
 import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
 import { SupplySection } from './SupplySection';
@@ -62,8 +61,6 @@ export function VoltageDropCalculator() {
               onDropLimitChange={actions.setDropLimit}
             />
           </CameraConfigurationCard>
-
-          <HowCalculated />
         </Stack>
 
         <div className={classes.results}>

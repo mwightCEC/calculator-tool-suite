@@ -1,40 +1,41 @@
 'use client';
 
-import type { BudgetStatus, RunStatus, VoltageDropResult } from '@cctv/calc-core';
+import type { VoltageDropResult } from '@cctv/calc-core';
 import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
-import { Badge, Box, Button, Group, Stack, Text } from '@mantine/core';
+import { Badge, Button, Group, Stack, Text } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
+import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
+import {
+  HeadlineTile,
+  MetricRow,
+  ResultsPanel,
+} from '../../../../../components/ResultsCard/ResultsPanel';
 import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
 import { formatAmps } from '../../../../../lib/format';
 import {
+  buildMetricTiles,
+  describeDevices,
   describeLimit,
   describeProblem,
-  describeRating,
-  describeRemaining,
-  describeSupplyLoad,
+  describeStatus,
   describeWorstDrop,
-  RUN_STATUS_LABELS,
-  SUPPLY_STATUS_LABELS,
+  type ResultStatus,
   supplySegments,
-  worstRun,
 } from '../../_lib/result-summary';
 import { buildShareUrl } from '../../_state/share-link';
 import type { VoltageDropCalculatorState } from '../../_state/voltage-drop-calculator-state';
+import { HowCalculated } from '../HowCalculated';
 import { RunBreakdown } from './RunBreakdown';
 import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'voltage-drop-results';
 
-const RUN_BADGE_COLORS: Record<RunStatus, string> = {
-  ok: 'green',
-  'over-limit': 'red',
-  'cannot-power': 'red',
-};
-
-const SUPPLY_BADGE_COLORS: Record<BudgetStatus, string> = {
+const STATUS_BADGE_COLORS: Record<ResultStatus['status'], string> = {
   ok: 'green',
   'into-reserve': 'amber',
   'over-budget': 'red',
+  'over-limit': 'red',
+  'cannot-power': 'red',
 };
 
 interface ResultsCardProps {
@@ -45,63 +46,31 @@ interface ResultsCardProps {
 
 export function ResultsCard({ result, state }: ResultsCardProps) {
   const drop = describeWorstDrop(state, result);
-  const runStatus = worstRun(result).status;
-  const supply = describeSupplyLoad(result);
+  const status = describeStatus(result);
   const usesWatts = state.deviceGroups.some((group) => group.load.input === 'watts');
 
   return (
-    <Box
-      component="section"
+    <ResultsPanel
       id={RESULTS_CARD_ID}
-      tabIndex={-1}
-      aria-label="Results"
-      className={classes.card}
+      title="Voltage drop"
+      badge={
+        <Badge
+          variant="light"
+          color={STATUS_BADGE_COLORS[status.status]}
+          radius="sm"
+          className={classes.statusBadge}
+          data-status={status.status}
+        >
+          {status.label}
+        </Badge>
+      }
     >
-      <div>
-        <Group justify="space-between" align="center" wrap="nowrap" className={classes.labelRow}>
-          <Text className={classes.sectionLabel}>Worst voltage drop</Text>
-          <Badge
-            variant="light"
-            color={RUN_BADGE_COLORS[runStatus]}
-            radius="sm"
-            className={classes.statusBadge}
-            data-status={runStatus}
-          >
-            {RUN_STATUS_LABELS[runStatus]}
-          </Badge>
-        </Group>
-
-        {/* Polite live region so screen readers hear the headline update as inputs change. */}
-        <div aria-live="polite" aria-atomic="true">
-          <Text className={classes.headlineValue}>{drop.value}</Text>
-          <Text className={classes.secondaryText}>{drop.detail}</Text>
-        </div>
-        <Text className={classes.note}>{describeLimit(state)}.</Text>
-      </div>
-
-      <RunBreakdown state={state} result={result} />
-
-      <div>
-        <Group justify="space-between" align="center" wrap="nowrap" className={classes.labelRow}>
-          <Text className={classes.sectionLabel}>Supply load</Text>
-          <Badge
-            variant="light"
-            color={SUPPLY_BADGE_COLORS[result.supplyStatus]}
-            radius="sm"
-            className={classes.statusBadge}
-            data-status={result.supplyStatus}
-          >
-            {SUPPLY_STATUS_LABELS[result.supplyStatus]}
-          </Badge>
-        </Group>
-        <Text className={classes.figureValue}>{supply.value}</Text>
-        <Text className={classes.secondaryText}>
-          {supply.detail} · {describeRemaining(result)}
-        </Text>
-        <Text className={classes.note}>{describeRating(state, result)}.</Text>
-      </div>
-
-      <SegmentBar segments={supplySegments(state, result)} formatValue={formatAmps} />
+      <HeadlineTile
+        value={drop.value}
+        label="Worst voltage drop"
+        range={drop.detail}
+        footnote={`${describeDevices(state)} · ${describeLimit(state)}`}
+      />
 
       {result.problems.length > 0 && (
         <Stack component="ul" gap="xs" className={classes.list} role="status">
@@ -127,6 +96,28 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Stack>
       )}
 
+      <MetricRow tiles={buildMetricTiles(state, result)} />
+
+      <Disclosure title="Run and supply breakdown">
+        <Stack gap="md">
+          <RunBreakdown state={state} result={result} />
+          <div>
+            <Text component="h3" className={classes.sectionTitle}>
+              Supply load
+            </Text>
+            <SegmentBar
+              detailed
+              segments={supplySegments(state, result)}
+              formatValue={formatAmps}
+            />
+          </div>
+        </Stack>
+      </Disclosure>
+
+      <Disclosure title="How this is calculated">
+        <HowCalculated />
+      </Disclosure>
+
       {usesWatts && (
         <Text className={classes.note}>
           Loads given in watts draw more current as the voltage falls; the amps shown include this.
@@ -140,6 +131,6 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
           Export
         </Button>
       </Group>
-    </Box>
+    </ResultsPanel>
   );
 }

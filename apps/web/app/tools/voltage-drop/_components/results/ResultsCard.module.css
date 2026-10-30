@@ -1,33 +1,4 @@
-/* White results card with brand-blue accents, matching Storage's and Bandwidth's. */
-
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mantine-spacing-md);
-  padding: var(--mantine-spacing-lg);
-  border: 1px solid var(--mantine-color-default-border);
-  border-top: 4px solid var(--mantine-color-brand-6);
-  border-radius: var(--mantine-radius-md);
-  background-color: var(--mantine-color-body);
-}
-
-.card:focus {
-  outline: none;
-}
-
-.sectionLabel {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-xs);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-/* Row holding a section label and its badge. */
-.labelRow {
-  margin-bottom: 6px;
-  min-height: 22px;
-}
+/* Voltage drop-only results styles; the card, headline tile and metric row are in components/ResultsCard. */
 
 .statusBadge {
   flex-shrink: 0;
@@ -49,22 +20,10 @@
   color: var(--app-status-danger);
 }
 
-.headlineValue {
-  color: var(--app-accent-text);
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.15;
-}
-
-.figureValue {
-  color: var(--app-accent-text);
-  font-size: var(--mantine-font-size-xl);
-  font-weight: 700;
-}
-
-.secondaryText {
-  color: var(--app-text-secondary);
+.sectionTitle {
+  margin: 0 0 var(--mantine-spacing-xs);
   font-size: var(--mantine-font-size-sm);
+  font-weight: 700;
 }
 
 .note {
@@ -98,6 +57,16 @@
   white-space: nowrap;
 }
 
+.groupValue[data-status='over-limit'],
+.groupValue[data-status='cannot-power'] {
+  color: var(--app-status-danger);
+}
+
+.runLimits {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}
+
 .problem {
   color: var(--app-status-danger);
 }
@@ -109,14 +78,4 @@
 .problemIcon {
   flex-shrink: 0;
   margin-top: 2px;
-}
-
-.runLimits {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-xs);
-}
-
-.groupValue[data-status='over-limit'],
-.groupValue[data-status='cannot-power'] {
-  color: var(--app-status-danger);
 }
