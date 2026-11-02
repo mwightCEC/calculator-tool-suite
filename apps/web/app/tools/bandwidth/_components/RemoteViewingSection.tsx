@@ -4,19 +4,16 @@ import {
   isPointRange,
   MAX_CAMERAS_PER_VIEWER,
   MAX_REMOTE_VIEWERS,
+  VIEWING_BITRATE_SOURCES,
   type RemoteViewing,
   type ValueRange,
 } from '@cctv/calc-core';
-import { Switch, Text } from '@mantine/core';
+import { Select, Switch, Text } from '@mantine/core';
 import { EnteredBitrateInput } from '../../../../components/CameraGroupCard/BitrateField';
 import { Disclosure } from '../../../../components/Disclosure/Disclosure';
-import {
-  FieldLayoutProvider,
-  FieldRow,
-  fieldLabelId,
-} from '../../../../components/FieldRow/FieldRow';
+import { FieldLayoutProvider, FieldRow } from '../../../../components/FieldRow/FieldRow';
 import { NumberStepper } from '../../../../components/NumberStepper/NumberStepper';
-import { OptionButtons } from '../../../../components/OptionButtons/OptionButtons';
+import { parseOption } from '../../../../lib/camera-labels';
 import { formatMbps } from '../../../../lib/format';
 import { VIEWING_BITRATE_SOURCE_OPTIONS } from '../_lib/bandwidth-labels';
 import { OptionalMbpsInput } from './OptionalMbpsInput';
@@ -102,12 +99,17 @@ export function RemoteViewingSection({
                 help="Per-camera bitrate sent to each viewer. Camera bitrate uses the average of your camera groups. Choose Custom bitrate when viewers watch a lower-bitrate stream, such as a sub-stream for grid views."
                 controlId="bandwidth-viewing-bitrate"
               >
-                <OptionButtons
+                <Select
                   id="bandwidth-viewing-bitrate"
+                  data={VIEWING_BITRATE_SOURCE_OPTIONS}
                   value={bitrateSource}
-                  onChange={(value) => onChange({ bitrateSource: value })}
-                  options={VIEWING_BITRATE_SOURCE_OPTIONS}
-                  aria-labelledby={fieldLabelId('bandwidth-viewing-bitrate')}
+                  onChange={(value) => {
+                    const source = parseOption(VIEWING_BITRATE_SOURCES, value);
+                    if (source) {
+                      onChange({ bitrateSource: source });
+                    }
+                  }}
+                  allowDeselect={false}
                 />
                 {bitrateSource === 'camera' ? (
                   <Text size="sm" className={classes.secondaryText}>
