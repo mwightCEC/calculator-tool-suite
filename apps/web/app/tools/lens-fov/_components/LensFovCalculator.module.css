@@ -1,0 +1,72 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mantine-spacing-lg);
+  align-items: start;
+  /* Room for the fixed mobile result bar below the content. */
+  padding-bottom: 72px;
+}
+
+.inputs {
+  min-width: 0;
+}
+
+/* The camera configuration card, styled like the other calculators' group sections. */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+}
+
+.title {
+  font-size: var(--mantine-font-size-lg);
+  letter-spacing: -0.01em;
+}
+
+.description {
+  color: var(--app-text-secondary);
+}
+
+/* Camera and target fields: columns follow the card's width, not the viewport. */
+.fields {
+  container-type: inline-size;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mantine-spacing-md) var(--mantine-spacing-sm);
+}
+
+@container (min-width: 22rem) {
+  .fieldGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 34rem) {
+  .fieldGrid[data-columns='4'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.select {
+  width: 100%;
+}
+
+@media (min-width: $mantine-breakpoint-lg) {
+  .layout {
+    /* Inputs and results share the width about 7:5, as in the other calculators. */
+    grid-template-columns: minmax(0, 7fr) minmax(360px, 5fr);
+    padding-bottom: 0;
+  }
+
+  /* Results stay in view while the inputs scroll. */
+  .results {
+    position: sticky;
+    top: calc(var(--app-shell-header-height) + var(--mantine-spacing-md));
+    max-height: calc(100dvh - var(--app-shell-header-height) - 2 * var(--mantine-spacing-md));
+    overflow-y: auto;
+  }
+}
