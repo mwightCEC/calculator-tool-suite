@@ -192,3 +192,46 @@ export {
   type VoltageDropProblem,
   type VoltageDropResult,
 } from './voltage-drop/calculate-voltage-drop';
+
+// Lens / FOV calculator
+export * from './lens-fov/options';
+export {
+  activeSensorArea,
+  SENSOR_DIAGONAL_MM,
+  type ActiveSensorArea,
+  type SensorSize,
+  type SensorSpec,
+} from './lens-fov/sensor-formats';
+export {
+  DORI_PIXELS_PER_METRE,
+  doriLevelFor,
+  pixelsPerFoot,
+  pixelsPerMetreFromFeet,
+} from './lens-fov/dori';
+export {
+  coverageAtDistance,
+  distanceForPixelDensity,
+  fieldOfViewDegrees,
+} from './lens-fov/fov-geometry';
+export {
+  createDefaultLensFovInput,
+  densityTargetSchema,
+  imageResolutionSchema,
+  lensFovInputSchema,
+  sensorSchema,
+  type DensityTarget,
+  type ImageResolution,
+  type LensFovInput,
+  type SensorInput,
+} from './lens-fov/schema';
+export {
+  calculateLensFov,
+  imagePixels,
+  REFERENCE_PERSON_M,
+  targetPixelsPerMetre,
+  WIDE_ANGLE_NOTE_DEG,
+  type DoriDistance,
+  type LensComparisonRow,
+  type LensFovNote,
+  type LensFovResult,
+} from './lens-fov/calculate-lens-fov';

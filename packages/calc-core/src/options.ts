@@ -15,6 +15,20 @@ export const RESOLUTIONS = [
 ] as const;
 export type Resolution = (typeof RESOLUTIONS)[number];
 
+/** Image size per resolution tier, in pixels (1MP is 720p, 8MP is 4K UHD). */
+export const RESOLUTION_PIXELS: Readonly<Record<Resolution, { width: number; height: number }>> = {
+  nHD: { width: 640, height: 360 },
+  '960H': { width: 960, height: 480 },
+  '1MP': { width: 1280, height: 720 },
+  '2MP': { width: 1920, height: 1080 },
+  '3MP': { width: 2048, height: 1536 },
+  '4MP': { width: 2560, height: 1440 },
+  '5MP': { width: 2592, height: 1944 },
+  '6MP': { width: 3072, height: 2048 },
+  '8MP': { width: 3840, height: 2160 },
+  '12MP': { width: 4000, height: 3000 },
+};
+
 export const CODECS = ['h264', 'h265', 'mjpeg'] as const;
 export type Codec = (typeof CODECS)[number];
 
