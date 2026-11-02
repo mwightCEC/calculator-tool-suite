@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  CABLE_LENGTH_UNITS,
+  LOAD_INPUTS,
   MAX_CAMERAS_PER_GROUP,
   MAX_LOAD_AMPS,
   MAX_LOAD_WATTS,
@@ -9,21 +9,16 @@ import {
   MIN_LOAD_AMPS,
   MIN_LOAD_WATTS,
   WIRE_GAUGES,
-  WIRE_SYSTEMS,
   type CableLengthUnit,
   type LoadInput,
   type VoltageDropGroupUsage,
   type WireSystem,
 } from '@cctv/calc-core';
-import { Group, SegmentedControl, Select } from '@mantine/core';
-import {
-  FieldLayoutProvider,
-  FieldRow,
-  fieldLabelId,
-} from '../../../../components/FieldRow/FieldRow';
+import { Select } from '@mantine/core';
+import { FieldLayoutProvider, FieldRow } from '../../../../components/FieldRow/FieldRow';
 import { NumberStepper } from '../../../../components/NumberStepper/NumberStepper';
-import { OptionButtons } from '../../../../components/OptionButtons/OptionButtons';
 import { UnitInput } from '../../../../components/UnitInput/UnitInput';
+import { UNIT_SELECT_WIDTH, UnitSelect } from '../../../../components/UnitSelect/UnitSelect';
 import { parseOption } from '../../../../lib/camera-labels';
 import { describeRun } from '../_lib/group-summary';
 import {
@@ -39,7 +34,7 @@ import type {
 import classes from './VoltageDropCalculator.module.css';
 
 const LOAD_HELP =
-  'By amps: the current on the datasheet. By watts: the maximum power, with IR and any heater on; the current then rises as the voltage at the device falls.';
+  'Amps: the current on the datasheet. Watts: the maximum power, with IR and any heater on; the current then rises as the voltage at the device falls.';
 const GAUGE_HELP =
   'Conductor size of the power pair, in copper. Thicker wire (a lower AWG number) drops less voltage. The system applies to every group.';
 const LENGTH_HELP =
@@ -57,8 +52,9 @@ interface LoadFieldsProps {
 }
 
 /**
- * A device group's fields in a grid with labels above: count, load per device,
- * wire size and run length. Info icons only where they explain something.
+ * A device group's fields in a grid with labels above: count, load per device and
+ * wire size in one row (two or one on narrow cards), then run length with its drop.
+ * Units sit inside their fields. Info icons only where they explain something.
  */
 export function LoadFields({
   group,
@@ -76,7 +72,7 @@ export function LoadFields({
   return (
     <FieldLayoutProvider value="stacked">
       <div className={classes.fields}>
-        <div className={classes.fieldGrid}>
+        <div className={classes.fieldGrid} data-columns="4">
           <FieldRow label="Devices" controlId={`${id}-devices`}>
             <NumberStepper
               id={`${id}-devices`}
@@ -88,12 +84,18 @@ export function LoadFields({
           </FieldRow>
 
           <FieldRow label="Load given as" help={LOAD_HELP} controlId={`${id}-load-input`}>
-            <OptionButtons
+            <Select
               id={`${id}-load-input`}
+              data={LOAD_INPUT_OPTIONS}
               value={load.input}
-              onChange={onLoadInputChange}
-              options={LOAD_INPUT_OPTIONS}
-              aria-labelledby={fieldLabelId(`${id}-load-input`)}
+              onChange={(value) => {
+                const input = parseOption(LOAD_INPUTS, value);
+                if (input) {
+                  onLoadInputChange(input);
+                }
+              }}
+              allowDeselect={false}
+              className={classes.select}
             />
           </FieldRow>
 
@@ -124,66 +126,55 @@ export function LoadFields({
           )}
 
           <FieldRow label="Wire size" help={GAUGE_HELP} controlId={`${id}-gauge`}>
-            <Group gap="xs" wrap="nowrap">
-              <Select
-                id={`${id}-gauge`}
-                data={gaugeSelectData(wireSystem)}
-                value={group.gauge}
-                onChange={(value) => {
-                  const gauge = parseOption(WIRE_GAUGES, value);
-                  if (gauge) {
-                    onChange({ gauge });
-                  }
-                }}
-                allowDeselect={false}
-                className={classes.gaugeSelect}
-              />
-              <SegmentedControl
-                size="xs"
-                color="brand"
-                value={wireSystem}
-                onChange={(value) => {
-                  const system = parseOption(WIRE_SYSTEMS, value);
-                  if (system) {
-                    onWireSystemChange(system);
-                  }
-                }}
-                data={WIRE_SYSTEM_OPTIONS}
-                aria-label="Wire size system"
-              />
-            </Group>
+            <Select
+              id={`${id}-gauge`}
+              data={gaugeSelectData(wireSystem)}
+              value={group.gauge}
+              onChange={(value) => {
+                const gauge = parseOption(WIRE_GAUGES, value);
+                if (gauge) {
+                  onChange({ gauge });
+                }
+              }}
+              allowDeselect={false}
+              rightSection={
+                <UnitSelect
+                  value={wireSystem}
+                  onChange={onWireSystemChange}
+                  options={WIRE_SYSTEM_OPTIONS}
+                  aria-label="Wire size system"
+                />
+              }
+              rightSectionWidth={UNIT_SELECT_WIDTH}
+              rightSectionPointerEvents="all"
+              className={classes.select}
+            />
           </FieldRow>
 
           <FieldRow
             label="Run length"
             help={LENGTH_HELP}
+            className={classes.runLength}
             controlId={`${id}-length`}
             note={describeRun(usage)}
           >
-            <Group gap="xs" wrap="nowrap">
-              <UnitInput
-                id={`${id}-length`}
-                value={group.cableLength}
-                onChange={(cableLength) => onChange({ cableLength })}
-                min={0.1}
-                max={MAX_RUN_LENGTH}
-                decimals={1}
-                unit={cableLengthUnit}
-              />
-              <SegmentedControl
-                size="xs"
-                color="brand"
-                value={cableLengthUnit}
-                onChange={(value) => {
-                  const unit = parseOption(CABLE_LENGTH_UNITS, value);
-                  if (unit) {
-                    onCableLengthUnitChange(unit);
-                  }
-                }}
-                data={CABLE_LENGTH_UNIT_OPTIONS}
-                aria-label="Run length unit"
-              />
-            </Group>
+            <UnitInput
+              id={`${id}-length`}
+              value={group.cableLength}
+              onChange={(cableLength) => onChange({ cableLength })}
+              min={0.1}
+              max={MAX_RUN_LENGTH}
+              decimals={1}
+              unit={cableLengthUnit}
+              unitControl={
+                <UnitSelect
+                  value={cableLengthUnit}
+                  onChange={onCableLengthUnitChange}
+                  options={CABLE_LENGTH_UNIT_OPTIONS}
+                  aria-label="Run length unit"
+                />
+              }
+            />
           </FieldRow>
         </div>
       </div>

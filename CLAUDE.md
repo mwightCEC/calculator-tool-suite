@@ -31,7 +31,8 @@ Bandwidth, PoE budget and Voltage drop calculators are built; Lens / FOV is list
   schema, share-link format).
 - Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`,
   `CameraGroupCard`, `Disclosure`, `ResultsCard` (results card shell, headline tile, metric row),
-  `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export, `UnitInput`, `SegmentBar`,
+  `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export, `UnitInput`, `UnitSelect`
+  (ft / m, AWG / mm² picker inside an input), `SegmentBar`,
   `SettingsPanel` (tinted icon panel for settings below the groups)).
   Every calculator uses the approved-prototype layout: the camera / device configuration card
   first, with the tool's settings inside it below the groups (PoE budget's Switch / NVR and

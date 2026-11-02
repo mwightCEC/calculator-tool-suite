@@ -1,0 +1,17 @@
+.root {
+  width: 100%;
+}
+
+/*
+ * Reads like the plain unit text other inputs show, with a small chevron. The padding is
+ * set here because the outer input's right-section padding would otherwise be inherited.
+ */
+.input {
+  width: 100%;
+  padding-inline: var(--mantine-spacing-xs) 20px;
+  border-inline-start: 1px solid var(--mantine-color-default-border);
+  border-radius: 0;
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+  cursor: pointer;
+}

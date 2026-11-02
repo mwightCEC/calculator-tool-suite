@@ -6,14 +6,14 @@ import {
   MAX_SUPPLY_AMPS,
   MAX_SUPPLY_VOLTS,
   MIN_SUPPLY_VOLTS,
+  SUPPLY_KINDS,
   SUPPLY_RESERVE_PERCENTS,
   type DropLimitPercent,
   type PowerSupply,
 } from '@cctv/calc-core';
 import { IconBolt } from '@tabler/icons-react';
 import { Select } from '@mantine/core';
-import { FieldRow, fieldLabelId } from '../../../../components/FieldRow/FieldRow';
-import { OptionButtons } from '../../../../components/OptionButtons/OptionButtons';
+import { FieldRow } from '../../../../components/FieldRow/FieldRow';
 import { SettingsPanel } from '../../../../components/SettingsPanel/SettingsPanel';
 import { UnitInput } from '../../../../components/UnitInput/UnitInput';
 import { parseOption } from '../../../../lib/camera-labels';
@@ -101,12 +101,18 @@ export function SupplySection({
           {showCustom && (
             <>
               <FieldRow label="Output type" controlId="supply-kind">
-                <OptionButtons
+                <Select
                   id="supply-kind"
+                  data={SUPPLY_KIND_OPTIONS}
                   value={powerSupply.kind}
-                  onChange={(kind) => onChange({ kind })}
-                  options={SUPPLY_KIND_OPTIONS}
-                  aria-labelledby={fieldLabelId('supply-kind')}
+                  onChange={(value) => {
+                    const kind = parseOption(SUPPLY_KINDS, value);
+                    if (kind) {
+                      onChange({ kind });
+                    }
+                  }}
+                  allowDeselect={false}
+                  className={classes.select}
                 />
               </FieldRow>
 
