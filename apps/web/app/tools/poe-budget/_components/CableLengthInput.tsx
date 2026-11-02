@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { MAX_CABLE_LENGTH, type CableLengthUnit } from '@cctv/calc-core';
 import { NumberInput } from '@mantine/core';
+import { UNIT_SELECT_WIDTH } from '../../../../components/UnitSelect/UnitSelect';
 import classes from './PoeCalculator.module.css';
 
 const MIN_LENGTH = 0.1;
@@ -16,13 +17,21 @@ interface CableLengthInputProps {
   value: number | null;
   unit: CableLengthUnit;
   onChange: (length: number | null) => void;
+  /** A UnitSelect shown in place of the unit text. */
+  unitControl?: ReactNode;
 }
 
 /**
  * The group's longest cable run, which may be left empty. Valid numbers commit
  * as they are typed; clearing the field goes back to the 100 m assumption.
  */
-export function CableLengthInput({ id, value, unit, onChange }: CableLengthInputProps) {
+export function CableLengthInput({
+  id,
+  value,
+  unit,
+  onChange,
+  unitControl,
+}: CableLengthInputProps) {
   const [draft, setDraft] = useState<number | string>(value ?? '');
   const [lastValue, setLastValue] = useState(value);
 
@@ -62,8 +71,9 @@ export function CableLengthInput({ id, value, unit, onChange }: CableLengthInput
       allowNegative={false}
       clampBehavior="none"
       hideControls
-      rightSection={unit}
-      rightSectionWidth={32}
+      rightSection={unitControl ?? unit}
+      rightSectionWidth={unitControl ? UNIT_SELECT_WIDTH : 32}
+      rightSectionPointerEvents={unitControl ? 'all' : 'none'}
       classNames={{ input: classes.numberInput, section: classes.unitSection }}
     />
   );

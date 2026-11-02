@@ -15,9 +15,10 @@ export function HowCalculated() {
         resistance and drop more.
       </List.Item>
       <List.Item>
-        <b>By amps</b>, the device draws the same current whatever the voltage. <b>By watts</b>, it
-        draws its power at whatever voltage reaches it, so the current rises as the voltage falls. A
-        run so long that no current can deliver the power is flagged as unable to power the device.
+        Given in <b>amps</b>, the device draws the same current whatever the voltage. Given in{' '}
+        <b>watts</b>, it draws its power at whatever voltage reaches it, so the current rises as the
+        voltage falls. A run so long that no current can deliver the power is flagged as unable to
+        power the device.
       </List.Item>
       <List.Item>
         <b>24 V AC</b> is treated like DC at its RMS voltage, using the wire&apos;s resistance only.

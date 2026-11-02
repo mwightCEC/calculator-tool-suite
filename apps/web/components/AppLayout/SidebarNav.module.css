@@ -9,25 +9,8 @@
   padding: var(--mantine-spacing-xs);
 }
 
-/* All tools, with the collapse button beside it while expanded. */
-.topRow {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.topRow > :first-child {
-  flex: 1;
-  min-width: 0;
-}
-
-.collapseButton {
-  flex-shrink: 0;
-  color: var(--app-sidebar-icon);
-}
-
-/* Collapsed rail: a round tab straddling the right edge, level with All tools. */
-.expandTab {
+/* Collapse / expand: a round tab straddling the sidebar's right edge, level with All tools. */
+.toggleTab {
   position: absolute;
   top: calc(var(--mantine-spacing-xs) + 8px);
   right: -12px;
@@ -45,7 +28,7 @@
 }
 
 @media (hover: hover) {
-  .expandTab:hover {
+  .toggleTab:hover {
     background-color: var(--app-sidebar-hover-bg);
   }
 }

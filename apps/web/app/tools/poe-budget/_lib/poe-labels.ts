@@ -29,8 +29,8 @@ export const PORT_STANDARD_SHORT_LABELS: Record<PortStandard, string> = {
 };
 
 export const POWER_INPUT_LABELS: Record<PowerInput, string> = {
-  watts: 'By watts',
-  class: 'By PoE class',
+  watts: 'Watts',
+  class: 'PoE class',
 };
 
 export const CABLE_LENGTH_UNIT_LABELS: Record<CableLengthUnit, string> = {
@@ -48,8 +48,13 @@ export const RESERVE_OPTIONS = POE_RESERVE_PERCENTS.map((percent) => ({
   label: `${percent}%`,
 }));
 
-/** "Class 3 (up to 12.95 W)", by device power, which is what datasheets list. */
+/** "12.95 W max", the class's device power as datasheets list it; the dropdown adds the class. */
 export const POE_CLASS_SELECT_DATA = POE_CLASS_SPECS.map((spec) => ({
   value: String(spec.poeClass),
-  label: `Class ${spec.poeClass} (up to ${formatNumber(spec.deviceWatts, 2)} W)`,
+  label: `${formatNumber(spec.deviceWatts, 2)} W max`,
 }));
+
+/** "Class 3" by class value, shown beside each power in the dropdown. */
+export const POE_CLASS_NAMES: Record<string, string> = Object.fromEntries(
+  POE_CLASS_SPECS.map((spec) => [String(spec.poeClass), `Class ${spec.poeClass}`])
+);

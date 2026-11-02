@@ -28,14 +28,28 @@ interface FieldRowProps {
   dimmed?: boolean;
   /** Short helper text below the control. */
   note?: ReactNode;
+  /** Extra class for the row, e.g. to span grid columns. */
+  className?: string;
   children: ReactNode;
 }
 
 /** One form field: label with an info tooltip, and the control beside or below it (FieldLayout). */
-export function FieldRow({ label, help, controlId, dimmed, note, children }: FieldRowProps) {
+export function FieldRow({
+  label,
+  help,
+  controlId,
+  dimmed,
+  note,
+  className,
+  children,
+}: FieldRowProps) {
   const layout = useContext(FieldLayoutContext);
   return (
-    <div className={classes.row} data-layout={layout} data-dimmed={dimmed || undefined}>
+    <div
+      className={[classes.row, className].filter(Boolean).join(' ')}
+      data-layout={layout}
+      data-dimmed={dimmed || undefined}
+    >
       <div className={classes.labelCell}>
         <label id={fieldLabelId(controlId)} htmlFor={controlId} className={classes.label}>
           {label}

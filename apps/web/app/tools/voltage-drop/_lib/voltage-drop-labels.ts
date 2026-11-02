@@ -25,8 +25,8 @@ export const SUPPLY_KIND_LABELS: Record<SupplyKind, string> = {
 };
 
 export const LOAD_INPUT_LABELS: Record<LoadInput, string> = {
-  amps: 'By amps',
-  watts: 'By watts',
+  amps: 'Amps',
+  watts: 'Watts',
 };
 
 export const WIRE_SYSTEM_LABELS: Record<WireSystem, string> = {
@@ -67,11 +67,11 @@ export const LOAD_INPUT_OPTIONS = toOptions(LOAD_INPUTS, LOAD_INPUT_LABELS);
 export const WIRE_SYSTEM_OPTIONS = toOptions(WIRE_SYSTEMS, WIRE_SYSTEM_LABELS);
 export const CABLE_LENGTH_UNIT_OPTIONS = toOptions(CABLE_LENGTH_UNITS, CABLE_LENGTH_UNIT_LABELS);
 
-/** Wire sizes in one system, thinnest first, for a Select. */
+/** Wire sizes in one system, thinnest first, for a Select that shows the system beside it ("18"). */
 export function gaugeSelectData(system: WireSystem) {
-  return WIRE_GAUGE_SPECS.filter((spec) => spec.system === system).map((spec) => ({
-    value: spec.gauge,
-    label: describeGauge(spec.gauge),
+  return WIRE_GAUGE_SPECS.filter((spec) => spec.system === system).map(({ gauge }) => ({
+    value: gauge,
+    label: gauge.slice(gauge.indexOf('-') + 1),
   }));
 }
 

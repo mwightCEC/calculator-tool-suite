@@ -13,13 +13,13 @@ export function HowCalculated() {
         add up <i>devices × allocation</i> for every group.
       </List.Item>
       <List.Item>
-        <b>By PoE class</b>, the allocation is the class&apos;s full switch-side power, for example{' '}
-        {class3.switchWatts} W for class 3 and {class4.switchWatts} W for class 4. A switch that
-        reserves power by class sets this much aside even when the device draws less.
+        Given as a <b>PoE class</b>, the allocation is the class&apos;s full switch-side power, for
+        example {class3.switchWatts} W for class 3 and {class4.switchWatts} W for class 4. A switch
+        that reserves power by class sets this much aside even when the device draws less.
       </List.Item>
       <List.Item>
-        <b>By watts</b>, the allocation is the datasheet&apos;s maximum draw plus an estimate of the
-        power lost in the cable: <i>(watts ÷ {CABLE_LOSS_VOLTS} V)² × resistance</i>, using{' '}
+        Given in <b>watts</b>, the allocation is the datasheet&apos;s maximum draw plus an estimate
+        of the power lost in the cable: <i>(watts ÷ {CABLE_LOSS_VOLTS} V)² × resistance</i>, using{' '}
         {LOOP_OHMS_PER_100_M} Ω per 100 m of Cat5e, halved when the device uses all four pairs. With
         no cable length, 100 m is assumed.
       </List.Item>

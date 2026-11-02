@@ -1,7 +1,9 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { NumberInput } from '@mantine/core';
 import { useNumberDraft } from '../../hooks/use-number-draft';
+import { UNIT_SELECT_WIDTH } from '../UnitSelect/UnitSelect';
 import classes from './UnitInput.module.css';
 
 interface UnitInputProps {
@@ -14,10 +16,21 @@ interface UnitInputProps {
   decimals: number;
   /** Shown inside the field: V, A, W, ft or m. */
   unit: string;
+  /** A UnitSelect shown in place of the unit text, when the unit can be changed here. */
+  unitControl?: ReactNode;
 }
 
 /** A number with its unit. Valid numbers commit as they are typed; blur snaps to the range. */
-export function UnitInput({ id, value, onChange, min, max, decimals, unit }: UnitInputProps) {
+export function UnitInput({
+  id,
+  value,
+  onChange,
+  min,
+  max,
+  decimals,
+  unit,
+  unitControl,
+}: UnitInputProps) {
   const factor = 10 ** decimals;
   const sanitize = (next: number) =>
     Math.min(max, Math.max(min, Math.round(next * factor) / factor));
@@ -35,8 +48,9 @@ export function UnitInput({ id, value, onChange, min, max, decimals, unit }: Uni
       allowNegative={false}
       clampBehavior="none"
       hideControls
-      rightSection={unit}
-      rightSectionWidth={32}
+      rightSection={unitControl ?? unit}
+      rightSectionWidth={unitControl ? UNIT_SELECT_WIDTH : 32}
+      rightSectionPointerEvents={unitControl ? 'all' : 'none'}
       classNames={{ input: classes.input, section: classes.unit }}
     />
   );

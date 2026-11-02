@@ -35,6 +35,18 @@
   }
 }
 
+/* A device group's load and wire fields share one row once the card is wide enough;
+   run length takes half the next row, so its drop note fits beside nothing else. */
+@container (min-width: 34rem) {
+  .fieldGrid[data-columns='4'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .fieldGrid[data-columns='4'] .runLength {
+    grid-column: span 2;
+  }
+}
+
 .select {
   width: 100%;
 }
@@ -53,8 +65,4 @@
     max-height: calc(100dvh - var(--app-shell-header-height) - 2 * var(--mantine-spacing-md));
     overflow-y: auto;
   }
-}
-
-.gaugeSelect {
-  width: 120px;
 }
