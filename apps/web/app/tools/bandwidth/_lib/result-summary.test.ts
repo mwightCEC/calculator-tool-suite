@@ -24,8 +24,8 @@ function stateAfter(...actions: BandwidthCalculatorAction[]): BandwidthCalculato
 /** 10 cameras at a known 4 Mbps, so every figure is exact. */
 const KNOWN_4_MBPS: BandwidthCalculatorAction[] = [
   { type: 'update-group', id: 'g1', changes: { cameraCount: 10 } },
-  { type: 'set-bitrate-source', id: 'g1', source: 'known-average' },
-  { type: 'update-group', id: 'g1', changes: { bitrate: { source: 'known-average', mbps: 4 } } },
+  { type: 'set-bitrate-source', id: 'g1', source: 'manual' },
+  { type: 'update-group', id: 'g1', changes: { bitrate: { source: 'manual', mbps: 4 } } },
 ];
 
 const VIEWING_ON: BandwidthCalculatorAction = {

@@ -23,7 +23,7 @@ export const MAX_RETENTION_DAYS = 3650;
 export const MAX_DRIVE_COUNT = 1000;
 export const MAX_GROUP_NAME_LENGTH = 60;
 
-/** A bitrate the user supplies: a measured average or a configured cap. */
+/** A bitrate the user supplies, such as a measured average or a configured CBR bitrate. */
 export const enteredBitrateMbpsSchema = z
   .number()
   .min(BITRATE_INPUT_MIN_MBPS)
@@ -31,8 +31,7 @@ export const enteredBitrateMbpsSchema = z
 
 export const groupBitrateSchema = z.discriminatedUnion('source', [
   z.object({ source: z.literal('estimate') }),
-  z.object({ source: z.literal('known-average'), mbps: enteredBitrateMbpsSchema }),
-  z.object({ source: z.literal('bitrate-cap'), mbps: enteredBitrateMbpsSchema }),
+  z.object({ source: z.literal('manual'), mbps: enteredBitrateMbpsSchema }),
 ]);
 
 export const cameraGroupSchema = z.object({

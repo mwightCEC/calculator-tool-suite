@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import type { BitrateSource, ValueRange } from '@cctv/calc-core';
+import { describeBitrateHint } from '../../lib/bitrate-text';
 import { Disclosure } from '../Disclosure/Disclosure';
 import { FieldLayoutProvider } from '../FieldRow/FieldRow';
 import { BitrateField } from './BitrateField';
@@ -35,7 +36,7 @@ interface CameraStreamGridProps {
  * A camera group's fields in a grid with labels above: cameras and main-stream
  * settings, then Scene complexity (the only info icon) and any calculator
  * fields, with the bitrate under Advanced settings. Advanced settings starts
- * open when a known bitrate is set.
+ * open when a manual bitrate is set.
  */
 export function CameraStreamGrid({
   group,
@@ -68,16 +69,15 @@ export function CameraStreamGrid({
       </div>
       <Disclosure
         title="Advanced settings"
-        hint="(bitrate)"
-        defaultOpened={group.bitrate.source !== 'estimate'}
+        hint={`(${describeBitrateHint(group.bitrate, perCameraMbps)})`}
+        defaultOpened={group.bitrate.source === 'manual'}
       >
         <BitrateField
           idPrefix={group.id}
-          bitrate={group.bitrate}
+          group={group}
           perCameraMbps={perCameraMbps}
           onSourceChange={onBitrateSourceChange}
           onMbpsChange={(mbps) => applyEnteredBitrate(group, onChange, mbps)}
-          withHelp={false}
         />
       </Disclosure>
     </FieldLayoutProvider>

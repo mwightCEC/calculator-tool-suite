@@ -19,8 +19,8 @@ function summarize(state: BandwidthCalculatorState) {
 /** 10 cameras at a known 4 Mbps, remote viewing off: nothing is estimated. */
 const KNOWN_ONLY: BandwidthCalculatorAction[] = [
   { type: 'update-group', id: 'g1', changes: { cameraCount: 10 } },
-  { type: 'set-bitrate-source', id: 'g1', source: 'known-average' },
-  { type: 'update-group', id: 'g1', changes: { bitrate: { source: 'known-average', mbps: 4 } } },
+  { type: 'set-bitrate-source', id: 'g1', source: 'manual' },
+  { type: 'update-group', id: 'g1', changes: { bitrate: { source: 'manual', mbps: 4 } } },
 ];
 
 describe('buildPrintSummary', () => {
@@ -96,7 +96,7 @@ describe('buildPrintSummary', () => {
       cameras: '10',
       camera: '4MP (1440p) · H.265 · 15 fps',
       scene: 'n/a (known bitrate)',
-      bitrate: '4 Mbps VBR average',
+      bitrate: '4 Mbps (manual)',
       total: '40 Mbps',
     });
     expect(summary.settings).toEqual([

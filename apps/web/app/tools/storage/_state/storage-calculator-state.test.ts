@@ -203,15 +203,15 @@ describe('update-group and set-bitrate-source', () => {
   });
 
   it('prefills an entered bitrate when leaving Estimate', () => {
-    const state = apply({ type: 'set-bitrate-source', id: 'g1', source: 'bitrate-cap' });
+    const state = apply({ type: 'set-bitrate-source', id: 'g1', source: 'manual' });
     const bitrate = state.cameraGroups[0]?.bitrate;
-    expect(bitrate?.source).toBe('bitrate-cap');
+    expect(bitrate?.source).toBe('manual');
     expect(bitrate && 'mbps' in bitrate && bitrate.mbps).toBeGreaterThan(0);
   });
 
   it('returns to the estimate', () => {
     const state = apply(
-      { type: 'set-bitrate-source', id: 'g1', source: 'known-average' },
+      { type: 'set-bitrate-source', id: 'g1', source: 'manual' },
       { type: 'set-bitrate-source', id: 'g1', source: 'estimate' }
     );
     expect(state.cameraGroups[0]?.bitrate).toEqual({ source: 'estimate' });

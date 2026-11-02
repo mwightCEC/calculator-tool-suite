@@ -55,10 +55,11 @@ export const V2_SCENE_COMPLEXITIES = [
   'medium',
   'high',
 ] as const satisfies readonly SceneComplexity[];
+/** 1 and 2 were VBR and CBR, which both open as Manual now; new links write 1. */
 export const V2_BITRATE_SOURCES = [
   'estimate',
-  'known-average',
-  'bitrate-cap',
+  'manual',
+  'manual',
 ] as const satisfies readonly BitrateSource[];
 
 const index = z.int().nonnegative();

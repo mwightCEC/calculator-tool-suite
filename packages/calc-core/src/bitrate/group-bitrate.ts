@@ -25,8 +25,8 @@ function toEnteredBitrate(mbps: number, maxMbps: number): number {
 
 /**
  * Returns the group's bitrate after switching to `source`.
- * Leaving Estimate prefills the input with the current typical estimate;
- * switching between Known average and Bitrate cap keeps the entered value.
+ * Switching to Manual prefills the input with the current typical estimate
+ * and keeps an already entered value.
  */
 export function changeBitrateSource(
   group: BitrateGroupFields,
@@ -37,8 +37,8 @@ export function changeBitrateSource(
   if (source === 'estimate') {
     return { source };
   }
-  if (group.bitrate.source === 'estimate') {
-    return { source, mbps: toEnteredBitrate(estimateTypicalBitrateMbps(group, model), maxMbps) };
+  if (group.bitrate.source === 'manual') {
+    return { source, mbps: group.bitrate.mbps };
   }
-  return { source, mbps: group.bitrate.mbps };
+  return { source, mbps: toEnteredBitrate(estimateTypicalBitrateMbps(group, model), maxMbps) };
 }

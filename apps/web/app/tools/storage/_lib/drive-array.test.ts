@@ -27,7 +27,7 @@ describe('describeDriveArray', () => {
     const summary = summaryAfter(raid5, {
       type: 'set-bitrate-source',
       id: 'g1',
-      source: 'bitrate-cap',
+      source: 'manual',
     });
     expect(summary.description).toBe('RAID 5 (single parity) · sized for the known bitrates');
   });

@@ -24,8 +24,8 @@ interface CameraConfigurationCardProps {
 }
 
 /**
- * The section that holds a calculator's camera groups: heading, Add camera group,
- * Collapse all / Clear all, then the cards.
+ * The section that holds a calculator's camera groups: heading with the Collapse all /
+ * Clear all icon buttons and Add camera group, then the cards.
  */
 export function CameraConfigurationCard({
   noun = 'camera',
@@ -56,30 +56,31 @@ export function CameraConfigurationCard({
             Add one or more {noun} groups. Each group can have different settings.
           </Text>
         </div>
-        <Button
-          variant="outline"
-          radius="xl"
-          leftSection={<IconPlus size={16} />}
-          onClick={() => {
-            // The new group opens at the top with the others collapsed below it.
-            expansion.collapseAll();
-            onAddGroup();
-          }}
-          disabled={atGroupLimit}
-        >
-          {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} ${noun} groups` : `Add ${noun} group`}
-        </Button>
+        <Group gap="xs" wrap="nowrap">
+          <CameraGroupToolbar
+            allCollapsed={expansion.allCollapsed}
+            onToggleAll={expansion.toggleAll}
+            canClear={canClear}
+            onClear={() => {
+              onClear();
+              expansion.expandAll();
+            }}
+          />
+          <Button
+            variant="outline"
+            radius="xl"
+            leftSection={<IconPlus size={16} />}
+            onClick={() => {
+              // The new group opens at the top with the others collapsed below it.
+              expansion.collapseAll();
+              onAddGroup();
+            }}
+            disabled={atGroupLimit}
+          >
+            {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} ${noun} groups` : `Add ${noun} group`}
+          </Button>
+        </Group>
       </Group>
-
-      <CameraGroupToolbar
-        allCollapsed={expansion.allCollapsed}
-        onToggleAll={expansion.toggleAll}
-        canClear={canClear}
-        onClear={() => {
-          onClear();
-          expansion.expandAll();
-        }}
-      />
 
       {children}
     </Paper>

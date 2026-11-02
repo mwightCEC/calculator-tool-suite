@@ -26,8 +26,8 @@ export function HowCalculated() {
         </List.Item>
         <List.Item>
           Real bitrate varies with the scene, night/IR noise, camera model and settings, so
-          estimates are shown as a likely range. Use <b>VBR</b> or <b>CBR</b> with a known bitrate
-          for firmer figures.
+          estimates are shown as a likely range. Choose <b>Manual</b> with a known bitrate for
+          firmer figures.
         </List.Item>
         <List.Item>
           Network checks compare the high end of the range with each link: up to{' '}

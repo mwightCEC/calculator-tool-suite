@@ -1,6 +1,6 @@
 /**
  * A planning estimate with its uncertainty. For values that come from known
- * data (a measured average or a bitrate cap) low = typical = high.
+ * data (an entered bitrate) low = typical = high.
  */
 export interface ValueRange {
   low: number;

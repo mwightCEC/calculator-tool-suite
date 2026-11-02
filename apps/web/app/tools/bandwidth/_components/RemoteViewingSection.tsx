@@ -76,7 +76,6 @@ export function RemoteViewingSection({
                   onChange={(value) => onChange({ viewers: value })}
                   min={1}
                   max={MAX_REMOTE_VIEWERS}
-                  unitLabel="viewer"
                 />
               </FieldRow>
 
@@ -95,7 +94,6 @@ export function RemoteViewingSection({
                   onChange={(value) => onChange({ camerasPerViewer: value })}
                   min={1}
                   max={MAX_CAMERAS_PER_VIEWER}
-                  unitLabel="camera"
                 />
               </FieldRow>
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CODECS, FRAME_RATES, RESOLUTIONS, SCENE_COMPLEXITIES } from '../options';
 import { BITRATE_MODEL } from './bitrate-model';
 import {
+  estimateBitrateBreakdown,
   estimateBitrateRange,
   estimateTypicalBitrateMbps,
   uncertaintyBandFor,
@@ -51,6 +52,17 @@ describe('estimateTypicalBitrateMbps', () => {
       (15 / model.reference.frameRate) ** model.frameRateScaling.exponent.value *
       model.sceneComplexityMultipliers.high.value;
     expect(estimateTypicalBitrateMbps(input)).toBeCloseTo(expected, 10);
+  });
+});
+
+describe('estimateBitrateBreakdown', () => {
+  it('splits the typical estimate into the stream rate and the scene multiplier', () => {
+    const input = { ...REFERENCE, codec: 'h265', sceneComplexity: 'high' } as const;
+    const breakdown = estimateBitrateBreakdown(input);
+
+    expect(breakdown.sceneMultiplier).toBe(model.sceneComplexityMultipliers.high.value);
+    expect(breakdown.streamMbps).toBeCloseTo(base4mp * model.codecMultipliers.h265.value, 10);
+    expect(breakdown.typicalMbps).toBeCloseTo(estimateTypicalBitrateMbps(input), 10);
   });
 });
 

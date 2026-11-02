@@ -20,11 +20,11 @@ function summarize(state: StorageCalculatorState) {
 const KNOWN_ONLY = stateAfter(
   { type: 'update-storage', changes: { raidLevel: 'raid5', reservePercent: 10 } },
   { type: 'update-group', id: 'g1', changes: { cameraCount: 10 } },
-  { type: 'set-bitrate-source', id: 'g1', source: 'known-average' },
+  { type: 'set-bitrate-source', id: 'g1', source: 'manual' },
   {
     type: 'update-group',
     id: 'g1',
-    changes: { bitrate: { source: 'known-average', mbps: 4 } },
+    changes: { bitrate: { source: 'manual', mbps: 4 } },
   }
 );
 
@@ -52,7 +52,7 @@ describe('buildPrintSummary', () => {
     expect(summary.keyFigures[0]?.value).toBe('40 Mbps');
     expect(summary.groups[0]).toEqual(
       expect.objectContaining({
-        bitrate: '4 Mbps VBR average',
+        bitrate: '4 Mbps (manual)',
         scene: 'n/a (known bitrate)',
         totalMbps: '40 Mbps',
         perDay: '432 GB',

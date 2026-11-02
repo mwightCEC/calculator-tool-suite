@@ -11,18 +11,18 @@ import {
   type RemoteViewing,
 } from './schema';
 
-/** 10 cameras × 4 Mbps VBR average. */
+/** 10 cameras × 4 Mbps entered. */
 const LOBBY: BandwidthCameraGroup = {
   ...createBandwidthCameraGroup('g1', 'Lobby'),
   cameraCount: 10,
-  bitrate: { source: 'known-average', mbps: 4 },
+  bitrate: { source: 'manual', mbps: 4 },
 };
 
-/** 5 cameras × 1 Mbps CBR. */
+/** 5 cameras × 1 Mbps entered. */
 const PARKING: BandwidthCameraGroup = {
   ...createBandwidthCameraGroup('g2', 'Parking'),
   cameraCount: 5,
-  bitrate: { source: 'bitrate-cap', mbps: 1 },
+  bitrate: { source: 'manual', mbps: 1 },
 };
 
 const VIEWING: RemoteViewing = {

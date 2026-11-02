@@ -91,12 +91,60 @@
   width: 120px;
 }
 
-.estimate {
+.mbpsInput {
+  width: 120px;
+}
+
+/* Bitrate per camera, under a camera group's Advanced settings. */
+.bitrate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-xs);
+  container-type: inline-size;
+}
+
+.bitrateHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+}
+
+.bitrateTitle {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+}
+
+.secondaryText {
   color: var(--app-text-secondary);
 }
 
-.mbpsInput {
-  width: 120px;
+.emphasis {
+  color: var(--mantine-color-text);
+}
+
+.configured {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Matches the stacked field labels in the grid above. */
+.configuredLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* Half the width, lining up with the two-column field rows above. */
+.configured .mbpsInput {
+  width: 100%;
+}
+
+@container (min-width: 22rem) {
+  .configured .mbpsInput {
+    width: calc((100% - var(--mantine-spacing-sm)) / 2);
+  }
 }
 
 .unitSection {

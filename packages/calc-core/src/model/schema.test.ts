@@ -30,9 +30,9 @@ describe('cameraGroupSchema', () => {
 
   it.each([
     [{ source: 'estimate' }],
-    [{ source: 'known-average', mbps: 3.5 }],
-    [{ source: 'bitrate-cap', mbps: 0.1 }],
-    [{ source: 'bitrate-cap', mbps: 100 }],
+    [{ source: 'manual', mbps: 3.5 }],
+    [{ source: 'manual', mbps: 0.1 }],
+    [{ source: 'manual', mbps: 100 }],
   ])('accepts bitrate %o', (bitrate) => {
     expect(cameraGroupSchema.parse({ ...validGroup, bitrate }).bitrate).toEqual(bitrate);
   });
@@ -60,9 +60,10 @@ describe('cameraGroupSchema', () => {
     ['zero schedule hours', { scheduleHours: 0 }],
     ['more than 24 schedule hours', { scheduleHours: 25 }],
     ['an unknown bitrate source', { bitrate: { source: 'guess' } }],
-    ['a known average without a value', { bitrate: { source: 'known-average' } }],
-    ['a bitrate cap below 0.1 Mbps', { bitrate: { source: 'bitrate-cap', mbps: 0.05 } }],
-    ['a known average above 100 Mbps', { bitrate: { source: 'known-average', mbps: 101 } }],
+    ['the old VBR source', { bitrate: { source: 'known-average', mbps: 4 } }],
+    ['a manual bitrate without a value', { bitrate: { source: 'manual' } }],
+    ['a manual bitrate below 0.1 Mbps', { bitrate: { source: 'manual', mbps: 0.05 } }],
+    ['a manual bitrate above 100 Mbps', { bitrate: { source: 'manual', mbps: 101 } }],
     ['the old override field instead of bitrate', { bitrate: undefined, bitrateOverrideMbps: 4 }],
   ])('rejects %s', (_label, overrides) => {
     expect(cameraGroupSchema.safeParse({ ...validGroup, ...overrides }).success).toBe(false);
