@@ -28,7 +28,7 @@ export const VIEWING_BITRATE_SOURCE_OPTIONS = toOptions(
   VIEWING_BITRATE_SOURCE_LABELS
 );
 
-// OptionButtons values are strings, so numeric options are keyed by their string form.
+// Select values are strings, so numeric options are keyed by their string form.
 export const UPLINK_OFF = 'off';
 export const UPLINK_OPTIONS = [
   { value: UPLINK_OFF, label: 'Off' },
