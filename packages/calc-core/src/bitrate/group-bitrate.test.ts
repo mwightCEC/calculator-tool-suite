@@ -25,8 +25,8 @@ describe('cameraBitrateRange', () => {
     expect(cameraBitrateRange(estimated)).toEqual(estimateBitrateRange(estimated));
   });
 
-  it.each(['known-average', 'bitrate-cap'] as const)('collapses %s to one value', (source) => {
-    expect(cameraBitrateRange(group({ bitrate: { source, mbps: 8 } }))).toEqual({
+  it('collapses a manual bitrate to one value', () => {
+    expect(cameraBitrateRange(group({ bitrate: { source: 'manual', mbps: 8 } }))).toEqual({
       low: 8,
       typical: 8,
       high: 8,
@@ -35,46 +35,39 @@ describe('cameraBitrateRange', () => {
 });
 
 describe('changeBitrateSource', () => {
-  it.each(['known-average', 'bitrate-cap'] as const)(
-    'prefills %s with the typical estimate, rounded to 0.1 Mbps',
-    (source) => {
-      const estimated = group({ bitrate: { source: 'estimate' } });
-      const expected = Math.round(estimateTypicalBitrateMbps(estimated) * 10) / 10;
-      expect(changeBitrateSource(estimated, source)).toEqual({ source, mbps: expected });
-    }
-  );
+  it('prefills Manual with the typical estimate, rounded to 0.1 Mbps', () => {
+    const estimated = group({ bitrate: { source: 'estimate' } });
+    const expected = Math.round(estimateTypicalBitrateMbps(estimated) * 10) / 10;
+    expect(changeBitrateSource(estimated, 'manual')).toEqual({ source: 'manual', mbps: expected });
+  });
 
-  it('keeps the entered value when switching between Known average and Bitrate cap', () => {
-    const known = group({ bitrate: { source: 'known-average', mbps: 7.3 } });
-    expect(changeBitrateSource(known, 'bitrate-cap')).toEqual({ source: 'bitrate-cap', mbps: 7.3 });
+  it('keeps an entered value when Manual is chosen again', () => {
+    const known = group({ bitrate: { source: 'manual', mbps: 7.3 } });
+    expect(changeBitrateSource(known, 'manual')).toEqual({ source: 'manual', mbps: 7.3 });
   });
 
   it('drops the entered value when switching back to Estimate', () => {
-    const capped = group({ bitrate: { source: 'bitrate-cap', mbps: 7.3 } });
-    expect(changeBitrateSource(capped, 'estimate')).toEqual<GroupBitrate>({ source: 'estimate' });
+    const manual = group({ bitrate: { source: 'manual', mbps: 7.3 } });
+    expect(changeBitrateSource(manual, 'estimate')).toEqual<GroupBitrate>({ source: 'estimate' });
   });
 
   it('clamps the prefill to the allowed input range', () => {
     const estimated = group({ resolution: '4MP' });
 
-    expect(
-      changeBitrateSource(estimated, 'bitrate-cap', { model: withBaseline4mp(10_000) })
-    ).toEqual({
-      source: 'bitrate-cap',
+    expect(changeBitrateSource(estimated, 'manual', { model: withBaseline4mp(10_000) })).toEqual({
+      source: 'manual',
       mbps: BITRATE_INPUT_MAX_MBPS,
     });
-    expect(
-      changeBitrateSource(estimated, 'known-average', { model: withBaseline4mp(0.001) })
-    ).toEqual({
-      source: 'known-average',
+    expect(changeBitrateSource(estimated, 'manual', { model: withBaseline4mp(0.001) })).toEqual({
+      source: 'manual',
       mbps: BITRATE_INPUT_MIN_MBPS,
     });
   });
 
   it('accepts a Bandwidth group, which has no recording fields', () => {
     const bandwidthGroup = createBandwidthCameraGroup('g', 'Group');
-    expect(changeBitrateSource(bandwidthGroup, 'known-average')).toEqual({
-      source: 'known-average',
+    expect(changeBitrateSource(bandwidthGroup, 'manual')).toEqual({
+      source: 'manual',
       mbps: Math.round(estimateTypicalBitrateMbps(bandwidthGroup) * 10) / 10,
     });
   });
@@ -82,7 +75,7 @@ describe('changeBitrateSource', () => {
   it('respects a lower ceiling, e.g. a camera preset maximum', () => {
     const estimated = group({ resolution: '4MP' });
     expect(
-      changeBitrateSource(estimated, 'bitrate-cap', { maxMbps: 5, model: withBaseline4mp(50) })
-    ).toEqual({ source: 'bitrate-cap', mbps: 5 });
+      changeBitrateSource(estimated, 'manual', { maxMbps: 5, model: withBaseline4mp(50) })
+    ).toEqual({ source: 'manual', mbps: 5 });
   });
 });

@@ -30,7 +30,7 @@ function sampleState(): BandwidthCalculatorState {
   const actions: BandwidthCalculatorAction[] = [
     // Duplicating puts g2 after g1, so ids match list order as they do after decoding.
     { type: 'duplicate-group', id: 'g1' },
-    { type: 'set-bitrate-source', id: 'g1', source: 'bitrate-cap' },
+    { type: 'set-bitrate-source', id: 'g1', source: 'manual' },
     { type: 'update-group', id: 'g1', changes: { resolution: '960H' } },
     {
       type: 'update-group',
@@ -135,7 +135,7 @@ describe('v2 index tables', () => {
     ['scene complexities', V2_SCENE_COMPLEXITIES, SCENE_COMPLEXITIES],
     ['bitrate sources', V2_BITRATE_SOURCES, BITRATE_SOURCES],
   ] as const)('cover every calc-core %s option', (_label, table, options) => {
-    expect([...table].sort()).toEqual([...options].sort());
+    expect([...new Set<string>(table)].sort()).toEqual([...options].sort());
   });
 
   it('keep their published order (append only; reordering breaks existing links)', () => {
@@ -150,8 +150,19 @@ describe('v2 index tables', () => {
       resolutions: ['1MP', '2MP', '3MP', '4MP', '5MP', '6MP', '8MP', '12MP', 'nHD', '960H'],
       codecs: ['h264', 'h265', 'mjpeg'],
       complexities: ['low', 'medium', 'high'],
-      sources: ['estimate', 'known-average', 'bitrate-cap'],
+      sources: ['estimate', 'manual', 'manual'],
     });
+  });
+
+  it('write Manual as 1 and open the old CBR index 2 as Manual', () => {
+    const payload = stateToV2Payload(sampleState());
+    expect(payload[3][0]![6]).toBe(1);
+
+    payload[3][0]![6] = 2;
+    const result = decodeShareParams(linkParams(SHARE_FORMAT_VERSION, payload));
+    expect(result.status === 'loaded' && result.state.cameraGroups[0]?.bitrate).toEqual(
+      sampleState().cameraGroups[0]?.bitrate
+    );
   });
 });
 

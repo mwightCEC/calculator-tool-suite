@@ -1,10 +1,5 @@
-/* 56px wide, shrinking (down to 44px) only when a narrow grid cell needs it. */
-.inputRoot {
-  flex: 0 1 56px;
-  min-width: 44px;
-}
-
-.input {
-  width: 100%;
-  text-align: center;
+/* Beside a label it keeps this width; in a stacked grid field it fills the cell. */
+.root {
+  width: 120px;
+  max-width: 100%;
 }

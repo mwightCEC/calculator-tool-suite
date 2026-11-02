@@ -3,77 +3,106 @@
 import {
   BITRATE_INPUT_MAX_MBPS,
   BITRATE_INPUT_MIN_MBPS,
-  isBitrateModelValidated,
+  BITRATE_SOURCES,
+  estimateBitrateBreakdown,
+  type BitrateGroupFields,
   type BitrateSource,
-  type GroupBitrate,
   type ValueRange,
 } from '@cctv/calc-core';
-import { NumberInput, Text } from '@mantine/core';
+import { NumberInput, SegmentedControl, Text } from '@mantine/core';
 import { useNumberDraft } from '../../hooks/use-number-draft';
-import { describeEstimate } from '../../lib/bitrate-text';
-import { BITRATE_SOURCE_OPTIONS } from '../../lib/camera-labels';
-import { FieldRow, fieldLabelId } from '../FieldRow/FieldRow';
-import { OptionButtons } from '../OptionButtons/OptionButtons';
+import { describeEstimateWorking } from '../../lib/bitrate-text';
+import {
+  BITRATE_SOURCE_OPTIONS,
+  parseOption,
+  SCENE_COMPLEXITY_LABELS,
+} from '../../lib/camera-labels';
 import classes from './CameraGroupCard.module.css';
-
-const BITRATE_HELP = (
-  <>
-    Per-camera stream bitrate. <b>Estimate</b>: a typical value and likely range for early planning;
-    real bitrate varies a lot with scene, night/IR and camera model. <b>VBR</b>: the measured
-    average of a variable-bitrate stream, for example from an existing system. <b>CBR</b>: the
-    constant or maximum bitrate set on the camera, which gives a reliable worst case.
-    {!isBitrateModelValidated &&
-      ' The estimate currently uses preliminary placeholder values that have not been validated against real cameras.'}
-  </>
-);
 
 const roundToTenth = (mbps: number) =>
   Math.min(BITRATE_INPUT_MAX_MBPS, Math.max(BITRATE_INPUT_MIN_MBPS, Math.round(mbps * 10) / 10));
 
 interface BitrateFieldProps {
   idPrefix: string;
-  bitrate: GroupBitrate;
+  group: BitrateGroupFields;
   /** Per-camera bitrate range, used to describe the estimate. */
   perCameraMbps: ValueRange;
   onSourceChange: (source: BitrateSource) => void;
   onMbpsChange: (mbps: number) => void;
-  /** Show the label's info icon (default). */
-  withHelp?: boolean;
 }
 
-/** Bitrate source selector plus the estimate text or an Mbps input. */
+/** "Bitrate per camera": an Estimated / Manual toggle, then the estimate's working or an Mbps input. */
 export function BitrateField({
   idPrefix,
-  bitrate,
+  group,
   perCameraMbps,
   onSourceChange,
   onMbpsChange,
-  withHelp = true,
 }: BitrateFieldProps) {
-  const sourceId = `${idPrefix}-bitrate-source`;
+  const titleId = `${idPrefix}-bitrate-title`;
+  const { bitrate } = group;
 
   return (
-    <FieldRow label="Bitrate" help={withHelp ? BITRATE_HELP : undefined} controlId={sourceId}>
-      <OptionButtons
-        id={sourceId}
-        value={bitrate.source}
-        onChange={onSourceChange}
-        options={BITRATE_SOURCE_OPTIONS}
-        aria-labelledby={fieldLabelId(sourceId)}
-      />
-      {bitrate.source === 'estimate' ? (
-        <Text size="sm" className={classes.estimate}>
-          {describeEstimate(perCameraMbps)}
+    <div className={classes.bitrate}>
+      <div className={classes.bitrateHeader}>
+        <Text id={titleId} className={classes.bitrateTitle}>
+          Bitrate per camera
         </Text>
+        <SegmentedControl
+          size="sm"
+          value={bitrate.source}
+          onChange={(value) => {
+            const source = parseOption(BITRATE_SOURCES, value);
+            if (source) {
+              onSourceChange(source);
+            }
+          }}
+          data={BITRATE_SOURCE_OPTIONS}
+          aria-labelledby={titleId}
+        />
+      </div>
+      {bitrate.source === 'estimate' ? (
+        <EstimateWorkingText group={group} perCameraMbps={perCameraMbps} />
       ) : (
-        <EnteredBitrateInput
+        <ConfiguredBitrate
           id={`${idPrefix}-bitrate-mbps`}
-          label={bitrate.source === 'bitrate-cap' ? 'CBR bitrate (Mbps)' : 'VBR average (Mbps)'}
           value={bitrate.mbps}
           onChange={onMbpsChange}
         />
       )}
-    </FieldRow>
+    </div>
+  );
+}
+
+function EstimateWorkingText({
+  group,
+  perCameraMbps,
+}: Pick<BitrateFieldProps, 'group' | 'perCameraMbps'>) {
+  const working = describeEstimateWorking(estimateBitrateBreakdown(group), perCameraMbps);
+  const scene = SCENE_COMPLEXITY_LABELS[group.sceneComplexity].toLowerCase();
+
+  return (
+    <Text size="sm" className={classes.secondaryText}>
+      {working.stream} typical for this resolution, frame rate and codec × {working.multiplier} (
+      {scene} scene) = <b className={classes.emphasis}>{working.typical}</b>, {working.likely}. Use
+      Manual when the camera&apos;s real bitrate is known.
+    </Text>
+  );
+}
+
+function ConfiguredBitrate({ id, value, onChange }: Omit<EnteredBitrateInputProps, 'label'>) {
+  const label = 'Configured bitrate';
+  return (
+    <div className={classes.configured}>
+      <label htmlFor={id} className={classes.configuredLabel}>
+        {label}
+      </label>
+      <Text size="sm" className={classes.secondaryText}>
+        The bitrate set on the camera or recorder. Used as entered; scene complexity no longer
+        applies.
+      </Text>
+      <EnteredBitrateInput id={id} label={label} value={value} onChange={onChange} />
+    </div>
   );
 }
 

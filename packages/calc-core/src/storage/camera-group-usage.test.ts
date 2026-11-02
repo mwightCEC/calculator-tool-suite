@@ -16,13 +16,13 @@ describe('mbpsToGbPerDay', () => {
 });
 
 describe('calculateCameraGroupUsage', () => {
-  it('uses a single value for a known average', () => {
+  it('uses a single value for a manual bitrate', () => {
     const usage = calculateCameraGroupUsage(
-      group({ cameraCount: 10, bitrate: { source: 'known-average', mbps: 4 } })
+      group({ cameraCount: 10, bitrate: { source: 'manual', mbps: 4 } })
     );
     expect(usage).toEqual({
       groupId: 'g',
-      bitrateSource: 'known-average',
+      bitrateSource: 'manual',
       bitratePerCameraMbps: pointRange(4),
       totalBitrateMbps: pointRange(40),
       dutyCycle: 1,
@@ -53,7 +53,7 @@ describe('calculateCameraGroupUsage', () => {
     const usage = calculateCameraGroupUsage(
       group({
         cameraCount: 10,
-        bitrate: { source: 'bitrate-cap', mbps: 4 },
+        bitrate: { source: 'manual', mbps: 4 },
         recordingMode: 'motion',
         motionPercent: 30,
       })
@@ -67,7 +67,7 @@ describe('calculateCameraGroupUsage', () => {
     const usage = calculateCameraGroupUsage(
       group({
         cameraCount: 10,
-        bitrate: { source: 'known-average', mbps: 4 },
+        bitrate: { source: 'manual', mbps: 4 },
         recordingMode: 'schedule',
         scheduleHours: 12,
       })

@@ -39,9 +39,8 @@ export const SCENE_COMPLEXITY_LABELS: Record<SceneComplexity, string> = {
 };
 
 export const BITRATE_SOURCE_LABELS: Record<BitrateSource, string> = {
-  estimate: 'Estimate',
-  'known-average': 'VBR',
-  'bitrate-cap': 'CBR',
+  estimate: 'Estimated',
+  manual: 'Manual',
 };
 
 /** Option list for OptionButtons or Select from an ordered value list and its labels. */

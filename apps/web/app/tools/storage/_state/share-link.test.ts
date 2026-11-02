@@ -38,13 +38,13 @@ import {
 
 const PAGE = 'https://example.test/tools/storage';
 
-/** A non-default state: two groups, days mode, a bitrate cap, a non-ASCII name and the late-added resolutions. */
+/** A non-default state: two groups, days mode, a manual bitrate, a non-ASCII name and the late-added resolutions. */
 function sampleState(): StorageCalculatorState {
   const actions: StorageCalculatorAction[] = [
     // Duplicating puts g2 after g1, so ids match list order as they do after decoding.
     { type: 'duplicate-group', id: 'g1' },
     { type: 'set-mode', mode: 'days-from-capacity' },
-    { type: 'set-bitrate-source', id: 'g1', source: 'bitrate-cap' },
+    { type: 'set-bitrate-source', id: 'g1', source: 'manual' },
     { type: 'update-group', id: 'g1', changes: { resolution: '960H' } },
     {
       type: 'update-group',
@@ -134,7 +134,7 @@ describe('v2 index tables', () => {
     ['recording modes', V2_RECORDING_MODES, RECORDING_MODES],
     ['bitrate sources', V2_BITRATE_SOURCES, BITRATE_SOURCES],
   ] as const)('cover every calc-core %s option', (_label, table, options) => {
-    expect([...table].sort()).toEqual([...options].sort());
+    expect([...new Set<string>(table)].sort()).toEqual([...options].sort());
   });
 
   it('keep their published order (append only; reordering breaks existing links)', () => {
@@ -153,8 +153,19 @@ describe('v2 index tables', () => {
       codecs: ['h264', 'h265', 'mjpeg'],
       complexities: ['low', 'medium', 'high'],
       recording: ['continuous', 'motion', 'schedule'],
-      sources: ['estimate', 'known-average', 'bitrate-cap'],
+      sources: ['estimate', 'manual', 'manual'],
     });
+  });
+
+  it('write Manual as 1 and open the old CBR index 2 as Manual', () => {
+    const payload = stateToV2Payload(sampleState());
+    expect(payload[2][0]![9]).toBe(1);
+
+    payload[2][0]![9] = 2;
+    const result = decodeShareParams(linkParams(SHARE_FORMAT_VERSION, payload));
+    expect(result.status === 'loaded' && result.state.cameraGroups[0]?.bitrate).toEqual(
+      sampleState().cameraGroups[0]?.bitrate
+    );
   });
 });
 
@@ -166,6 +177,27 @@ describe('v1 links (still supported)', () => {
       state,
     });
   });
+
+  it.each(['known-average', 'bitrate-cap'])(
+    'open the old %s bitrate source as Manual',
+    (source) => {
+      const state = sampleState();
+      const old = {
+        ...state,
+        cameraGroups: state.cameraGroups.map((group) => ({
+          ...group,
+          bitrate: { source, mbps: 6.5 },
+        })),
+      };
+      const result = decodeShareParams(linkParams(LEGACY_SHARE_FORMAT_VERSION, old));
+      expect(result.status === 'loaded' && result.state.cameraGroups.map((g) => g.bitrate)).toEqual(
+        [
+          { source: 'manual', mbps: 6.5 },
+          { source: 'manual', mbps: 6.5 },
+        ]
+      );
+    }
+  );
 
   it.each([
     [
@@ -180,6 +212,14 @@ describe('v1 links (still supported)', () => {
       (state: StorageCalculatorState) => ({
         ...state,
         cameraGroups: [{ ...state.cameraGroups[0], codec: 'h265-smart' }],
+      }),
+    ],
+    ['no camera group list', (state: StorageCalculatorState) => ({ ...state, cameraGroups: null })],
+    [
+      'a group without a bitrate',
+      (state: StorageCalculatorState) => ({
+        ...state,
+        cameraGroups: [{ ...state.cameraGroups[0], bitrate: undefined }],
       }),
     ],
     [

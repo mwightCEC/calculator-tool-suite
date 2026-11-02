@@ -70,7 +70,6 @@ export function DeviceFields({
               onChange={(deviceCount) => onChange({ deviceCount })}
               min={1}
               max={MAX_CAMERAS_PER_GROUP}
-              unitLabel="device"
             />
           </FieldRow>
 

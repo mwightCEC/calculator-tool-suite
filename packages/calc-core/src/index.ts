@@ -12,9 +12,11 @@ export {
   type BitrateModel,
 } from './bitrate/bitrate-model-schema';
 export {
+  estimateBitrateBreakdown,
   estimateBitrateRange,
   estimateTypicalBitrateMbps,
   uncertaintyBandFor,
+  type BitrateEstimateBreakdown,
   type BitrateEstimateInput,
 } from './bitrate/estimate-bitrate';
 export {

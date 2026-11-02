@@ -39,13 +39,13 @@ export const SCHEDULE_HOURS_MAX = 24;
 /**
  * Where a group's bitrate comes from:
  * - `estimate`: the bitrate model's planning range (early design, cameras not chosen).
- * - `known-average`: a measured average from an existing system's stream statistics.
- * - `bitrate-cap`: the CBR / max-bitrate limit configured on the camera (reliable worst case).
+ * - `manual`: a known per-camera bitrate, such as a measured VBR average or the CBR
+ *   bitrate configured on the camera. Used as entered.
  */
-export const BITRATE_SOURCES = ['estimate', 'known-average', 'bitrate-cap'] as const;
+export const BITRATE_SOURCES = ['estimate', 'manual'] as const;
 export type BitrateSource = (typeof BITRATE_SOURCES)[number];
 
-/** Limits for a bitrate the user enters (known average or cap). */
+/** Limits for a bitrate the user enters. */
 export const BITRATE_INPUT_MIN_MBPS = 0.1;
 export const BITRATE_INPUT_MAX_MBPS = 100;
 

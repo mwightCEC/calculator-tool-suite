@@ -72,7 +72,6 @@ export function CameraCountField({ group, onChange, withHelp = true }: StreamFie
         onChange={(cameraCount) => onChange({ cameraCount })}
         min={1}
         max={MAX_CAMERAS_PER_GROUP}
-        unitLabel="camera"
       />
     </FieldRow>
   );
@@ -181,7 +180,7 @@ export function SceneComplexityField({
       controlId={controlId}
       // The dropdown is disabled instead, so it isn't dimmed twice.
       dimmed={!usesEstimate && control === 'buttons'}
-      note={usesEstimate ? undefined : 'Not used with a known bitrate'}
+      note={usesEstimate ? undefined : 'Not used with a manual bitrate'}
     >
       {control === 'select' ? (
         <Select
@@ -231,7 +230,7 @@ export function CameraStreamFields({
 
       <BitrateField
         idPrefix={group.id}
-        bitrate={group.bitrate}
+        group={group}
         perCameraMbps={perCameraMbps}
         onSourceChange={onBitrateSourceChange}
         onMbpsChange={(mbps) => applyEnteredBitrate(group, onChange, mbps)}
@@ -240,13 +239,13 @@ export function CameraStreamFields({
   );
 }
 
-/** Applies an entered Mbps to a VBR or CBR bitrate; the estimate has no value to change. */
+/** Applies an entered Mbps to a manual bitrate; the estimate has no value to change. */
 export function applyEnteredBitrate(
   group: CameraStreamGroup,
   onChange: (changes: CameraStreamChanges) => void,
   mbps: number
 ) {
-  if (group.bitrate.source !== 'estimate') {
-    onChange({ bitrate: { source: group.bitrate.source, mbps } });
+  if (group.bitrate.source === 'manual') {
+    onChange({ bitrate: { source: 'manual', mbps } });
   }
 }

@@ -1,20 +1,44 @@
-import type { GroupBitrate, ValueRange } from '@cctv/calc-core';
-import { formatFixed, formatMbps, formatRangeBounds, rangeDigits } from './format';
+import type { BitrateEstimateBreakdown, GroupBitrate, ValueRange } from '@cctv/calc-core';
+import { formatFixed, formatMbps, formatNumber, formatRangeBounds, rangeDigits } from './format';
 
-/** Short per-camera bitrate with its source: "~6.2 Mbps est.", "8 Mbps VBR", "8 Mbps CBR". */
+/** Short per-camera bitrate: "~6.2 Mbps est." or, entered, "8 Mbps". */
 export function describeBitrateShort(bitrate: GroupBitrate, perCameraMbps: ValueRange): string {
   switch (bitrate.source) {
     case 'estimate':
       return `~${formatMbps(perCameraMbps.typical)} est.`;
-    case 'known-average':
-      return `${formatMbps(bitrate.mbps)} VBR`;
-    case 'bitrate-cap':
-      return `${formatMbps(bitrate.mbps)} CBR`;
+    case 'manual':
+      return formatMbps(bitrate.mbps);
   }
 }
 
-/** Estimate with its range: "~6.2 Mbps (4.3–8.1) estimated". */
-export function describeEstimate(perCameraMbps: ValueRange): string {
+/** Hint after the Advanced settings title: "bitrate: Estimated – ~2 Mbps" or "bitrate: Manual – 2 Mbps". */
+export function describeBitrateHint(bitrate: GroupBitrate, perCameraMbps: ValueRange): string {
+  return bitrate.source === 'estimate'
+    ? `bitrate: Estimated – ~${formatMbps(perCameraMbps.typical)}`
+    : `bitrate: Manual – ${formatMbps(bitrate.mbps)}`;
+}
+
+/** The parts of the estimate's working, formatted with the range's precision. */
+export interface EstimateWorking {
+  /** "3.4 Mbps": typical for the resolution, frame rate and codec. */
+  stream: string;
+  /** "1", "0.6": the scene complexity multiplier. */
+  multiplier: string;
+  /** "3.4 Mbps": stream × multiplier. */
+  typical: string;
+  /** "likely 2.4–4.4 Mbps". */
+  likely: string;
+}
+
+export function describeEstimateWorking(
+  breakdown: BitrateEstimateBreakdown,
+  perCameraMbps: ValueRange
+): EstimateWorking {
   const digits = rangeDigits(perCameraMbps);
-  return `~${formatFixed(perCameraMbps.typical, digits)} Mbps (${formatRangeBounds(perCameraMbps, digits)}) estimated`;
+  return {
+    stream: `${formatFixed(breakdown.streamMbps, digits)} Mbps`,
+    multiplier: formatNumber(breakdown.sceneMultiplier, 2),
+    typical: `${formatFixed(perCameraMbps.typical, digits)} Mbps`,
+    likely: `likely ${formatRangeBounds(perCameraMbps, digits)} Mbps`,
+  };
 }

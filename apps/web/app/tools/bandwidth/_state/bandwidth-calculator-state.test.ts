@@ -126,9 +126,9 @@ describe('group actions', () => {
   });
 
   it('prefills an entered bitrate when leaving Estimate', () => {
-    const bitrate = apply({ type: 'set-bitrate-source', id: 'g1', source: 'bitrate-cap' })
+    const bitrate = apply({ type: 'set-bitrate-source', id: 'g1', source: 'manual' })
       .cameraGroups[0]?.bitrate;
-    expect(bitrate?.source).toBe('bitrate-cap');
+    expect(bitrate?.source).toBe('manual');
     expect(bitrate && 'mbps' in bitrate && bitrate.mbps).toBeGreaterThan(0);
   });
 });

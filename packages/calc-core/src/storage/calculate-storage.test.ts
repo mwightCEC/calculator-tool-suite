@@ -8,11 +8,11 @@ import { minimumDrivesForCapacity } from '../raid/raid-levels';
 import { isPointRange } from '../range';
 import { calculateStorage, type StorageCalculationResult } from './calculate-storage';
 
-/** 10 cameras × 4 Mbps known average, continuous = 432 GB/day = 0.432 TB/day. */
+/** 10 cameras × 4 Mbps entered, continuous = 432 GB/day = 0.432 TB/day. */
 const KNOWN_432_GB_PER_DAY: CameraGroup = {
   ...createCameraGroup('a', 'Group A'),
   cameraCount: 10,
-  bitrate: { source: 'known-average', mbps: 4 },
+  bitrate: { source: 'manual', mbps: 4 },
   recordingMode: 'continuous',
 };
 
@@ -104,7 +104,7 @@ describe('storage needed mode, known bitrates', () => {
     // 10 × 5 Mbps = 0.54 TB/day × 30 days ÷ 0.9 = exactly 18 TB = 3 × 6 TB.
     const exact = calculateStorage(
       input('storage-needed', { retentionDays: 30, driveSizeTb: 6, raidLevel: 'none' }, [
-        { ...KNOWN_432_GB_PER_DAY, bitrate: { source: 'bitrate-cap', mbps: 5 } },
+        { ...KNOWN_432_GB_PER_DAY, bitrate: { source: 'manual', mbps: 5 } },
       ])
     );
     expect(exact.drives.driveCount).toBe(3);
@@ -196,7 +196,7 @@ describe('days from capacity mode, known bitrates', () => {
           {
             ...KNOWN_432_GB_PER_DAY,
             cameraCount: 1,
-            bitrate: { source: 'known-average', mbps: 1 },
+            bitrate: { source: 'manual', mbps: 1 },
             recordingMode: 'motion',
             motionPercent: 30,
           },
@@ -242,7 +242,7 @@ describe('multiple camera groups', () => {
     {
       ...createCameraGroup('b', 'Group B'),
       cameraCount: 5,
-      bitrate: { source: 'bitrate-cap', mbps: 2 },
+      bitrate: { source: 'manual', mbps: 2 },
       recordingMode: 'schedule',
       scheduleHours: 12,
     },

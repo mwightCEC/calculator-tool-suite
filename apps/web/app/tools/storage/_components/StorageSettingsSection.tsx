@@ -87,7 +87,6 @@ export function StorageSettingsSection({ mode, storage, onChange }: StorageSetti
               onChange={(retentionDays) => onChange({ retentionDays })}
               min={1}
               max={MAX_RETENTION_DAYS}
-              unitLabel="day"
             />
             <Text size="sm">days</Text>
           </Group>
@@ -125,7 +124,6 @@ function DriveCountField({ storage, onChange }: SettingsProps) {
         min={minDrives}
         max={MAX_DRIVE_COUNT}
         step={driveStep}
-        unitLabel={driveStep === 1 ? 'drive' : 'drives'}
       />
     </FieldRow>
   );

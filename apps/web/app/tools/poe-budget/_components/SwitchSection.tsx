@@ -63,7 +63,6 @@ export function SwitchSection({ powerSource, onChange }: SwitchSectionProps) {
               onChange={(ports) => onChange({ ports })}
               min={1}
               max={MAX_POE_PORTS}
-              unitLabel="port"
             />
           </FieldRow>
 

@@ -1,4 +1,5 @@
 import { createShareCodec } from '../../../../lib/share/share-codec';
+import { v1PayloadToState } from './share-format-v1';
 import { stateToV2Payload, v2PayloadToState } from './share-format-v2';
 import { storageCalculatorStateSchema } from './storage-calculator-state';
 
@@ -6,7 +7,7 @@ import { storageCalculatorStateSchema } from './storage-calculator-state';
  * Storage share links (see lib/share/share-codec.ts for the URL scheme).
  *
  * - v=2 (written now): compact positional array, see share-format-v2.ts.
- * - v=1 (still read): the full state object as JSON.
+ * - v=1 (still read): the full state object as JSON, see share-format-v1.ts.
  */
 
 export {
@@ -24,7 +25,7 @@ export const storageShareCodec = createShareCodec({
   toPayload: stateToV2Payload,
   fromPayload: {
     [SHARE_FORMAT_VERSION]: v2PayloadToState,
-    [LEGACY_SHARE_FORMAT_VERSION]: (payload) => payload,
+    [LEGACY_SHARE_FORMAT_VERSION]: v1PayloadToState,
   },
   schema: storageCalculatorStateSchema,
 });
