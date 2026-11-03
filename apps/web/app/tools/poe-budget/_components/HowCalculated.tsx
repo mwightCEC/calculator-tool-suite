@@ -36,6 +36,11 @@ export function HowCalculated() {
         Ethernet runs are limited to 100 m (328 ft). Longer runs need a PoE extender or a switch
         closer to the devices.
       </List.Item>
+      <List.Item>
+        The <b>checks</b> are separate: power budget, PoE ports, port standard and cable length. The
+        card&apos;s badge shows the worst of them, so a budget with room can still need a different
+        switch or shorter runs.
+      </List.Item>
     </List>
   );
 }

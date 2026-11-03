@@ -43,6 +43,16 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
         ))}
       </dl>
 
+      <h2 className={classes.heading}>Checks</h2>
+      <dl className={classes.settings}>
+        {summary.checks.map((check) => (
+          <div key={check.label}>
+            <dt>{check.label}</dt>
+            <dd>{check.value}</dd>
+          </div>
+        ))}
+      </dl>
+
       {summary.problems.map((problem) => (
         <p key={problem} className={classes.warning}>
           {problem}

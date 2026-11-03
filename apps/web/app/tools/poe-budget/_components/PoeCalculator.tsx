@@ -5,6 +5,7 @@ import { CameraConfigurationCard } from '../../../../components/CameraGroupCard/
 import { useGroupExpansion } from '../../../../components/CameraGroupCard/use-group-expansion';
 import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
+import { buildChecks, describeMobileDetail, describeOverallStatus } from '../_lib/checks';
 import { describeUsage } from '../_lib/result-summary';
 import { usePoeCalculator } from '../_state/use-poe-calculator';
 import { PoeDeviceGroupCard } from './PoeDeviceGroupCard';
@@ -21,6 +22,7 @@ export function PoeCalculator() {
   const atGroupLimit = groupCount >= MAX_CAMERA_GROUPS;
   const usageByGroupId = new Map(result.groups.map((usage) => [usage.groupId, usage]));
   const usage = describeUsage(result);
+  const overall = describeOverallStatus(buildChecks(state, result));
 
   return (
     <>
@@ -64,7 +66,7 @@ export function PoeCalculator() {
         <MobileResultBar
           label="PoE budget used"
           value={usage.value}
-          detail={usage.detail}
+          detail={describeMobileDetail(usage.detail, overall)}
           resultsId={RESULTS_CARD_ID}
         />
       </div>

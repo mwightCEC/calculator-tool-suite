@@ -6,16 +6,21 @@
 }
 
 /* Status text in the theme's AA-contrast status colours. */
-.statusBadge[data-status='ok'] {
+.statusBadge[data-level='ok'] {
   color: var(--app-status-ok);
 }
 
-.statusBadge[data-status='into-reserve'] {
+.statusBadge[data-level='caution'] {
   color: var(--app-status-warn);
 }
 
-.statusBadge[data-status='over-budget'] {
+.statusBadge[data-level='fail'] {
   color: var(--app-status-danger);
+}
+
+.checkName {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
 }
 
 .sectionTitle {
