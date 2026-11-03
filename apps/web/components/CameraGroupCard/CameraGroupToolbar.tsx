@@ -1,9 +1,11 @@
 'use client';
 
-import { IconChevronsDown, IconChevronsUp, IconTrash } from '@tabler/icons-react';
+import { IconChevronsDown, IconChevronsUp, IconRestore } from '@tabler/icons-react';
 import { ActionIcon, Group, Tooltip } from '@mantine/core';
 
 interface CameraGroupToolbarProps {
+  /** What the groups hold, for the Reset label: "camera" or "device". */
+  noun: 'camera' | 'device';
   /** Every group is collapsed, so the toggle offers Expand all. */
   allCollapsed: boolean;
   onToggleAll: () => void;
@@ -14,9 +16,11 @@ interface CameraGroupToolbarProps {
 
 /**
  * Page-level controls for the camera group list, as icon buttons named by their
- * tooltips: Collapse/Expand all and Clear all.
+ * tooltips: Collapse/Expand all and Reset groups, which goes back to the one
+ * default group (the "clear" props and actions do the same).
  */
 export function CameraGroupToolbar({
+  noun,
   allCollapsed,
   onToggleAll,
   canClear,
@@ -24,7 +28,8 @@ export function CameraGroupToolbar({
 }: CameraGroupToolbarProps) {
   const ToggleIcon = allCollapsed ? IconChevronsDown : IconChevronsUp;
   const toggleLabel = allCollapsed ? 'Expand all' : 'Collapse all';
-  const clearLabel = canClear ? 'Clear all' : 'Nothing to clear';
+  const resetLabel = `Reset ${noun} groups`;
+  const clearLabel = canClear ? resetLabel : 'Already the default group';
 
   return (
     <Group gap="xs" wrap="nowrap">
@@ -46,9 +51,9 @@ export function CameraGroupToolbar({
           onClick={canClear ? onClear : undefined}
           data-disabled={!canClear || undefined}
           aria-disabled={!canClear}
-          aria-label="Clear all"
+          aria-label={resetLabel}
         >
-          <IconTrash size={18} />
+          <IconRestore size={18} />
         </ActionIcon>
       </Tooltip>
     </Group>

@@ -27,7 +27,7 @@ interface CameraConfigurationCardProps {
 
 /**
  * The section that holds a calculator's camera groups: heading with the Collapse all /
- * Clear all icon buttons and Add camera group, then the cards.
+ * Reset groups icon buttons and Add camera group, then the cards.
  */
 export function CameraConfigurationCard({
   noun = 'camera',
@@ -66,6 +66,7 @@ export function CameraConfigurationCard({
         </div>
         <Group gap="xs" wrap="nowrap">
           <CameraGroupToolbar
+            noun={noun}
             allCollapsed={expansion.allCollapsed}
             onToggleAll={expansion.toggleAll}
             canClear={canClear}

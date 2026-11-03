@@ -65,7 +65,7 @@ export function useBandwidthCalculator() {
     }
     const previous = state.cameraGroups;
     dispatch({ type: 'clear-groups' });
-    notifyGroupsCleared(() => dispatch({ type: 'restore-groups', groups: previous }));
+    notifyGroupsCleared('camera', () => dispatch({ type: 'restore-groups', groups: previous }));
   };
 
   const actions = {
