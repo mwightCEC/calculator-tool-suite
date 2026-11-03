@@ -18,8 +18,10 @@ export function HowCalculated() {
         </List.Item>
         <List.Item>
           <b>Remote viewing bandwidth</b> is <i>viewers × cameras each × per-camera bitrate</i>,
-          plus overhead. <b>Camera bitrate</b> uses the average bitrate per camera across all
-          groups; <b>Custom bitrate</b> uses the value you enter, for example a sub-stream rate.
+          plus overhead. <b>Average camera bitrate</b> uses the average bitrate per camera across
+          all groups, so it understates viewing that is mostly of higher-bitrate cameras;{' '}
+          <b>Custom bitrate</b> uses the value you enter, for example a sub-stream rate or the
+          bitrate of the cameras viewers watch.
         </List.Item>
         <List.Item>
           Cameras stream continuously, so motion or schedule settings do not reduce network traffic.

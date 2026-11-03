@@ -8,6 +8,7 @@ import { ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/c
 import { Notifications } from '@mantine/notifications';
 import { AppLayout } from '../components/AppLayout/AppLayout';
 import { cssVariablesResolver, theme } from '../theme/theme';
+import classes from './layout.module.css';
 import './global.css';
 
 // Self-hosted at build time; theme.ts reads the family from this CSS variable.
@@ -35,7 +36,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           cssVariablesResolver={cssVariablesResolver}
           defaultColorScheme="auto"
         >
-          <Notifications position="top-right" />
+          <Notifications position="top-right" className={classes.notifications} />
           <AppLayout>{children}</AppLayout>
         </MantineProvider>
       </body>

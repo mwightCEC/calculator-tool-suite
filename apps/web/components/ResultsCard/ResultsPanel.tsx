@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { Badge, Group, Paper, Title } from '@mantine/core';
+import { IconInfoCircle } from '@tabler/icons-react';
+import { Badge, Group, Paper, Text, Title } from '@mantine/core';
 import classes from './ResultsPanel.module.css';
 
 interface ResultsPanelProps {
@@ -47,6 +48,27 @@ export function EstimateBadge({ isEstimated }: { isEstimated: boolean }) {
     >
       {isEstimated ? 'Estimated' : 'From known bitrates'}
     </Badge>
+  );
+}
+
+/**
+ * Beside a result that uses the bitrate model while its values are still
+ * unvalidated placeholders, so the estimate isn't taken as final sizing.
+ */
+export function PreliminaryBitrateNote() {
+  return (
+    <Group gap={6} wrap="nowrap" align="flex-start" className={classes.preliminary}>
+      <IconInfoCircle
+        size={18}
+        stroke={1.75}
+        className={classes.preliminaryIcon}
+        aria-hidden="true"
+      />
+      <Text size="sm">
+        <b>Preliminary bitrate estimates</b>, not yet checked against measured cameras. For final
+        sizing, choose Manual and enter each camera&apos;s measured or configured bitrate.
+      </Text>
+    </Group>
   );
 }
 

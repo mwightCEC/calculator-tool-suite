@@ -21,17 +21,17 @@ import classes from './SettingsSection.module.css';
 
 const formatCameras = (count: number) => `${count} ${count === 1 ? 'camera' : 'cameras'}`;
 
-/** "~3.1 Mbps per camera, the average across all camera groups". */
+/** "~3.1 Mbps per camera, the average across all camera groups. …", pointing to Custom bitrate. */
 function describeCameraAverage(averagePerCameraMbps: ValueRange): string {
   const approx = isPointRange(averagePerCameraMbps) ? '' : '~';
-  return `${approx}${formatMbps(averagePerCameraMbps.typical)} per camera, the average across all camera groups`;
+  return `${approx}${formatMbps(averagePerCameraMbps.typical)} per camera, the average across all camera groups. If viewers mostly watch higher-bitrate cameras, use Custom bitrate.`;
 }
 
 interface RemoteViewingSectionProps {
   remoteViewing: RemoteViewing;
   /** Cameras each viewer actually watches, capped at the total camera count. */
   viewedCamerasPerViewer: number;
-  /** Average camera bitrate, used by the Camera bitrate option. */
+  /** Average camera bitrate, used by the Average camera bitrate option. */
   averagePerCameraMbps: ValueRange;
   onChange: (changes: Partial<RemoteViewing>) => void;
 }
@@ -96,7 +96,7 @@ export function RemoteViewingSection({
 
               <FieldRow
                 label="Bitrate"
-                help="Per-camera bitrate sent to each viewer. Camera bitrate uses the average of your camera groups. Choose Custom bitrate when viewers watch a lower-bitrate stream, such as a sub-stream for grid views."
+                help="Per-camera bitrate sent to each viewer. Average camera bitrate uses the average of your camera groups. Choose Custom bitrate when viewers watch a sub-stream for grid views, or mostly watch higher-bitrate cameras."
                 controlId="bandwidth-viewing-bitrate"
               >
                 <Select

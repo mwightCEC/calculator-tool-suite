@@ -33,6 +33,12 @@ export function VoltageDropCalculator() {
             onAddGroup={actions.addGroup}
             canClear={hasCustomGroups}
             onClear={actions.clearGroups}
+            assumption={
+              <>
+                <b>Each device has its own cable from the supply.</b> Devices sharing one cable,
+                daisy-chained along it, aren&apos;t covered.
+              </>
+            }
           >
             {state.deviceGroups.map((group) => {
               const usage = usageByGroupId.get(group.id);

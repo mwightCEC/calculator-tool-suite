@@ -29,7 +29,8 @@ export function HowCalculated() {
       </List.Item>
       <List.Item>
         The <b>supply load</b> adds up every device&apos;s current. Within the rating less the
-        reserve is OK; into the reserve is a caution; above the full rating is over.
+        reserve is OK; into the reserve is a caution; above the full rating is over. While a run
+        can&apos;t power its device it has no steady current, so the supply load isn&apos;t shown.
       </List.Item>
     </List>
   );

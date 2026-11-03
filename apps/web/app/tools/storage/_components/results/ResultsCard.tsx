@@ -1,6 +1,6 @@
 'use client';
 
-import type { StorageCalculationResult } from '@cctv/calc-core';
+import { isBitrateModelValidated, type StorageCalculationResult } from '@cctv/calc-core';
 import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
 import { Button, Group, Text } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
@@ -8,6 +8,7 @@ import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
 import {
   EstimateBadge,
   HeadlineTile,
+  PreliminaryBitrateNote,
   ResultsPanel,
 } from '../../../../../components/ResultsCard/ResultsPanel';
 import { describeHeadline, describeWarning } from '../../_lib/result-summary';
@@ -44,6 +45,8 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
       badge={<EstimateBadge isEstimated={result.isEstimated} />}
     >
       <HeadlineTile value={headline.value} label={headline.label} range={headline.likelyRange} />
+
+      {result.isEstimated && !isBitrateModelValidated && <PreliminaryBitrateNote />}
 
       {warning && (
         <Group gap={6} wrap="nowrap" className={classes.warning} role="status">

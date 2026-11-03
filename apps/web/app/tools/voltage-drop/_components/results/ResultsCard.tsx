@@ -19,8 +19,11 @@ import {
   describeProblem,
   describeStatus,
   describeWorstDrop,
+  isSupplyLoadKnown,
   type ResultStatus,
+  SUPPLY_LOAD_UNAVAILABLE_NOTE,
   supplySegments,
+  visibleProblems,
 } from '../../_lib/result-summary';
 import { buildShareUrl } from '../../_state/share-link';
 import type { VoltageDropCalculatorState } from '../../_state/voltage-drop-calculator-state';
@@ -48,6 +51,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
   const drop = describeWorstDrop(state, result);
   const status = describeStatus(result);
   const usesWatts = state.deviceGroups.some((group) => group.load.input === 'watts');
+  const problems = visibleProblems(result);
 
   return (
     <ResultsPanel
@@ -72,9 +76,9 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         footnote={`${describeDevices(state)} · ${describeLimit(state)}`}
       />
 
-      {result.problems.length > 0 && (
+      {problems.length > 0 && (
         <Stack component="ul" gap="xs" className={classes.list} role="status">
-          {result.problems.map((problem) => (
+          {problems.map((problem) => (
             <Group
               component="li"
               key={'groupId' in problem ? `${problem.kind}-${problem.groupId}` : problem.kind}
@@ -105,11 +109,17 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
             <Text component="h3" className={classes.sectionTitle}>
               Supply load
             </Text>
-            <SegmentBar
-              detailed
-              segments={supplySegments(state, result)}
-              formatValue={formatAmps}
-            />
+            {isSupplyLoadKnown(result) ? (
+              <SegmentBar
+                detailed
+                segments={supplySegments(state, result)}
+                formatValue={formatAmps}
+              />
+            ) : (
+              <Text size="sm" className={classes.unavailable}>
+                {SUPPLY_LOAD_UNAVAILABLE_NOTE}
+              </Text>
+            )}
           </div>
         </Stack>
       </Disclosure>

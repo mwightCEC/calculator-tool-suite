@@ -19,6 +19,8 @@ interface CameraConfigurationCardProps {
   /** False when the groups are already the single default group. */
   canClear: boolean;
   onClear: () => void;
+  /** An assumption that applies to every group, shown under the description. */
+  assumption?: ReactNode;
   /** The group cards, then any settings that belong with them. */
   children: ReactNode;
 }
@@ -34,6 +36,7 @@ export function CameraConfigurationCard({
   onAddGroup,
   canClear,
   onClear,
+  assumption,
   children,
 }: CameraConfigurationCardProps) {
   const atGroupLimit = groupCount >= MAX_CAMERA_GROUPS;
@@ -55,6 +58,11 @@ export function CameraConfigurationCard({
           <Text size="sm" className={classes.description}>
             Add one or more {noun} groups. Each group can have different settings.
           </Text>
+          {assumption && (
+            <Text size="sm" className={classes.assumption}>
+              {assumption}
+            </Text>
+          )}
         </div>
         <Group gap="xs" wrap="nowrap">
           <CameraGroupToolbar

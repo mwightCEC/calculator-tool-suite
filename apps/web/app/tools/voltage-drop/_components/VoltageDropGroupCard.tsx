@@ -5,6 +5,7 @@ import { CameraGroupCard } from '../../../../components/CameraGroupCard/CameraGr
 import type { CountNoun } from '../../../../components/CameraGroupCard/CameraGroupHeader';
 import { formatAmps } from '../../../../lib/format';
 import { summarizeGroup } from '../_lib/group-summary';
+import { RUN_STATUS_LABELS } from '../_lib/result-summary';
 import type { VoltageDropCalculatorActions } from '../_state/use-voltage-drop-calculator';
 import type { VoltageDropGroupState } from '../_state/voltage-drop-calculator-state';
 import { LoadFields } from './LoadFields';
@@ -36,7 +37,9 @@ export function VoltageDropGroupCard({
   actions,
 }: VoltageDropGroupCardProps) {
   const id = group.id;
-  const total = formatAmps(usage.totalAmps);
+  // A run that can't power its device has no steady current to add up.
+  const total =
+    usage.status === 'cannot-power' ? RUN_STATUS_LABELS[usage.status] : formatAmps(usage.totalAmps);
 
   return (
     <CameraGroupCard
