@@ -1,10 +1,10 @@
 import type { PoeResult } from '@cctv/calc-core';
 import { formatNumber, formatWatts } from '../../../../lib/format';
 import type { PoeCalculatorState } from '../_state/poe-calculator-state';
+import { buildChecks, describeOverallStatus } from './checks';
 import { describePower } from './group-summary';
 import { PORT_STANDARD_LABELS } from './poe-labels';
 import {
-  BUDGET_STATUS_LABELS,
   describePorts,
   describeProblem,
   describeRemaining,
@@ -37,6 +37,8 @@ export interface PrintSummary {
   usage: ResultFigure;
   statusLabel: string;
   keyFigures: LabelledValue[];
+  /** Each check and its result: "Cable length", "Too long · Over 328 ft: Group 1". */
+  checks: LabelledValue[];
   problems: string[];
   groups: GroupRow[];
   settings: LabelledValue[];
@@ -81,9 +83,10 @@ function notes(state: PoeCalculatorState): string[] {
 
 export function buildPrintSummary(state: PoeCalculatorState, result: PoeResult): PrintSummary {
   const { reservePercent } = state.powerSource;
+  const checks = buildChecks(state, result);
   return {
     usage: describeUsage(result),
-    statusLabel: BUDGET_STATUS_LABELS[result.budgetStatus],
+    statusLabel: describeOverallStatus(checks).label,
     keyFigures: [
       { label: 'Remaining', value: describeRemaining(result) },
       { label: 'PoE budget', value: formatWatts(result.budgetWatts) },
@@ -93,6 +96,10 @@ export function buildPrintSummary(state: PoeCalculatorState, result: PoeResult):
       },
       { label: 'Ports', value: describePorts(result) },
     ],
+    checks: checks.map((check) => ({
+      label: check.label,
+      value: `${check.status} · ${check.detail}`,
+    })),
     problems: result.problems.map((problem) => describeProblem(problem, state, result)),
     groups: groupRows(state, result),
     settings: [

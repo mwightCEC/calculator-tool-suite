@@ -1,6 +1,6 @@
 'use client';
 
-import type { BudgetStatus, PoeResult } from '@cctv/calc-core';
+import type { PoeResult } from '@cctv/calc-core';
 import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
 import { Badge, Button, Group, Stack, Text } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
@@ -12,8 +12,8 @@ import {
 } from '../../../../../components/ResultsCard/ResultsPanel';
 import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
 import { formatWatts } from '../../../../../lib/format';
+import { buildChecks, describeOverallStatus } from '../../_lib/checks';
 import {
-  BUDGET_STATUS_LABELS,
   budgetSegments,
   buildMetricTiles,
   describeBudget,
@@ -24,16 +24,11 @@ import {
 import type { PoeCalculatorState } from '../../_state/poe-calculator-state';
 import { buildShareUrl } from '../../_state/share-link';
 import { HowCalculated } from '../HowCalculated';
+import { CHECK_BADGE_COLORS, ChecksList } from './ChecksList';
 import { GroupBreakdown } from './GroupBreakdown';
 import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'poe-results';
-
-const STATUS_BADGE_COLORS: Record<BudgetStatus, string> = {
-  ok: 'green',
-  'into-reserve': 'amber',
-  'over-budget': 'red',
-};
 
 interface ResultsCardProps {
   result: PoeResult;
@@ -44,6 +39,8 @@ interface ResultsCardProps {
 export function ResultsCard({ result, state }: ResultsCardProps) {
   const usage = describeUsage(result);
   const usesWatts = state.deviceGroups.some((group) => group.power.input === 'watts');
+  const checks = buildChecks(state, result);
+  const overall = describeOverallStatus(checks);
 
   return (
     <ResultsPanel
@@ -52,12 +49,12 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
       badge={
         <Badge
           variant="light"
-          color={STATUS_BADGE_COLORS[result.budgetStatus]}
+          color={CHECK_BADGE_COLORS[overall.level]}
           radius="sm"
           className={classes.statusBadge}
-          data-status={result.budgetStatus}
+          data-level={overall.level}
         >
-          {BUDGET_STATUS_LABELS[result.budgetStatus]}
+          {overall.label}
         </Badge>
       }
     >
@@ -93,6 +90,8 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
       )}
 
       <MetricRow tiles={buildMetricTiles(state, result)} />
+
+      <ChecksList checks={checks} />
 
       <Disclosure title="Power breakdown">
         <Stack gap="md">

@@ -116,6 +116,8 @@ config or routing changes.
   switch-side allocation) or datasheet watts (plus an I²R cable-loss estimate, 100 m assumed
   without a length; the field says so when blank). Budget status: OK within budget less the reserve, then into reserve,
   then over budget; also port count, port standard and the 100 m run limit (calc-core `src/poe/`).
+  The results card lists the four as separate checks (`_lib/checks.ts`); the card badge, mobile
+  bar and Export show the worst one, so "Within budget" never hides a port or cable failure.
 - Voltage drop checks home runs (one cable per device) from one low-voltage supply (12 / 24 V DC,
   24 V AC treated as resistive, or a custom voltage), copper at 20 °C only. The page states
   these assumptions in plain words above the groups and under the Supply field (no "home run"

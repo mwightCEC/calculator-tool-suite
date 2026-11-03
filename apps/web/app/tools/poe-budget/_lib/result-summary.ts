@@ -89,7 +89,7 @@ export function describeDevices(state: PoeCalculatorState, result: PoeResult): s
   return `${plural(result.totalDevices, 'device')} in ${plural(state.deviceGroups.length, 'group')}`;
 }
 
-function groupLabel(state: PoeCalculatorState, groupId: string): string {
+export function groupLabel(state: PoeCalculatorState, groupId: string): string {
   return state.deviceGroups.find((group) => group.id === groupId)?.name ?? groupId;
 }
 
@@ -104,7 +104,7 @@ function describeNeed(result: PoeResult, groupId: string): string {
 }
 
 /** The 100 m limit in the input's unit: "328 ft" or "100 m". */
-function cableLimit(state: PoeCalculatorState): string {
+export function cableLimit(state: PoeCalculatorState): string {
   return state.cableLengthUnit === 'm'
     ? `${MAX_CABLE_RUN_M} m`
     : `${formatNumber(MAX_CABLE_RUN_M / METRES_PER_FOOT, 0)} ft`;
