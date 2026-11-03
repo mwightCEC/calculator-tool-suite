@@ -1,4 +1,55 @@
-/* Camera view and coverage diagram. SVG colours come from theme tokens, light then dark. */
+/*
+ * Camera view and coverage diagram. The drawing colours are variables set on the
+ * card on screen (light, then dark) and on the printout's wrapper (always light),
+ * so a printout from dark mode still comes out light.
+ */
+
+.card,
+.printDrawings {
+  --fov-ink: var(--mantine-color-brand-8);
+  --fov-solid: var(--mantine-color-dark-6);
+  --fov-muted: var(--mantine-color-gray-7);
+  --fov-outline: var(--mantine-color-gray-4);
+  --fov-chip-bg: var(--mantine-color-white);
+  --fov-chip-text: var(--mantine-color-dark-7);
+  --fov-sky: var(--mantine-color-brand-0);
+  --fov-ground: var(--mantine-color-gray-2);
+  --fov-ground-line: var(--mantine-color-gray-5);
+  --fov-grid: var(--mantine-color-brand-2);
+  --fov-person: var(--mantine-color-gray-7);
+  --fov-pixel: var(--mantine-color-brand-6);
+  --fov-square-fill: var(--mantine-color-amber-3);
+  --fov-square-line: var(--mantine-color-amber-8);
+  --fov-plan: var(--mantine-color-gray-0);
+  --fov-tick: var(--mantine-color-gray-3);
+  --fov-centre: var(--mantine-color-gray-6);
+  --fov-cone: var(--mantine-color-brand-6);
+  --fov-cone-beyond: var(--mantine-color-brand-4);
+  --fov-band: var(--mantine-color-brand-6);
+}
+
+[data-mantine-color-scheme='dark'] .card {
+  --fov-ink: var(--mantine-color-dark-0);
+  --fov-solid: var(--mantine-color-dark-0);
+  --fov-muted: var(--mantine-color-dark-1);
+  --fov-outline: var(--mantine-color-dark-4);
+  --fov-chip-bg: var(--mantine-color-dark-7);
+  --fov-chip-text: var(--mantine-color-dark-0);
+  --fov-sky: var(--mantine-color-dark-6);
+  --fov-ground: var(--mantine-color-dark-5);
+  --fov-ground-line: var(--mantine-color-dark-3);
+  --fov-grid: var(--mantine-color-dark-4);
+  --fov-person: var(--mantine-color-dark-1);
+  --fov-pixel: var(--mantine-color-brand-3);
+  --fov-square-fill: var(--mantine-color-amber-6);
+  --fov-square-line: var(--mantine-color-amber-4);
+  --fov-plan: var(--mantine-color-dark-6);
+  --fov-tick: var(--mantine-color-dark-4);
+  --fov-centre: var(--mantine-color-dark-2);
+  --fov-cone: var(--mantine-color-brand-4);
+  --fov-cone-beyond: var(--mantine-color-brand-5);
+  --fov-band: var(--mantine-color-brand-4);
+}
 
 .card {
   display: flex;
@@ -34,126 +85,136 @@
   height: auto;
 }
 
+/* The drawings in the printout, side by side. */
+.printDrawings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12pt;
+  align-items: start;
+  margin: 8pt 0;
+  break-inside: avoid;
+}
+
 /* Shared labels and outlines */
 
 .frame {
   fill: none;
-  stroke: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4));
+  stroke: var(--fov-outline);
 }
 
 .dimension {
-  stroke: light-dark(var(--mantine-color-brand-8), var(--mantine-color-dark-0));
+  stroke: var(--fov-ink);
   stroke-width: 1.5;
 }
 
 .arrowHead {
-  fill: light-dark(var(--mantine-color-brand-8), var(--mantine-color-dark-0));
+  fill: var(--fov-ink);
 }
 
 .chip {
-  fill: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+  fill: var(--fov-chip-bg);
   fill-opacity: 0.92;
-  stroke: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4));
+  stroke: var(--fov-outline);
 }
 
 .chipText {
-  fill: light-dark(var(--mantine-color-dark-7), var(--mantine-color-dark-0));
+  fill: var(--fov-chip-text);
   font-weight: 600;
 }
 
 .chipText[data-muted] {
-  fill: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+  fill: var(--fov-muted);
   font-weight: 500;
 }
 
 /* Camera view */
 
 .sky {
-  fill: light-dark(var(--mantine-color-brand-0), var(--mantine-color-dark-6));
+  fill: var(--fov-sky);
 }
 
 .ground {
-  fill: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+  fill: var(--fov-ground);
 }
 
 .groundLine {
-  stroke: light-dark(var(--mantine-color-gray-5), var(--mantine-color-dark-3));
+  stroke: var(--fov-ground-line);
   stroke-width: 1.5;
 }
 
 .grid {
-  stroke: light-dark(var(--mantine-color-brand-2), var(--mantine-color-dark-4));
+  stroke: var(--fov-grid);
 }
 
 .person {
-  fill: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+  fill: var(--fov-person);
 }
 
 .pixelGrid {
-  stroke: light-dark(var(--mantine-color-brand-6), var(--mantine-color-brand-3));
+  stroke: var(--fov-pixel);
   stroke-opacity: 0.25;
   stroke-width: 0.75;
 }
 
 .unitSquare {
-  fill: light-dark(var(--mantine-color-amber-3), var(--mantine-color-amber-6));
+  fill: var(--fov-square-fill);
   fill-opacity: 0.45;
-  stroke: light-dark(var(--mantine-color-amber-8), var(--mantine-color-amber-4));
+  stroke: var(--fov-square-line);
   stroke-width: 1.5;
 }
 
 /* Coverage diagram */
 
 .plan {
-  fill: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
-  stroke: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4));
+  fill: var(--fov-plan);
+  stroke: var(--fov-outline);
 }
 
 .tick {
-  stroke: light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  stroke: var(--fov-tick);
   stroke-dasharray: 4 4;
 }
 
 .tickText,
 .caption {
-  fill: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+  fill: var(--fov-muted);
   font-size: 10px;
 }
 
 .cone {
   fill: none;
-  stroke: light-dark(var(--mantine-color-brand-6), var(--mantine-color-brand-4));
+  stroke: var(--fov-cone);
   stroke-width: 1.5;
 }
 
 .coneBeyond {
-  stroke: light-dark(var(--mantine-color-brand-4), var(--mantine-color-brand-5));
+  stroke: var(--fov-cone-beyond);
   stroke-dasharray: 5 4;
 }
 
 .centreLine {
-  stroke: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
+  stroke: var(--fov-centre);
   stroke-dasharray: 3 3;
 }
 
 .arc {
   fill: none;
-  stroke: light-dark(var(--mantine-color-brand-8), var(--mantine-color-dark-0));
+  stroke: var(--fov-ink);
   stroke-width: 1.5;
 }
 
 .targetLine {
-  stroke: light-dark(var(--mantine-color-brand-8), var(--mantine-color-dark-0));
+  stroke: var(--fov-ink);
   stroke-width: 3;
 }
 
 .targetDot,
 .camera {
-  fill: light-dark(var(--mantine-color-dark-6), var(--mantine-color-dark-0));
+  fill: var(--fov-solid);
 }
 
 .cameraLabel {
-  fill: light-dark(var(--mantine-color-dark-6), var(--mantine-color-dark-0));
+  fill: var(--fov-solid);
   font-size: 11px;
   font-weight: 600;
 }
@@ -161,11 +222,10 @@
 /* DORI bands: stronger nearer the camera, where the density is highest. */
 .band,
 .swatch {
-  --band-color: light-dark(var(--mantine-color-brand-6), var(--mantine-color-brand-4));
   --band-share: 12%;
 
-  fill: color-mix(in srgb, var(--band-color) var(--band-share), transparent);
-  background-color: color-mix(in srgb, var(--band-color) var(--band-share), transparent);
+  fill: color-mix(in srgb, var(--fov-band) var(--band-share), transparent);
+  background-color: color-mix(in srgb, var(--fov-band) var(--band-share), transparent);
 }
 
 .band[data-level='identification'],
