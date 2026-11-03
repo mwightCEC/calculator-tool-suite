@@ -18,3 +18,7 @@
 .description {
   color: var(--app-text-secondary);
 }
+
+.assumption {
+  margin-top: var(--mantine-spacing-xs);
+}

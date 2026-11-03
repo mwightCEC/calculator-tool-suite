@@ -12,7 +12,7 @@ import { toOptions } from '../../../../lib/camera-labels';
 // Display labels for Bandwidth-only options. Camera group labels live in lib/camera-labels.
 
 export const VIEWING_BITRATE_SOURCE_LABELS: Record<ViewingBitrateSource, string> = {
-  camera: 'Camera bitrate',
+  camera: 'Average camera bitrate',
   custom: 'Custom bitrate',
 };
 

@@ -19,7 +19,9 @@ import {
   describeWorstDeviceVolts,
   describeWorstDrop,
   formatRunLength,
+  isSupplyLoadKnown,
   supplySegments,
+  visibleProblems,
   worstRun,
 } from './result-summary';
 
@@ -146,6 +148,46 @@ describe('buildMetricTiles', () => {
       { label: 'Over by', value: '1 A', detail: 'past the usable rating' },
       { label: 'Supply rating', value: '5 A', detail: 'no reserve' },
     ]);
+  });
+});
+
+describe('supply figures when a run cannot power its device', () => {
+  // The audit's case: 4 × 6 W on 1000 ft of 18 AWG at 12 V DC.
+  const state = stateAfter(
+    { type: 'set-load-input', id: 'g1', input: 'watts' },
+    { type: 'update-group', id: 'g1', changes: { cableLength: 1000 } }
+  );
+  const result = calculateVoltageDrop(state);
+
+  it('marks the supply load unknown only when a run cannot power its device', () => {
+    expect(isSupplyLoadKnown(defaultResult)).toBe(true);
+    expect(isSupplyLoadKnown(calculateVoltageDrop(stateAfter(LONG_RUN)))).toBe(true);
+    expect(isSupplyLoadKnown(result)).toBe(false);
+  });
+
+  it('shows the load and what is left as unavailable, keeping the rating', () => {
+    expect(describeSupplyLoad(result)).toEqual({
+      value: 'Unavailable',
+      detail: "a run can't be powered",
+    });
+    expect(describeRemaining(result)).toBe('Unavailable');
+    expect(buildMetricTiles(state, result)).toEqual([
+      { label: 'Supply load', value: 'Unavailable', detail: "a run can't be powered" },
+      { label: 'Remaining', value: 'Unavailable', detail: 'needs the supply load' },
+      { label: 'Supply rating', value: '5 A', detail: '20% reserve (1 A)' },
+    ]);
+  });
+
+  it('leaves out supply checks but keeps the run problems', () => {
+    const overloaded = stateAfter({ type: 'add-group' }, ...CANNOT_POWER, {
+      type: 'update-group',
+      id: 'g1',
+      changes: { deviceCount: 12 },
+    });
+    const overloadedResult = calculateVoltageDrop(overloaded);
+    expect(overloadedResult.problems[0]).toEqual({ kind: 'over-budget' });
+    expect(visibleProblems(overloadedResult)).toEqual([{ kind: 'cannot-power', groupId: 'g2' }]);
+    expect(visibleProblems(defaultResult)).toBe(defaultResult.problems);
   });
 });
 

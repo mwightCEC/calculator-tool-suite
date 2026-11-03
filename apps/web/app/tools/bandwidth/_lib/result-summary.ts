@@ -42,7 +42,7 @@ export function describeRemoteViewing(viewing: RemoteViewingUsage): ResultFigure
 const plural = (count: number, noun: string) =>
   `${formatNumber(count, 0)} ${count === 1 ? noun : `${noun}s`}`;
 
-/** "2 viewers × 4 cameras · Camera bitrate", "… · Custom bitrate 0.5 Mbps", or "Off". */
+/** "2 viewers × 4 cameras · Average camera bitrate", "… · Custom bitrate 0.5 Mbps", or "Off". */
 export function describeViewing(state: BandwidthCalculatorState, result: BandwidthResult): string {
   const viewing = result.remoteViewing;
   if (!viewing) {

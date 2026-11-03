@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { NumberInput } from '@mantine/core';
 import { useNumberDraft } from '../../hooks/use-number-draft';
+import { formatNumber } from '../../lib/format';
 import { UNIT_SELECT_WIDTH } from '../UnitSelect/UnitSelect';
 import classes from './UnitInput.module.css';
 
@@ -34,7 +35,12 @@ export function UnitInput({
   const factor = 10 ** decimals;
   const sanitize = (next: number) =>
     Math.min(max, Math.max(min, Math.round(next * factor) / factor));
-  const { draft, handleChange, handleBlur } = useNumberDraft({ value, onChange, sanitize });
+  const { draft, handleChange, handleBlur, feedbackProps } = useNumberDraft({
+    value,
+    onChange,
+    sanitize,
+    limits: { min, max, format: (limit) => `${formatNumber(limit, decimals)} ${unit}` },
+  });
 
   return (
     <NumberInput
@@ -48,6 +54,7 @@ export function UnitInput({
       allowNegative={false}
       clampBehavior="none"
       hideControls
+      {...feedbackProps}
       rightSection={unitControl ?? unit}
       rightSectionWidth={unitControl ? UNIT_SELECT_WIDTH : 32}
       rightSectionPointerEvents={unitControl ? 'all' : 'none'}

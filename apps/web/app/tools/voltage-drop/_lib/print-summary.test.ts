@@ -59,6 +59,25 @@ describe('buildPrintSummary', () => {
     expect(summary.notes).toHaveLength(5);
   });
 
+  it('marks the supply figures unavailable when a run cannot power its device', () => {
+    const summary = summarize(
+      stateAfter(
+        { type: 'set-load-input', id: 'g1', input: 'watts' },
+        { type: 'update-group', id: 'g1', changes: { cableLength: 1000 } }
+      )
+    );
+    expect(summary.statusLabel).toBe("Can't power");
+    expect(summary.keyFigures).toEqual([
+      { label: 'Supply load', value: "Unavailable: a run can't be powered" },
+      { label: 'Remaining', value: 'Unavailable' },
+      { label: 'Output', value: 'Unavailable' },
+      { label: 'Reserve', value: '20% (1 A)' },
+    ]);
+    expect(summary.problems).toHaveLength(2);
+    expect(summary.problems[0]).toMatch(/^Supply load unavailable/);
+    expect(summary.problems[1]).toMatch(/^Camera group 1: the run can't deliver 6 W/);
+  });
+
   it('lists the problems and runs no listed wire can fix', () => {
     const summary = summarize(
       stateAfter({

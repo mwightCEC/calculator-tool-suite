@@ -105,8 +105,32 @@ export function describeRunLimits(usage: VoltageDropGroupUsage, unit: CableLengt
   return `${wire} · longest run ${formatRunLength(usage.maxLengthM, unit)}`;
 }
 
+/**
+ * False when a run can't power its device. That run has no steady current, so
+ * the supply load, output and what is left can't be worked out.
+ */
+export function isSupplyLoadKnown(result: VoltageDropResult): boolean {
+  return result.groups.every((group) => group.status !== 'cannot-power');
+}
+
+export const SUPPLY_LOAD_UNAVAILABLE = 'Unavailable';
+
+/** Why the supply figures are missing, shown in their place. */
+export const SUPPLY_LOAD_UNAVAILABLE_NOTE =
+  "Supply load unavailable: one or more runs can't deliver the requested power. Fix those runs to see the load.";
+
+/** The problems to show: the supply checks are left out while the supply load is unavailable. */
+export function visibleProblems(result: VoltageDropResult): VoltageDropProblem[] {
+  return isSupplyLoadKnown(result)
+    ? result.problems
+    : result.problems.filter((problem) => 'groupId' in problem);
+}
+
 /** The supply figure: "2 A", "of 4 A usable". */
 export function describeSupplyLoad(result: VoltageDropResult): ResultFigure {
+  if (!isSupplyLoadKnown(result)) {
+    return { value: SUPPLY_LOAD_UNAVAILABLE, detail: "a run can't be powered" };
+  }
   return {
     value: formatAmps(result.totalAmps),
     detail: `of ${formatAmps(result.usableAmps)} usable`,
@@ -115,6 +139,9 @@ export function describeSupplyLoad(result: VoltageDropResult): ResultFigure {
 
 /** "2 A left", or how far over the usable rating the load is. */
 export function describeRemaining(result: VoltageDropResult): string {
+  if (!isSupplyLoadKnown(result)) {
+    return SUPPLY_LOAD_UNAVAILABLE;
+  }
   return result.remainingAmps >= 0
     ? `${formatAmps(result.remainingAmps)} left`
     : `${formatAmps(-result.remainingAmps)} over the usable rating`;
@@ -157,17 +184,25 @@ export function buildMetricTiles(
 ): MetricTile[] {
   const { reservePercent } = state.powerSupply;
   const over = result.remainingAmps < 0;
+  const loadTiles: MetricTile[] = isSupplyLoadKnown(result)
+    ? [
+        {
+          label: 'Supply load',
+          value: formatAmps(result.totalAmps),
+          detail: `${formatWatts(result.totalWatts)} output`,
+        },
+        {
+          label: over ? 'Over by' : 'Remaining',
+          value: formatAmps(Math.abs(result.remainingAmps)),
+          detail: over ? 'past the usable rating' : 'before the reserve',
+        },
+      ]
+    : [
+        { label: 'Supply load', ...describeSupplyLoad(result) },
+        { label: 'Remaining', value: SUPPLY_LOAD_UNAVAILABLE, detail: 'needs the supply load' },
+      ];
   return [
-    {
-      label: 'Supply load',
-      value: formatAmps(result.totalAmps),
-      detail: `${formatWatts(result.totalWatts)} output`,
-    },
-    {
-      label: over ? 'Over by' : 'Remaining',
-      value: formatAmps(Math.abs(result.remainingAmps)),
-      detail: over ? 'past the usable rating' : 'before the reserve',
-    },
+    ...loadTiles,
     {
       label: 'Supply rating',
       value: formatAmps(result.ratedAmps),

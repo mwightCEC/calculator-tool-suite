@@ -21,7 +21,12 @@ export function NumberStepper({ id, value, onChange, min, max, step = 1 }: Numbe
     const snapped = min + Math.ceil((clamped - min) / step) * step;
     return snapped > max ? snapped - step : snapped;
   };
-  const { draft, handleChange, handleBlur } = useNumberDraft({ value, onChange, sanitize: snap });
+  const { draft, handleChange, handleBlur, feedbackProps } = useNumberDraft({
+    value,
+    onChange,
+    sanitize: snap,
+    limits: { min, max },
+  });
 
   return (
     <NumberInput
@@ -35,6 +40,7 @@ export function NumberStepper({ id, value, onChange, min, max, step = 1 }: Numbe
       allowDecimal={false}
       allowNegative={false}
       clampBehavior="none"
+      {...feedbackProps}
       classNames={{ root: classes.root }}
     />
   );

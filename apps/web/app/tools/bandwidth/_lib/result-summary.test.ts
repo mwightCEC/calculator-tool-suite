@@ -87,7 +87,7 @@ describe('describeRemoteViewing and describeViewing', () => {
       { type: 'update-remote-viewing', changes: { enabled: true, viewers: 2, camerasPerViewer: 4 } }
     );
     expect(describeViewing(state, calculateBandwidth(state))).toBe(
-      '2 viewers × 3 cameras · Camera bitrate'
+      '2 viewers × 3 cameras · Average camera bitrate'
     );
   });
 

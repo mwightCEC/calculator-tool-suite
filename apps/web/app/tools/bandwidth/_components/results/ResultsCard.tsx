@@ -9,6 +9,7 @@ import {
   EstimateBadge,
   HeadlineTile,
   MetricRow,
+  PreliminaryBitrateNote,
   ResultsPanel,
 } from '../../../../../components/ResultsCard/ResultsPanel';
 import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
@@ -51,10 +52,12 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
     >
       <HeadlineTile
         value={bandwidth.value}
-        label="Peak network bandwidth"
+        label={result.isEstimated ? 'Typical camera traffic' : 'Camera traffic'}
         range={bandwidth.likelyRange}
         footnote={`${plural(result.totalCameras, 'camera')} in ${plural(state.cameraGroups.length, 'group')} · includes ${state.overheadPercent}% overhead`}
       />
+
+      {result.isEstimated && !isBitrateModelValidated && <PreliminaryBitrateNote />}
 
       {warning && (
         <Group gap={6} wrap="nowrap" className={classes.warning} role="status">
@@ -114,7 +117,6 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
       {result.isEstimated && (
         <Text className={classes.note}>
           Estimates are shown as a likely range; link checks use the high end.
-          {!isBitrateModelValidated && ' Bitrate estimates use preliminary placeholder values.'}
         </Text>
       )}
 

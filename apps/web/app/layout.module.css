@@ -1,0 +1,10 @@
+/*
+ * Notifications open below the header, so a toast (e.g. Undo after deleting a
+ * group) never covers the menu, help or colour scheme buttons. AppShell sets
+ * the header height on :root for each breakpoint. Mantine gives this class to
+ * every position's container; only the top ones may move, or the bottom ones
+ * stretch from here to the bottom of the screen and block clicks.
+ */
+.notifications[data-position^='top'] {
+  top: calc(var(--app-shell-header-height, 0px) + var(--mantine-spacing-md));
+}

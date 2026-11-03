@@ -79,3 +79,7 @@
   flex-shrink: 0;
   margin-top: 2px;
 }
+
+.unavailable {
+  color: var(--app-text-secondary);
+}

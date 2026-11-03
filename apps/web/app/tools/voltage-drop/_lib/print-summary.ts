@@ -9,8 +9,12 @@ import {
   describeSupplyLoad,
   describeWorstDrop,
   formatRunLength,
+  isSupplyLoadKnown,
   RUN_STATUS_LABELS,
+  SUPPLY_LOAD_UNAVAILABLE,
+  SUPPLY_LOAD_UNAVAILABLE_NOTE,
   SUPPLY_STATUS_LABELS,
+  visibleProblems,
   worstRun,
   type ResultFigure,
 } from './result-summary';
@@ -95,6 +99,7 @@ export function buildPrintSummary(
   result: VoltageDropResult
 ): PrintSummary {
   const supply = describeSupplyLoad(result);
+  const loadKnown = isSupplyLoadKnown(result);
   const { reservePercent } = state.powerSupply;
   return {
     drop: describeWorstDrop(state, result),
@@ -102,13 +107,21 @@ export function buildPrintSummary(
     keyFigures: [
       {
         label: 'Supply load',
-        value: `${supply.value} ${supply.detail} (${SUPPLY_STATUS_LABELS[result.supplyStatus].toLowerCase()})`,
+        value: loadKnown
+          ? `${supply.value} ${supply.detail} (${SUPPLY_STATUS_LABELS[result.supplyStatus].toLowerCase()})`
+          : `${supply.value}: ${supply.detail}`,
       },
       { label: 'Remaining', value: describeRemaining(result) },
-      { label: 'Output', value: formatWatts(result.totalWatts) },
+      {
+        label: 'Output',
+        value: loadKnown ? formatWatts(result.totalWatts) : SUPPLY_LOAD_UNAVAILABLE,
+      },
       { label: 'Reserve', value: `${reservePercent}% (${formatAmps(result.reserveAmps)})` },
     ],
-    problems: result.problems.map((problem) => describeProblem(problem, state, result)),
+    problems: [
+      ...(loadKnown ? [] : [SUPPLY_LOAD_UNAVAILABLE_NOTE]),
+      ...visibleProblems(result).map((problem) => describeProblem(problem, state, result)),
+    ],
     runs: runRows(state, result),
     settings: [
       {

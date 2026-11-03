@@ -96,10 +96,15 @@ function ScheduleHoursInput({
   value: number;
   onChange: (hours: number) => void;
 }) {
-  const { draft, handleChange, handleBlur } = useNumberDraft({
+  const { draft, handleChange, handleBlur, feedbackProps } = useNumberDraft({
     value,
     onChange,
     sanitize: clampHours,
+    limits: {
+      min: SCHEDULE_HOURS_MIN,
+      max: SCHEDULE_HOURS_MAX,
+      format: (hours) => `${hours} ${hours === 1 ? 'hour' : 'hours'}`,
+    },
   });
   return (
     <NumberInput
@@ -112,6 +117,7 @@ function ScheduleHoursInput({
       allowDecimal={false}
       allowNegative={false}
       clampBehavior="none"
+      {...feedbackProps}
       className={classes.hoursInput}
     />
   );
