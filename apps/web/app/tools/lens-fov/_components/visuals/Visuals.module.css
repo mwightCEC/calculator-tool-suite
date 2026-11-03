@@ -1,0 +1,207 @@
+/* Camera view and coverage diagram. SVG colours come from theme tokens, light then dark. */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+}
+
+.title {
+  font-size: var(--mantine-font-size-lg);
+  letter-spacing: -0.01em;
+}
+
+.description {
+  color: var(--app-text-secondary);
+}
+
+.note {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}
+
+/* Keeps a 16:9 view from towering over the page on wide screens. */
+.drawing {
+  width: 100%;
+  max-width: 56rem;
+  margin-inline: auto;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Shared labels and outlines */
+
+.frame {
+  fill: none;
+  stroke: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4));
+}
+
+.dimension {
+  stroke: light-dark(var(--mantine-color-brand-8), var(--mantine-color-dark-0));
+  stroke-width: 1.5;
+}
+
+.arrowHead {
+  fill: light-dark(var(--mantine-color-brand-8), var(--mantine-color-dark-0));
+}
+
+.chip {
+  fill: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+  fill-opacity: 0.92;
+  stroke: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4));
+}
+
+.chipText {
+  fill: light-dark(var(--mantine-color-dark-7), var(--mantine-color-dark-0));
+  font-weight: 600;
+}
+
+.chipText[data-muted] {
+  fill: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+  font-weight: 500;
+}
+
+/* Camera view */
+
+.sky {
+  fill: light-dark(var(--mantine-color-brand-0), var(--mantine-color-dark-6));
+}
+
+.ground {
+  fill: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+}
+
+.groundLine {
+  stroke: light-dark(var(--mantine-color-gray-5), var(--mantine-color-dark-3));
+  stroke-width: 1.5;
+}
+
+.grid {
+  stroke: light-dark(var(--mantine-color-brand-2), var(--mantine-color-dark-4));
+}
+
+.person {
+  fill: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+}
+
+.pixelGrid {
+  stroke: light-dark(var(--mantine-color-brand-6), var(--mantine-color-brand-3));
+  stroke-opacity: 0.25;
+  stroke-width: 0.75;
+}
+
+.unitSquare {
+  fill: light-dark(var(--mantine-color-amber-3), var(--mantine-color-amber-6));
+  fill-opacity: 0.45;
+  stroke: light-dark(var(--mantine-color-amber-8), var(--mantine-color-amber-4));
+  stroke-width: 1.5;
+}
+
+/* Coverage diagram */
+
+.plan {
+  fill: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+  stroke: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4));
+}
+
+.tick {
+  stroke: light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  stroke-dasharray: 4 4;
+}
+
+.tickText,
+.caption {
+  fill: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+  font-size: 10px;
+}
+
+.cone {
+  fill: none;
+  stroke: light-dark(var(--mantine-color-brand-6), var(--mantine-color-brand-4));
+  stroke-width: 1.5;
+}
+
+.coneBeyond {
+  stroke: light-dark(var(--mantine-color-brand-4), var(--mantine-color-brand-5));
+  stroke-dasharray: 5 4;
+}
+
+.centreLine {
+  stroke: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
+  stroke-dasharray: 3 3;
+}
+
+.arc {
+  fill: none;
+  stroke: light-dark(var(--mantine-color-brand-8), var(--mantine-color-dark-0));
+  stroke-width: 1.5;
+}
+
+.targetLine {
+  stroke: light-dark(var(--mantine-color-brand-8), var(--mantine-color-dark-0));
+  stroke-width: 3;
+}
+
+.targetDot,
+.camera {
+  fill: light-dark(var(--mantine-color-dark-6), var(--mantine-color-dark-0));
+}
+
+.cameraLabel {
+  fill: light-dark(var(--mantine-color-dark-6), var(--mantine-color-dark-0));
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* DORI bands: stronger nearer the camera, where the density is highest. */
+.band,
+.swatch {
+  --band-color: light-dark(var(--mantine-color-brand-6), var(--mantine-color-brand-4));
+  --band-share: 12%;
+
+  fill: color-mix(in srgb, var(--band-color) var(--band-share), transparent);
+  background-color: color-mix(in srgb, var(--band-color) var(--band-share), transparent);
+}
+
+.band[data-level='identification'],
+.swatch[data-level='identification'] {
+  --band-share: 62%;
+}
+
+.band[data-level='recognition'],
+.swatch[data-level='recognition'] {
+  --band-share: 42%;
+}
+
+.band[data-level='observation'],
+.swatch[data-level='observation'] {
+  --band-share: 26%;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  margin: 0;
+  padding: 0;
+  font-size: var(--mantine-font-size-xs);
+  list-style: none;
+}
+
+.legendItem {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.swatch {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--app-panel-border);
+  border-radius: 3px;
+}

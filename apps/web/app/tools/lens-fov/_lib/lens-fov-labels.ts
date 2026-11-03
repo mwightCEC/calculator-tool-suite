@@ -66,10 +66,14 @@ export function formatLength(metres: number, unit: CableLengthUnit): string {
   return `${formatNumber(lengthIn(metres, unit))} ${unit}`;
 }
 
+/** A pixel density per metre, per foot or per metre. */
+export function densityIn(pixelsPerMetre: number, unit: CableLengthUnit): number {
+  return unit === 'm' ? pixelsPerMetre : pixelsPerMetre * METRES_PER_FOOT;
+}
+
 /** "42.4 PPF" or "139 PPM", from pixels per metre. */
 export function formatDensity(pixelsPerMetre: number, unit: CableLengthUnit): string {
-  const value = unit === 'm' ? pixelsPerMetre : pixelsPerMetre * METRES_PER_FOOT;
-  return `${formatNumber(value)} ${DENSITY_UNIT_LABELS[unit]}`;
+  return `${formatNumber(densityIn(pixelsPerMetre, unit))} ${DENSITY_UNIT_LABELS[unit]}`;
 }
 
 export const formatDegrees = (degrees: number) => `${formatNumber(degrees, 1)}°`;

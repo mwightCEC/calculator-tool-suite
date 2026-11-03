@@ -1,10 +1,17 @@
 .layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-lg);
+  /* Room for the fixed mobile result bar below the content. */
+  padding-bottom: 72px;
+}
+
+/* Inputs and results; the sticky results stop at the end of this row, above the visuals. */
+.split {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--mantine-spacing-lg);
   align-items: start;
-  /* Room for the fixed mobile result bar below the content. */
-  padding-bottom: 72px;
 }
 
 .inputs {
@@ -57,9 +64,12 @@
 
 @media (min-width: $mantine-breakpoint-lg) {
   .layout {
+    padding-bottom: 0;
+  }
+
+  .split {
     /* Inputs and results share the width about 7:5, as in the other calculators. */
     grid-template-columns: minmax(0, 7fr) minmax(360px, 5fr);
-    padding-bottom: 0;
   }
 
   /* Results stay in view while the inputs scroll. */
