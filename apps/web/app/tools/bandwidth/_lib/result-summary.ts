@@ -13,7 +13,12 @@ import {
   formatRangeBounds,
 } from '../../../../lib/format';
 import type { BandwidthCalculatorState } from '../_state/bandwidth-calculator-state';
-import { LINK_LABELS, VIEWING_BITRATE_SOURCE_LABELS } from './bandwidth-labels';
+import {
+  LINK_LABELS,
+  LINK_PLANNING_LIMIT,
+  LINK_STATUS_LABELS,
+  VIEWING_BITRATE_SOURCE_LABELS,
+} from './bandwidth-labels';
 
 export interface ResultFigure {
   value: string;
@@ -67,14 +72,36 @@ export function describeLinkLoad(check: LinkCheck): string {
   return `Up to ${formatMbps(check.loadMbps.high)} of ${formatLinkSpeed(check.capacityMbps)} · ${percent}%`;
 }
 
-/** Warning naming the links that are over capacity, or null when none are. */
+/** True when the high estimate is more than the link can carry, not just past the planning limit. */
+function exceedsLink(check: LinkCheck): boolean {
+  return check.status === 'over-capacity' && check.utilisation > 1;
+}
+
+/** The link's badge: "OK", "Caution", "Above 90%", or "Exceeds link" past its full capacity. */
+export function describeLinkStatus(check: LinkCheck): string {
+  return exceedsLink(check) ? 'Exceeds link' : LINK_STATUS_LABELS[check.status];
+}
+
+const linkNames = (checks: LinkCheck[]) =>
+  checks.map((check) => LINK_LABELS[check.link]).join(', ');
+
+/**
+ * Warning naming the links the traffic may exceed, then those only past the
+ * planning limit; null when every link is within it.
+ */
 export function describeWarning(result: BandwidthResult): string | null {
   const over = result.linkChecks.filter((check) => check.status === 'over-capacity');
   if (over.length === 0) {
     return null;
   }
-  const names = over.map((check) => LINK_LABELS[check.link]).join(', ');
-  return `Traffic may exceed: ${names}. Allow headroom for bursts and other traffic.`;
+  const exceeds = over.filter(exceedsLink);
+  const aboveLimit = over.filter((check) => !exceedsLink(check));
+  const parts = [
+    exceeds.length > 0 && `Traffic may exceed: ${linkNames(exceeds)}.`,
+    aboveLimit.length > 0 &&
+      `Above the ${LINK_PLANNING_LIMIT} planning limit: ${linkNames(aboveLimit)}.`,
+  ].filter(Boolean);
+  return `${parts.join(' ')} Allow headroom for bursts and other traffic.`;
 }
 
 export interface TrafficSegment {

@@ -15,12 +15,8 @@ describe('describeBitrateShort', () => {
 
 describe('describeBitrateHint', () => {
   it('names the source and the per-camera bitrate', () => {
-    expect(describeBitrateHint({ source: 'estimate' }, range)).toBe(
-      'bitrate: Estimated – ~3.4 Mbps'
-    );
-    expect(describeBitrateHint({ source: 'manual', mbps: 2 }, range)).toBe(
-      'bitrate: Manual – 2 Mbps'
-    );
+    expect(describeBitrateHint({ source: 'estimate' }, range)).toBe('Estimated – ~3.4 Mbps');
+    expect(describeBitrateHint({ source: 'manual', mbps: 2 }, range)).toBe('Manual – 2 Mbps');
   });
 });
 

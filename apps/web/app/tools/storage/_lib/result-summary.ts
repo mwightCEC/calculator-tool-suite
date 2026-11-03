@@ -7,6 +7,8 @@ export interface ResultHeadline {
   value: string;
   /** e.g. "likely 30–48 TB"; null when every group uses a known bitrate. */
   likelyRange: string | null;
+  /** What the headline figure is, where that isn't obvious; null otherwise. */
+  note: string | null;
 }
 
 /**
@@ -19,6 +21,7 @@ export function describeHeadline(result: StorageCalculationResult): ResultHeadli
       label: 'Storage required',
       value: formatTb(result.requiredCapacityTb.typical),
       likelyRange: formatLikelyRange(result.requiredCapacityTb, 'TB'),
+      note: null,
     };
   }
   const days = result.retentionDays;
@@ -26,6 +29,9 @@ export function describeHeadline(result: StorageCalculationResult): ResultHeadli
     label: 'Estimated retention',
     value: formatDays(days.low),
     likelyRange: isPointRange(days) ? null : `likely ${formatRangeBounds(days, 0)} days`,
+    note: isPointRange(days)
+      ? 'In complete days, rounded down.'
+      : 'The low end of the range, in complete days: the shortest retention to expect.',
   };
 }
 

@@ -77,6 +77,10 @@ export function describeWorstDeviceVolts(result: VoltageDropResult): string | nu
   return deviceVolts === null ? null : `${formatVolts(deviceVolts)} at the device`;
 }
 
+/** Under the headline while every run can power its device: the drop limit isn't the device's own limit. */
+export const DEVICE_VOLTS_NOTE =
+  "Within the drop limit doesn't confirm a device will run: check the voltage at the device against the minimum input voltage on its datasheet.";
+
 /** "12 V DC supply, 10% drop limit" */
 export function describeLimit(state: VoltageDropCalculatorState): string {
   return `${describeSupply(state.powerSupply)} supply, ${state.dropLimitPercent}% drop limit`;

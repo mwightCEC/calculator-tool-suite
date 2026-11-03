@@ -19,7 +19,9 @@ describe('describeDriveArray', () => {
   it('recommends drives in storage-needed mode', () => {
     const summary = summaryAfter(raid5);
     expect(summary.title).toMatch(/^Recommended: \d+ × 14 TB drives$/);
-    expect(summary.description).toBe('RAID 5 (single parity) · sized for the high estimate');
+    expect(summary.description).toBe(
+      'RAID 5 (single parity) · 14 TB drive size as selected · sized for the high estimate'
+    );
     expect(summary.faultTolerant).toBe(true);
   });
 
@@ -29,7 +31,9 @@ describe('describeDriveArray', () => {
       id: 'g1',
       source: 'manual',
     });
-    expect(summary.description).toBe('RAID 5 (single parity) · sized for the known bitrates');
+    expect(summary.description).toBe(
+      'RAID 5 (single parity) · 14 TB drive size as selected · sized for the known bitrates'
+    );
   });
 
   it('describes the entered drives in days-from-capacity mode', () => {

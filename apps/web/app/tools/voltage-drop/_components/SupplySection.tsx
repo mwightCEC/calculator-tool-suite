@@ -16,6 +16,7 @@ import { Select } from '@mantine/core';
 import { FieldRow } from '../../../../components/FieldRow/FieldRow';
 import { SettingsPanel } from '../../../../components/SettingsPanel/SettingsPanel';
 import { UnitInput } from '../../../../components/UnitInput/UnitInput';
+import { NOTE_BELOW_FIELD } from '../../../../hooks/use-number-draft';
 import { parseOption } from '../../../../lib/camera-labels';
 import {
   CUSTOM_SUPPLY,
@@ -78,6 +79,12 @@ export function SupplySection({
                 }
               }}
               allowDeselect={false}
+              description={
+                powerSupply.kind === 'ac'
+                  ? "An approximation: AC is treated like DC at its RMS voltage, using the wire's resistance only."
+                  : undefined
+              }
+              inputWrapperOrder={NOTE_BELOW_FIELD}
               className={classes.select}
             />
           </FieldRow>

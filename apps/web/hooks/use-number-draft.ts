@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { InputWrapperProps } from '@mantine/core';
 
-/** The correction note goes under the field, not between the label and the field. */
-const FIELD_ORDER: InputWrapperProps['inputWrapperOrder'] = [
+/** Notes go under the field, not between the label and the field. */
+export const NOTE_BELOW_FIELD: InputWrapperProps['inputWrapperOrder'] = [
   'label',
   'input',
   'description',
@@ -95,7 +95,7 @@ export function useNumberDraft({ value, onChange, sanitize, limits }: NumberDraf
     error: describeOverMaximum(draft, limits),
     description: correction,
     // Announced when it appears.
-    inputWrapperOrder: FIELD_ORDER,
+    inputWrapperOrder: NOTE_BELOW_FIELD,
     descriptionProps: { role: 'status' },
   };
 

@@ -103,7 +103,7 @@ export function describeDriveArray(result: StorageCalculationResult): DriveArray
     const sizing = result.isEstimated
       ? 'sized for the high estimate'
       : 'sized for the known bitrates';
-    description = `${describeRaidLevel(raidLevel)} · ${sizing}`;
+    description = `${describeRaidLevel(raidLevel)} · ${driveSizeTb} TB drive size as selected · ${sizing}`;
   } else {
     title =
       raidLevel === 'none'

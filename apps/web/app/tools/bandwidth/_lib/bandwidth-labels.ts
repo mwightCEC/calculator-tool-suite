@@ -1,4 +1,5 @@
 import {
+  LINK_OVER_CAPACITY_ABOVE,
   OVERHEAD_PERCENTS,
   UPLINK_SPEEDS_MBPS,
   VIEWING_BITRATE_SOURCES,
@@ -44,8 +45,12 @@ export const LINK_LABELS: Record<LinkKind, string> = {
   'site-upload': 'Site upload',
 };
 
+/** The utilisation the link checks plan to stay within: "90%". */
+export const LINK_PLANNING_LIMIT = `${Math.round(LINK_OVER_CAPACITY_ABOVE * 100)}%`;
+
+/** Over capacity means past the planning limit; describeLinkStatus says when it is past the link itself. */
 export const LINK_STATUS_LABELS: Record<LinkStatus, string> = {
   ok: 'OK',
   caution: 'Caution',
-  'over-capacity': 'Over capacity',
+  'over-capacity': `Above ${LINK_PLANNING_LIMIT}`,
 };

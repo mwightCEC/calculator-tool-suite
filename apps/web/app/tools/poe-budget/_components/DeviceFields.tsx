@@ -29,6 +29,8 @@ import classes from './PoeCalculator.module.css';
 
 const POWER_HELP =
   'Watts: the maximum power consumption from the datasheet, with IR and any heater on. PoE class: the class the device reports, which the switch may reserve in full.';
+const WATTS_HELP =
+  "The device's maximum input power from its datasheet, with IR, heaters and any accessories on. This is what the device draws, not what the switch port supplies; cable loss is added on top.";
 const CABLE_HELP =
   'Longest cable run in this group. Longer runs lose more power in the cable. Left empty, 100 m (328 ft) is assumed, the most Ethernet allows. The unit applies to every group.';
 
@@ -117,7 +119,7 @@ export function DeviceFields({
               />
             </FieldRow>
           ) : (
-            <FieldRow label="Max power draw" controlId={`${id}-watts`}>
+            <FieldRow label="Max power draw" help={WATTS_HELP} controlId={`${id}-watts`}>
               <UnitInput
                 id={`${id}-watts`}
                 value={power.watts}

@@ -4,6 +4,13 @@ import { useState, type ReactNode } from 'react';
 import { MAX_CABLE_LENGTH, type CableLengthUnit } from '@cctv/calc-core';
 import { NumberInput } from '@mantine/core';
 import { UNIT_SELECT_WIDTH } from '../../../../components/UnitSelect/UnitSelect';
+import {
+  describeCorrection,
+  describeOverMaximum,
+  NOTE_BELOW_FIELD,
+  type NumberLimits,
+} from '../../../../hooks/use-number-draft';
+import { formatNumber } from '../../../../lib/format';
 import classes from './PoeCalculator.module.css';
 
 const MIN_LENGTH = 0.1;
@@ -23,7 +30,9 @@ interface CableLengthInputProps {
 
 /**
  * The group's longest cable run, which may be left empty. Valid numbers commit
- * as they are typed; clearing the field goes back to the 100 m assumption.
+ * as they are typed; clearing the field goes back to the 100 m assumption,
+ * which a note under the field says. Like useNumberDraft, it flags a number
+ * over the maximum and says when blur changed what was typed.
  */
 export function CableLengthInput({
   id,
@@ -34,15 +43,25 @@ export function CableLengthInput({
 }: CableLengthInputProps) {
   const [draft, setDraft] = useState<number | string>(value ?? '');
   const [lastValue, setLastValue] = useState(value);
+  const [correction, setCorrection] = useState<string | null>(null);
+  const limits: NumberLimits = {
+    min: MIN_LENGTH,
+    max: MAX_CABLE_LENGTH,
+    format: (length) => `${formatNumber(length)} ${unit}`,
+  };
 
   // Follow outside changes (such as a unit switch) without an effect.
   if (value !== lastValue) {
     setLastValue(value);
     setDraft(value ?? '');
+    if (draft !== value) {
+      setCorrection(null);
+    }
   }
 
   const handleChange = (next: number | string) => {
     setDraft(next);
+    setCorrection(null);
     if (next === '') {
       onChange(null);
     } else if (typeof next === 'number' && sanitize(next) === next) {
@@ -53,6 +72,11 @@ export function CableLengthInput({
   const handleBlur = () => {
     const committed = typeof draft === 'number' ? sanitize(draft) : null;
     setDraft(committed ?? '');
+    setCorrection(
+      typeof draft === 'number' && committed !== null
+        ? describeCorrection(draft, committed, limits)
+        : null
+    );
     if (committed !== value) {
       onChange(committed);
     }
@@ -70,6 +94,10 @@ export function CableLengthInput({
       decimalScale={1}
       allowNegative={false}
       clampBehavior="none"
+      error={describeOverMaximum(draft, limits)}
+      description={draft === '' ? 'Blank: 100 m (328 ft) assumed' : correction}
+      inputWrapperOrder={NOTE_BELOW_FIELD}
+      descriptionProps={{ role: 'status' }}
       hideControls
       rightSection={unitControl ?? unit}
       rightSectionWidth={unitControl ? UNIT_SELECT_WIDTH : 32}

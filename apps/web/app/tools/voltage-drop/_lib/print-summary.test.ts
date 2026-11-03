@@ -44,7 +44,7 @@ describe('buildPrintSummary', () => {
       { label: 'Wire sizes', value: 'AWG, copper' },
     ]);
     // No AC supply and no watts loads, so those notes are left out.
-    expect(summary.notes).toHaveLength(3);
+    expect(summary.notes).toHaveLength(4);
   });
 
   it('uses group names and adds the AC and watts notes', () => {
@@ -56,7 +56,7 @@ describe('buildPrintSummary', () => {
       )
     );
     expect(summary.runs[0]).toEqual(expect.objectContaining({ name: 'PTZ', load: '6 W' }));
-    expect(summary.notes).toHaveLength(5);
+    expect(summary.notes).toHaveLength(6);
   });
 
   it('marks the supply figures unavailable when a run cannot power its device', () => {
