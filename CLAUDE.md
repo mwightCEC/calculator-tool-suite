@@ -117,7 +117,9 @@ config or routing changes.
   edition is named but not used. Keep the wording honest: a result "meets the pixel density"
   for a level, never a promise of recognising someone (calc-core `src/lens-fov/`). The camera
   view and coverage diagram are drawn to scale from `_lib/visual-geometry.ts`; the drawing tab
-  and pixel grid are page settings, not in share links or saved state.
+  and pixel grid are page settings, not in share links or saved state. The clarity sample is a
+  drawn test scene of known size (`_lib/clarity-scene.ts`; no real person or plate) shown at the
+  pixels it would get at a distance; it may later be swapped for Clinton's own photo.
 - Shared links: `?v=<version>&s=<base64url of a compact positional array>`, built with
   `lib/share/share-codec.ts`. Each tool owns its own versions: Storage writes `v=2`
   (`share-format-v2.ts`) and still opens `v=1` full-JSON links; Bandwidth writes and reads
