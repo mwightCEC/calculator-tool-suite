@@ -90,7 +90,7 @@ function linkChecks(
 }
 
 /**
- * Peak network traffic for a CCTV system, and how it fits the links entered.
+ * Network traffic for a CCTV system, and how it fits the links entered.
  * Expects input that has passed `bandwidthInputSchema`. Bitrates are ranges;
  * link checks use the high estimate.
  */

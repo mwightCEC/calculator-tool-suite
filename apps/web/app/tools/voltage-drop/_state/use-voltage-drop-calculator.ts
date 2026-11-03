@@ -64,7 +64,7 @@ export function useVoltageDropCalculator() {
     }
     const previous = state.deviceGroups;
     dispatch({ type: 'clear-groups' });
-    notifyGroupsCleared(() => dispatch({ type: 'restore-groups', groups: previous }));
+    notifyGroupsCleared('device', () => dispatch({ type: 'restore-groups', groups: previous }));
   };
 
   const actions = {

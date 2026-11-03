@@ -33,6 +33,8 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export, `UnitInput`, `UnitSelect`
   (ft / m, AWG / mm² picker inside an input), `SegmentBar`,
   `SettingsPanel` (tinted icon panel for settings below the groups)).
+  The group toolbar's Reset groups button (internally "clear") goes back to the one default
+  group, with Undo.
   Every calculator uses the approved-prototype layout: the camera / device configuration card
   first, with the tool's settings inside it below the groups (PoE budget's Switch / NVR and
   Voltage drop's Power supply are `SettingsPanel`s), a 7:5 inputs / results split, and the
@@ -41,6 +43,12 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   has no groups, and it adds a full-width visuals card below the split.
 - Shared logic: `apps/web/lib/` (`camera-groups/` group list and colours, `share/` link codec
   and URL sync hook, `saved-state.ts`, `format.ts`, camera and bitrate labels).
+- Number inputs go through `apps/web/hooks/use-number-draft.ts`: values commit as typed, blur
+  snaps to the range, and the field says why ("Maximum 24 hours", "Changed to 3, the
+  minimum."). PoE's `CableLengthInput` does the same and notes the blank = 100 m assumption.
+- Notifications open below the header (`app/layout.module.css`). Mantine gives a
+  `<Notifications>` class to all six position containers, so scope any offset by
+  `[data-position]`: a stray `top` on the bottom ones stretches them over the page and blocks clicks.
 - Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts`.
 - Theme: `apps/web/theme/` (palettes, `--app-*` CSS variables, Mantine overrides).
 
@@ -88,27 +96,36 @@ config or routing changes.
 - Storage uses decimal units (1 TB = 10¹² bytes), matching drive labels.
 - Bitrate estimates are ranges from `packages/calc-core/src/data/bitrate-model.json`, which
   holds **unvalidated placeholder** coefficients. Keep the user-facing "estimate /
-  placeholder" wording honest. Updating the numbers needs no code changes (see the README
-  in that folder).
-- Storage-needed mode sizes drives for the high estimate; days-from-capacity headlines the
-  worst-case (low) days.
+  placeholder" wording honest: while the model is unvalidated, estimated Storage and Bandwidth
+  results show `PreliminaryBitrateNote` under the headline. Updating the numbers needs no code
+  changes (see the README in that folder).
+- Storage-needed mode sizes drives for the high estimate (and says which drive size it used);
+  days-from-capacity headlines the worst-case (low) days, in complete days, and says so.
 - Storage and Bandwidth groups take their bitrate as Estimated (the model range) or Manual
   (one entered per-camera value, used as is). VBR and CBR were merged into Manual: their
-  share-link indexes (1, 2) and Storage's v1 source names both open as Manual.
+  share-link indexes (1, 2) and Storage's v1 source names both open as Manual. The choice sits
+  in each group's "Bitrate: estimated or manual" section (`CameraStreamGrid`).
 - Bandwidth is a general network bandwidth calculator (no recorder / recording wording). It
-  headlines the typical bandwidth estimate (all camera streams plus overhead). Remote viewing
-  has an on/off switch; when on, it is viewers × cameras each × the camera-weighted average
-  bitrate or a custom per-camera bitrate, with the site upload check. Network checks use the
-  high estimate (OK up to 70%, caution up to 90%, then over capacity; thresholds in calc-core).
+  headlines the typical bandwidth estimate (all camera streams plus overhead), labelled
+  "Typical camera traffic" (never "peak": the inputs are averages). Remote viewing has an
+  on/off switch; when on, it is viewers × cameras each × the "Average camera bitrate" across
+  groups or a custom per-camera bitrate, with the site upload check. Network checks use the
+  high estimate: OK up to 70%, caution up to 90%, then calc-core's `over-capacity`, which the
+  UI shows as "Above 90%" (a planning limit) and as "Exceeds link" only over 100%.
 - PoE budget checks one switch / NVR against device groups given by PoE class (the class's
   switch-side allocation) or datasheet watts (plus an I²R cable-loss estimate, 100 m assumed
-  without a length). Budget status: OK within budget less the reserve, then into reserve,
+  without a length; the field says so when blank). Budget status: OK within budget less the reserve, then into reserve,
   then over budget; also port count, port standard and the 100 m run limit (calc-core `src/poe/`).
 - Voltage drop checks home runs (one cable per device) from one low-voltage supply (12 / 24 V DC,
-  24 V AC treated as resistive, or a custom voltage), copper only. Loads by amps are
-  constant current; by watts, constant power (current rises as the voltage falls). Each run
-  gets its drop, the smallest passing wire and the longest passing run; the supply load uses
-  the same OK / into-reserve / over statuses as PoE budget (calc-core `src/voltage-drop/`).
+  24 V AC treated as resistive, or a custom voltage), copper at 20 °C only. The page states
+  these assumptions in plain words above the groups and under the Supply field (no "home run"
+  jargon). Loads by amps are constant current; by watts, constant power (current rises as the
+  voltage falls). Each run gets its drop, the smallest passing wire and the longest passing
+  run; the supply load uses the same OK / into-reserve / over statuses as PoE budget
+  (calc-core `src/voltage-drop/`). A run that can't power its device has no steady current,
+  so the web layer shows supply load, remaining and output as "Unavailable" and hides the
+  supply checks (`_lib/result-summary.ts`). Passing the drop limit isn't a device-voltage
+  check; the results say to compare with the device's minimum input voltage.
 - Lens / FOV models one camera with a distortion-free (rectilinear) lens aimed straight at a
   flat target; height and tilt aren't modelled. Sensor types are stored by their diagonal and
   fitted to the image's shape; custom sensors are cropped, never stretched. It solves for
