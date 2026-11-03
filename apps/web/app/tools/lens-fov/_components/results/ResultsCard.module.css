@@ -1,0 +1,83 @@
+/* Lens / FOV-only results styles; the card, headline tile and metric row are in components/ResultsCard. */
+
+.doriBadge {
+  flex-shrink: 0;
+  text-transform: none;
+}
+
+.doriBadge[data-level='below'] {
+  color: var(--app-status-warn);
+}
+
+.sectionTitle {
+  margin: 0 0 var(--mantine-spacing-xs);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 700;
+}
+
+.note {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.optics {
+  font-size: var(--mantine-font-size-sm);
+}
+
+/* Notes about the model's limits for these inputs */
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notice {
+  color: var(--app-status-warn);
+}
+
+.noticeIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* DORI distances and lens comparison tables */
+
+.table {
+  font-size: var(--mantine-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.number {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table tr[data-current] {
+  background-color: var(--app-panel-bg);
+}
+
+.level {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.table tr:not([data-met]) .level {
+  color: var(--app-text-secondary);
+}
+
+.metIcon {
+  color: var(--app-status-ok);
+}
+
+.lensButton {
+  color: var(--app-accent-text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.table tr[data-current] .lensButton {
+  text-decoration: none;
+}

@@ -56,10 +56,14 @@ export const LENGTH_UNIT_OPTIONS = toOptions(CABLE_LENGTH_UNITS, { ft: 'ft', m: 
 export const DENSITY_UNIT_LABELS: Record<CableLengthUnit, string> = { ft: 'PPF', m: 'PPM' };
 export const DENSITY_UNIT_OPTIONS = toOptions(CABLE_LENGTH_UNITS, DENSITY_UNIT_LABELS);
 
+/** A length in metres, in feet or metres. */
+export function lengthIn(metres: number, unit: CableLengthUnit): number {
+  return unit === 'm' ? metres : metres / METRES_PER_FOOT;
+}
+
 /** "60.3 ft" or "18.4 m", from metres. */
 export function formatLength(metres: number, unit: CableLengthUnit): string {
-  const value = unit === 'm' ? metres : metres / METRES_PER_FOOT;
-  return `${formatNumber(value)} ${unit}`;
+  return `${formatNumber(lengthIn(metres, unit))} ${unit}`;
 }
 
 /** "42.4 PPF" or "139 PPM", from pixels per metre. */

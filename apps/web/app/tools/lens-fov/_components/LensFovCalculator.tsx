@@ -2,17 +2,18 @@
 
 import { Paper, Stack, Text, Title } from '@mantine/core';
 import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
-import { formatDensity, formatLength } from '../_lib/lens-fov-labels';
+import { formatDensity } from '../_lib/lens-fov-labels';
+import { describeHeadline } from '../_lib/result-summary';
 import { useLensFovCalculator } from '../_state/use-lens-fov-calculator';
 import { CameraFields } from './CameraFields';
-import { FovSummary, RESULTS_CARD_ID } from './FovSummary';
+import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
 import { TargetSection } from './TargetSection';
 import classes from './LensFovCalculator.module.css';
 
 /** Two columns on large screens: inputs on the left, sticky results on the right. */
 export function LensFovCalculator() {
   const { state, result, actions } = useLensFovCalculator();
-  const unit = state.lengthUnit;
+  const headline = describeHeadline(state, result);
 
   return (
     <div className={classes.layout}>
@@ -38,16 +39,13 @@ export function LensFovCalculator() {
       </Stack>
 
       <div className={classes.results}>
-        <FovSummary state={state} result={result} />
+        <ResultsCard result={result} state={state} onSelectLens={actions.setFocalLength} />
       </div>
 
       <MobileResultBar
-        label={state.solveFor === 'coverage' ? 'Coverage width' : 'Farthest distance'}
-        value={formatLength(
-          state.solveFor === 'coverage' ? result.horizontalCoverageM : result.distanceM,
-          unit
-        )}
-        detail={formatDensity(result.pixelsPerMetre, unit)}
+        label={headline.label}
+        value={headline.value}
+        detail={formatDensity(result.pixelsPerMetre, state.lengthUnit)}
         resultsId={RESULTS_CARD_ID}
       />
     </div>
