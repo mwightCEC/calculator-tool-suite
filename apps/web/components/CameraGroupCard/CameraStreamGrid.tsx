@@ -35,8 +35,8 @@ interface CameraStreamGridProps {
 /**
  * A camera group's fields in a grid with labels above: cameras and main-stream
  * settings, then Scene complexity (the only info icon) and any calculator
- * fields, with the bitrate under Advanced settings. Advanced settings starts
- * open when a manual bitrate is set.
+ * fields, with the bitrate in its own section, named so Manual is easy to
+ * find. The section starts open when a manual bitrate is set.
  */
 export function CameraStreamGrid({
   group,
@@ -68,7 +68,7 @@ export function CameraStreamGrid({
         </div>
       </div>
       <Disclosure
-        title="Advanced settings"
+        title="Bitrate: estimated or manual"
         hint={`(${describeBitrateHint(group.bitrate, perCameraMbps)})`}
         defaultOpened={group.bitrate.source === 'manual'}
       >

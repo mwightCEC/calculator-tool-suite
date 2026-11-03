@@ -95,7 +95,7 @@
   width: 120px;
 }
 
-/* Bitrate per camera, under a camera group's Advanced settings. */
+/* Bitrate per camera, in a camera group's bitrate section. */
 .bitrate {
   display: flex;
   flex-direction: column;

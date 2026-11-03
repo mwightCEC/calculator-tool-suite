@@ -36,7 +36,8 @@ export function VoltageDropCalculator() {
             assumption={
               <>
                 <b>Each device has its own cable from the supply.</b> Devices sharing one cable,
-                daisy-chained along it, aren&apos;t covered.
+                daisy-chained along it, aren&apos;t covered. Wire is copper at 20 °C; warm cable and
+                copper-clad aluminium (CCA) drop more.
               </>
             }
           >

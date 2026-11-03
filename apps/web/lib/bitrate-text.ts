@@ -11,11 +11,11 @@ export function describeBitrateShort(bitrate: GroupBitrate, perCameraMbps: Value
   }
 }
 
-/** Hint after the Advanced settings title: "bitrate: Estimated – ~2 Mbps" or "bitrate: Manual – 2 Mbps". */
+/** Hint after the bitrate section title: "Estimated – ~2 Mbps" or "Manual – 2 Mbps". */
 export function describeBitrateHint(bitrate: GroupBitrate, perCameraMbps: ValueRange): string {
   return bitrate.source === 'estimate'
-    ? `bitrate: Estimated – ~${formatMbps(perCameraMbps.typical)}`
-    : `bitrate: Manual – ${formatMbps(bitrate.mbps)}`;
+    ? `Estimated – ~${formatMbps(perCameraMbps.typical)}`
+    : `Manual – ${formatMbps(bitrate.mbps)}`;
 }
 
 /** The parts of the estimate's working, formatted with the range's precision. */

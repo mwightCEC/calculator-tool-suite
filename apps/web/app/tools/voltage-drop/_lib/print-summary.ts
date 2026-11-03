@@ -8,6 +8,7 @@ import {
   describeRunDrop,
   describeSupplyLoad,
   describeWorstDrop,
+  DEVICE_VOLTS_NOTE,
   formatRunLength,
   isSupplyLoadKnown,
   RUN_STATUS_LABELS,
@@ -80,11 +81,14 @@ function runRows(state: VoltageDropCalculatorState, result: VoltageDropResult): 
 function notes(state: VoltageDropCalculatorState): string[] {
   const list = [
     'Each device has its own run from the supply. The drop is the current times the resistance of both conductors, for copper at 20 °C; warm cable and copper-clad aluminium (CCA) drop more.',
+    DEVICE_VOLTS_NOTE,
     'The smallest wire and longest run are the thinnest listed size and the longest length that keep the drop within the limit.',
     'Within the rating less the reserve is OK; into the reserve is a caution; above the full rating is over.',
   ];
   if (state.powerSupply.kind === 'ac') {
-    list.push("AC is treated like DC at its RMS voltage, using the wire's resistance only.");
+    list.push(
+      "AC is approximated: it is treated like DC at its RMS voltage, using the wire's resistance only."
+    );
   }
   if (state.deviceGroups.some((group) => group.load.input === 'watts')) {
     list.push(

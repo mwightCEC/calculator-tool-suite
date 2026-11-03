@@ -1,7 +1,7 @@
 import type { LinkCheck, LinkStatus } from '@cctv/calc-core';
 import { Badge, Group, Progress, Stack, Text } from '@mantine/core';
-import { LINK_LABELS, LINK_STATUS_LABELS } from '../../_lib/bandwidth-labels';
-import { describeLinkLoad } from '../../_lib/result-summary';
+import { LINK_LABELS } from '../../_lib/bandwidth-labels';
+import { describeLinkLoad, describeLinkStatus } from '../../_lib/result-summary';
 import classes from './ResultsCard.module.css';
 
 const STATUS_BADGE_COLORS: Record<LinkStatus, string> = {
@@ -30,7 +30,7 @@ function LinkCheckRow({ check }: { check: LinkCheck }) {
           className={classes.statusBadge}
           data-status={check.status}
         >
-          {LINK_STATUS_LABELS[check.status]}
+          {describeLinkStatus(check)}
         </Badge>
       </Group>
       <Progress

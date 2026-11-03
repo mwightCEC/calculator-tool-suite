@@ -36,7 +36,7 @@ import classes from './VoltageDropCalculator.module.css';
 const LOAD_HELP =
   'Amps: the current on the datasheet. Watts: the maximum power, with IR and any heater on; the current then rises as the voltage at the device falls.';
 const GAUGE_HELP =
-  'Conductor size of the power pair, in copper. Thicker wire (a lower AWG number) drops less voltage. The system applies to every group.';
+  'Conductor size of the power pair, in copper at 20 °C. Thicker wire (a lower AWG number) drops less voltage. The system applies to every group.';
 const LENGTH_HELP =
   'Longest run in this group, from the supply to the device. The drop counts both conductors, out and back. The unit applies to every group.';
 

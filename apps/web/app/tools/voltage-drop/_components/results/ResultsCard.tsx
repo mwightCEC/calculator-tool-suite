@@ -19,6 +19,7 @@ import {
   describeProblem,
   describeStatus,
   describeWorstDrop,
+  DEVICE_VOLTS_NOTE,
   isSupplyLoadKnown,
   type ResultStatus,
   SUPPLY_LOAD_UNAVAILABLE_NOTE,
@@ -75,6 +76,8 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         range={drop.detail}
         footnote={`${describeDevices(state)} · ${describeLimit(state)}`}
       />
+
+      {isSupplyLoadKnown(result) && <Text className={classes.note}>{DEVICE_VOLTS_NOTE}</Text>}
 
       {problems.length > 0 && (
         <Stack component="ul" gap="xs" className={classes.list} role="status">

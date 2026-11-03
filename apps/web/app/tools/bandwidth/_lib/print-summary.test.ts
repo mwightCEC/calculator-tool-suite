@@ -78,7 +78,7 @@ describe('buildPrintSummary', () => {
         capacity: '16 Mbps',
         load: 'Up to 17.6 Mbps',
         utilisation: '110%',
-        status: 'Over capacity',
+        status: 'Exceeds link',
       },
     ]);
     expect(summary.warning).toMatch(/^Traffic may exceed: Site upload\./);

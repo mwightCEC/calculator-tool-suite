@@ -11,6 +11,7 @@ import {
   buildMetricTiles,
   describeBandwidth,
   describeLinkLoad,
+  describeLinkStatus,
   describeRemoteViewing,
   describeViewing,
   describeWarning,
@@ -125,7 +126,21 @@ describe('describeWarning', () => {
     expect(describeWarning(calculateBandwidth(state))).toBeNull();
   });
 
-  it('names every link over capacity', () => {
+  it('names links only past the planning limit apart from links the traffic may exceed', () => {
+    const state = stateAfter(
+      ...KNOWN_4_MBPS,
+      { type: 'update-network', changes: { uplinkMbps: 10 } },
+      // 1 viewer × 4 cameras × 4 Mbps + 10% = 17.6 Mbps on 18 Mbps: 98%.
+      { type: 'update-remote-viewing', changes: { enabled: true, siteUploadMbps: 18 } }
+    );
+    const result = calculateBandwidth(state);
+    expect(result.linkChecks.map(describeLinkStatus)).toEqual(['Exceeds link', 'Above 90%']);
+    expect(describeWarning(result)).toBe(
+      'Traffic may exceed: Uplink. Above the 90% planning limit: Site upload. Allow headroom for bursts and other traffic.'
+    );
+  });
+
+  it('names every link the traffic may exceed', () => {
     const state = stateAfter(
       ...KNOWN_4_MBPS,
       { type: 'update-network', changes: { uplinkMbps: 10 } },

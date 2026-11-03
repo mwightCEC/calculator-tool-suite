@@ -44,7 +44,12 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
       title={RESULTS_TITLES[result.mode]}
       badge={<EstimateBadge isEstimated={result.isEstimated} />}
     >
-      <HeadlineTile value={headline.value} label={headline.label} range={headline.likelyRange} />
+      <HeadlineTile
+        value={headline.value}
+        label={headline.label}
+        range={headline.likelyRange}
+        footnote={headline.note}
+      />
 
       {result.isEstimated && !isBitrateModelValidated && <PreliminaryBitrateNote />}
 
