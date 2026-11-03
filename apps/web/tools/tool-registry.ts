@@ -80,10 +80,10 @@ export const TOOLS: readonly ToolDefinition[] = [
     id: 'lens-fov',
     name: 'Lens / FOV',
     title: 'Lens / FOV Calculator',
-    subtitle: 'Work out field of view and pixels per foot for a lens and sensor.',
-    description: 'Work out field of view and pixels per foot for a lens and sensor.',
+    subtitle: 'Work out field of view, pixel density and DORI distances for a lens and sensor.',
+    description: 'Work out field of view, pixel density and DORI distances for a lens and sensor.',
     icon: IconAperture,
     route: '/tools/lens-fov',
-    status: 'coming-soon',
+    status: 'available',
   },
 ];

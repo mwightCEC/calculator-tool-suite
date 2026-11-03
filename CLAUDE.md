@@ -3,8 +3,7 @@
 Web calculators for CCTV installers and system designers, aimed at a general audience
 (not tied to one manufacturer's products). The suite carries Clinton Electronics branding and
 will be hosted on its site, but the tools don't feature Clinton products. The Storage,
-Bandwidth, PoE budget and Voltage drop calculators are built; Lens / FOV is listed as
-"coming soon".
+Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
 
 ## Working agreements
 
@@ -26,7 +25,7 @@ Bandwidth, PoE budget and Voltage drop calculators are built; Lens / FOV is list
 
 - calc-core is consumed as TypeScript source (`transpilePackages` in `next.config.ts`).
 - Each calculator lives in `apps/web/app/tools/<tool>/` (`storage`, `bandwidth`, `poe-budget`,
-  `voltage-drop`) with
+  `voltage-drop`, `lens-fov`) with
   `_components/`, `_lib/` (labels, result and print-summary text) and `_state/` (reducer,
   schema, share-link format).
 - Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`,
@@ -38,7 +37,8 @@ Bandwidth, PoE budget and Voltage drop calculators are built; Lens / FOV is list
   first, with the tool's settings inside it below the groups (PoE budget's Switch / NVR and
   Voltage drop's Power supply are `SettingsPanel`s), a 7:5 inputs / results split, and the
   shared results card (title and badge, headline tile, metric row, then collapsible breakdown
-  and "How this is calculated" sections).
+  and "How this is calculated" sections). Lens / FOV has one camera, so its configuration card
+  has no groups, and it adds a full-width visuals card below the split.
 - Shared logic: `apps/web/lib/` (`camera-groups/` group list and colours, `share/` link codec
   and URL sync hook, `saved-state.ts`, `format.ts`, camera and bitrate labels).
 - Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts`.
@@ -109,11 +109,20 @@ config or routing changes.
   constant current; by watts, constant power (current rises as the voltage falls). Each run
   gets its drop, the smallest passing wire and the longest passing run; the supply load uses
   the same OK / into-reserve / over statuses as PoE budget (calc-core `src/voltage-drop/`).
+- Lens / FOV models one camera with a distortion-free (rectilinear) lens aimed straight at a
+  flat target; height and tilt aren't modelled. Sensor types are stored by their diagonal and
+  fitted to the image's shape; custom sensors are cropped, never stretched. It solves for
+  coverage at a distance, or the farthest distance for a DORI level or custom density.
+  DORI uses the IEC 62676-4:2014 horizontal densities (25 / 62.5 / 125 / 250 px/m); the 2025
+  edition is named but not used. Keep the wording honest: a result "meets the pixel density"
+  for a level, never a promise of recognising someone (calc-core `src/lens-fov/`). The camera
+  view and coverage diagram are drawn to scale from `_lib/visual-geometry.ts`; the drawing tab
+  and pixel grid are page settings, not in share links or saved state.
 - Shared links: `?v=<version>&s=<base64url of a compact positional array>`, built with
   `lib/share/share-codec.ts`. Each tool owns its own versions: Storage writes `v=2`
   (`share-format-v2.ts`) and still opens `v=1` full-JSON links; Bandwidth writes and reads
-  only `v=2` (`share-format-v2.ts`; its v1 links are no longer read); PoE budget and Voltage drop
-  write `v=1` (`share-format-v1.ts`). All decoded state is validated against the tool's state schema.
+  only `v=2` (`share-format-v2.ts`; its v1 links are no longer read); PoE budget, Voltage drop
+  and Lens / FOV write `v=1` (`share-format-v1.ts`). All decoded state is validated against the tool's state schema.
   The index tables are append-only: reordering or removing an option breaks existing links
   and needs a new format version.
 - Saved state: each tool keeps its last state in localStorage

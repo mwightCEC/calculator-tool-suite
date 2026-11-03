@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useReducer } from 'react';
+import { useCallback, useMemo, useReducer } from 'react';
 import {
   calculateLensFov,
   type CableLengthUnit,
@@ -9,11 +9,19 @@ import {
   type SensorFormat,
   type SolveFor,
 } from '@cctv/calc-core';
+import { useUrlStateSync } from '../../../../lib/share/use-url-state-sync';
 import {
   createInitialLensFovCalculatorState,
   CUSTOM,
   lensFovCalculatorReducer,
+  type LensFovCalculatorState,
 } from './lens-fov-calculator-state';
+import { encodeState, lensFovShareCodec } from './share-link';
+
+/** The default calculation keeps a clean URL with no share parameters. */
+const DEFAULT_STATE_ENCODED = encodeState(createInitialLensFovCalculatorState());
+/** Where this calculator's last state is kept in the browser. */
+const SAVED_STATE_KEY = 'cctv-tool-suite:lens-fov-calculator';
 
 /**
  * Lens / FOV calculator state, live results and actions.
@@ -26,6 +34,12 @@ export function useLensFovCalculator() {
     createInitialLensFovCalculatorState
   );
   const result = useMemo(() => calculateLensFov(state), [state]);
+
+  const loadState = useCallback(
+    (restored: LensFovCalculatorState) => dispatch({ type: 'load-state', state: restored }),
+    []
+  );
+  useUrlStateSync(state, loadState, lensFovShareCodec, DEFAULT_STATE_ENCODED, SAVED_STATE_KEY);
 
   const actions = {
     setResolution: (resolution: Resolution | typeof CUSTOM) =>
