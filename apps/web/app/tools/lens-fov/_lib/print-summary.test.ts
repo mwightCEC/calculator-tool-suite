@@ -20,15 +20,18 @@ describe('buildPrintSummary', () => {
   it('summarises the defaults', () => {
     const summary = summarize(createInitialLensFovCalculatorState());
     expect(summary.headline.value).toBe('60.3 × 33.9 ft');
-    expect(summary.doriLevel).toBe('Recognition');
     expect(summary.keyFigures).toEqual([
       { label: 'Pixel density', value: '42.4 PPF (139 PPM)' },
       { label: 'Field of view', value: '90.3° × 59° (98.2° diagonal)' },
       { label: '6 ft person', value: '255 px tall' },
-      { label: 'DORI level', value: 'Recognition' },
     ]);
     expect(summary.warnings).toEqual([]);
-    expect(summary.doriRows).toHaveLength(4);
+    expect(summary.guidanceRows.map((row) => row.label)).toEqual([
+      'Detection',
+      'Observation',
+      'Recognition',
+      'Identification',
+    ]);
     expect(summary.lensRows).toHaveLength(6);
     expect(summary.solvingDistance).toBe(false);
     expect(summary.settings).toEqual([
@@ -55,7 +58,7 @@ describe('buildPrintSummary', () => {
       { label: 'Resolution', value: 'Custom, 2560 × 1440 px' },
       { label: 'Sensor', value: 'Custom, 5.63 × 3.17 mm active area' },
       { label: 'Lens', value: '2.8 mm' },
-      { label: 'Target', value: 'Recognition' },
+      { label: 'Target', value: '125 PPM' },
     ]);
   });
 

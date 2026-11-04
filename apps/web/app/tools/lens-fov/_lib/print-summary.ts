@@ -2,15 +2,13 @@ import type { LensFovResult } from '@cctv/calc-core';
 import { RESOLUTION_LABELS } from '../../../../lib/camera-labels';
 import { formatNumber } from '../../../../lib/format';
 import type { LensFovCalculatorState } from '../_state/lens-fov-calculator-state';
+import { densityGuidanceRows, type DensityGuidanceRow } from './density-guidance';
 import { formatDegrees, formatDensity, formatLength, SENSOR_LABELS } from './lens-fov-labels';
 import {
-  describeDoriLevel,
   describeHeadline,
   describeNote,
   describeTarget,
-  doriDistanceRows,
   lensComparisonRows,
-  type DoriDistanceRow,
   type Headline,
   type LensRow,
 } from './result-summary';
@@ -27,14 +25,13 @@ export interface LabelledValue {
 
 export interface PrintSummary {
   headline: Headline;
-  doriLevel: string;
   keyFigures: LabelledValue[];
   warnings: string[];
-  doriRows: DoriDistanceRow[];
   lensRows: LensRow[];
   /** True when the lens table shows each lens's farthest distance rather than its coverage. */
   solvingDistance: boolean;
   settings: LabelledValue[];
+  guidanceRows: DensityGuidanceRow[];
   notes: string[];
 }
 
@@ -63,7 +60,7 @@ function settings(state: LensFovCalculatorState, result: LensFovResult): Labelle
 const NOTES = [
   'The lens is treated as distortion-free and aimed straight at a flat target; mounting height and tilt are not modelled. Where the datasheet gives a field of view, use that.',
   'Pixel density is the horizontal pixels divided by the width covered at the target.',
-  'DORI levels follow IEC 62676-4:2014: Detection 25 PPM (7.6 PPF), Observation 62.5 PPM (19.1 PPF), Recognition 125 PPM (38.1 PPF), Identification 250 PPM (76.2 PPF).',
+  'The pixel density levels are from IEC 62676-4:2014, one published reference point; the 2025 edition revises them, and other standards use different figures.',
   "Meeting a pixel density doesn't guarantee a person can be recognised or identified: lighting, focus, compression, motion and camera angle matter too.",
 ];
 
@@ -74,7 +71,6 @@ export function buildPrintSummary(
   const unit = state.lengthUnit;
   return {
     headline: describeHeadline(state, result),
-    doriLevel: describeDoriLevel(result.doriLevel),
     keyFigures: [
       {
         label: 'Pixel density',
@@ -85,13 +81,12 @@ export function buildPrintSummary(
         value: `${formatDegrees(result.horizontalFovDeg)} × ${formatDegrees(result.verticalFovDeg)} (${formatDegrees(result.diagonalFovDeg)} diagonal)`,
       },
       { label: '6 ft person', value: `${Math.round(result.personHeightPx)} px tall` },
-      { label: 'DORI level', value: describeDoriLevel(result.doriLevel) },
     ],
     warnings: result.notes.map((note) => describeNote(note, state, result)),
-    doriRows: doriDistanceRows(state, result),
     lensRows: lensComparisonRows(state, result.lensComparison),
     solvingDistance: state.solveFor === 'distance',
     settings: settings(state, result),
+    guidanceRows: densityGuidanceRows(),
     notes: NOTES,
   };
 }

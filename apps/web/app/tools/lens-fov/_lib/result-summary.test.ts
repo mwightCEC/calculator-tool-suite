@@ -9,13 +9,11 @@ import {
 import {
   buildMetricTiles,
   describeCamera,
-  describeDoriLevel,
   describeHeadline,
   describeLensComparison,
   describeNote,
   describeOptics,
   describeTarget,
-  doriDistanceRows,
   lensComparisonRows,
 } from './result-summary';
 
@@ -35,11 +33,11 @@ describe('describeHeadline', () => {
     });
   });
 
-  it('shows the farthest distance for a DORI level or a custom density', () => {
-    const dori = stateWith({ type: 'set-solve-for', solveFor: 'distance' });
-    expect(describeHeadline(dori, calculateLensFov(dori))).toEqual({
+  it('shows the farthest distance for the pixel density', () => {
+    const distance = stateWith({ type: 'set-solve-for', solveFor: 'distance' });
+    expect(describeHeadline(distance, calculateLensFov(distance))).toEqual({
       value: '33.4 ft',
-      label: 'Farthest distance for Recognition',
+      label: 'Farthest distance for 38.1 PPF',
       detail: 'Covers 67.2 × 37.8 ft there',
     });
 
@@ -85,24 +83,10 @@ describe('describeCamera', () => {
   });
 });
 
-describe('describeTarget and describeDoriLevel', () => {
-  it('names the level or density, and below Detection', () => {
-    expect(describeTarget(defaults)).toBe('Recognition');
+describe('describeTarget', () => {
+  it('names the density in the length unit', () => {
+    expect(describeTarget(defaults)).toBe('38.1 PPF');
     expect(describeTarget(stateWith({ type: 'set-custom-density', density: 80 }))).toBe('80 PPF');
-    expect(describeDoriLevel(null)).toBe('Below detection');
-  });
-});
-
-describe('doriDistanceRows', () => {
-  it('lists each level and whether the distance is within its reach', () => {
-    const rows = doriDistanceRows(defaults, defaultResult);
-    expect(rows.map((row) => [row.label, row.density, row.met])).toEqual([
-      ['Detection', '7.6 PPF', true],
-      ['Observation', '19.1 PPF', true],
-      ['Recognition', '38.1 PPF', true],
-      ['Identification', '76.2 PPF', false],
-    ]);
-    expect(rows[2]?.distance).toBe('33.4 ft');
   });
 });
 
@@ -115,7 +99,6 @@ describe('lensComparisonRows', () => {
       fov: '90.3°',
       reach: '60.3 ft',
       density: '42.4 PPF',
-      level: 'Recognition',
       current: true,
     });
     expect(rows.filter((row) => row.current)).toHaveLength(1);
@@ -139,7 +122,7 @@ describe('describeLensComparison', () => {
   it('names the target when solving for distance', () => {
     const state = stateWith({ type: 'set-solve-for', solveFor: 'distance' });
     expect(describeLensComparison(state, calculateLensFov(state))).toBe(
-      'Farthest distance for Recognition with this camera and sensor.'
+      'Farthest distance for 38.1 PPF with this camera and sensor.'
     );
   });
 });

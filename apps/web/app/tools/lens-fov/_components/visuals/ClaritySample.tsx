@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { doriLevelFor, type CableLengthUnit, type LensFovResult } from '@cctv/calc-core';
+import type { CableLengthUnit, LensFovResult } from '@cctv/calc-core';
 import { Slider, Text } from '@mantine/core';
 import {
   CLARITY_SCENE_URL,
@@ -11,11 +11,8 @@ import {
   scenePixels,
 } from '../../_lib/clarity-scene';
 import { formatDensity, formatLength } from '../../_lib/lens-fov-labels';
-import { describeDoriLevel } from '../../_lib/result-summary';
 import classes from './Visuals.module.css';
 
-/** Initials on the slider marks; the full names are in the line below it. */
-const MARK_LABELS = { identification: 'I', recognition: 'R', observation: 'O', detection: 'D' };
 const SLIDER_STEPS = 400;
 
 interface ClaritySampleProps {
@@ -54,7 +51,6 @@ export function ClaritySample({ result, unit }: ClaritySampleProps) {
   }, [scene, pixels.width, pixels.height]);
 
   const step = (slider.max - slider.min) / SLIDER_STEPS;
-  const level = describeDoriLevel(doriLevelFor(pixelsPerMetre));
 
   return (
     <div className={classes.clarity}>
@@ -75,10 +71,10 @@ export function ClaritySample({ result, unit }: ClaritySampleProps) {
             className={classes.clarityImage}
             data-pixelated
             role="img"
-            aria-label={`The same scene at ${formatLength(distanceM, unit)}: ${pixels.width} by ${pixels.height} pixels, ${formatDensity(pixelsPerMetre, unit)}, ${level}.`}
+            aria-label={`The same scene at ${formatLength(distanceM, unit)}: ${pixels.width} by ${pixels.height} pixels, ${formatDensity(pixelsPerMetre, unit)}.`}
           />
           <figcaption>
-            At {formatLength(distanceM, unit)} · {formatDensity(pixelsPerMetre, unit)} · {level}
+            At {formatLength(distanceM, unit)} · {formatDensity(pixelsPerMetre, unit)}
           </figcaption>
         </figure>
       </div>
@@ -90,18 +86,12 @@ export function ClaritySample({ result, unit }: ClaritySampleProps) {
         value={Math.min(Math.max(distanceM, slider.min), slider.max)}
         onChange={setDistanceM}
         label={(value) => formatLength(value, unit)}
-        marks={slider.marks.map((mark) => ({
-          value: mark.distanceM,
-          label: MARK_LABELS[mark.level],
-        }))}
         aria-label="Distance for the clarity sample"
-        className={classes.claritySlider}
       />
       <Text className={classes.note}>
-        Marks show where each level stops: I Identification, R Recognition, O Observation, D
-        Detection. The {formatLength(SCENE_WIDTH_M, unit)} wide scene is {pixels.width} ×{' '}
-        {pixels.height} pixels here. An illustration of pixel density only, not a camera simulation:
-        the lens, focus, lighting, compression and motion change real images too.
+        The {formatLength(SCENE_WIDTH_M, unit)} wide scene is {pixels.width} × {pixels.height}{' '}
+        pixels here. An illustration of pixel density only, not a camera simulation: the lens,
+        focus, lighting, compression and motion change real images too.
       </Text>
     </div>
   );

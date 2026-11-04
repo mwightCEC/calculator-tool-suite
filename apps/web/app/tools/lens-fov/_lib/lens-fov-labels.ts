@@ -1,7 +1,6 @@
 import {
   CABLE_LENGTH_UNITS,
   COMMON_FOCAL_LENGTHS_MM,
-  DORI_LEVELS,
   METRES_PER_FOOT,
   SENSOR_FORMATS,
   SOLVE_FOR,
@@ -49,7 +48,6 @@ export const LENS_OPTIONS = [
   CUSTOM_OPTION,
 ];
 export const SOLVE_FOR_OPTIONS = toOptions(SOLVE_FOR, SOLVE_FOR_LABELS);
-export const TARGET_OPTIONS = [...toOptions(DORI_LEVELS, DORI_LEVEL_LABELS), CUSTOM_OPTION];
 
 export const LENGTH_UNIT_OPTIONS = toOptions(CABLE_LENGTH_UNITS, { ft: 'ft', m: 'm' });
 /** Pixel density units, keyed by the length unit they go with. */

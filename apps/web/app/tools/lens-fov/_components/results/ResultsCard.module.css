@@ -1,14 +1,5 @@
 /* Lens / FOV-only results styles; the card, headline tile and metric row are in components/ResultsCard. */
 
-.doriBadge {
-  flex-shrink: 0;
-  text-transform: none;
-}
-
-.doriBadge[data-level='below'] {
-  color: var(--app-status-warn);
-}
-
 /* Notes about the model's limits for these inputs */
 
 .list {

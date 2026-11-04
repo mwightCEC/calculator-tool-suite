@@ -1,7 +1,7 @@
 import { List, Text } from '@mantine/core';
 import classes from './results/ResultsCard.module.css';
 
-/** Plain-language explanation of the method, the DORI levels and the limits, in the results card. */
+/** Plain-language explanation of the method, the pixel density levels and the limits, in the results card. */
 export function HowCalculated() {
   return (
     <>
@@ -21,10 +21,10 @@ export function HowCalculated() {
           the field of view.
         </List.Item>
         <List.Item>
-          <b>DORI levels</b> follow IEC 62676-4:2014: Detection 25 PPM (7.6 PPF), Observation 62.5
-          PPM (19.1 PPF), Recognition 125 PPM (38.1 PPF) and Identification 250 PPM (76.2 PPF). A
-          result meets a level when its density reaches that figure. The 2025 edition revises these
-          classes; datasheet DORI distances still use the 2014 values.
+          The <b>pixel density levels</b> in the coverage shading and the guidance table are IEC
+          62676-4:2014&apos;s: Detection 25 PPM (7.6 PPF), Observation 62.5 PPM (19.1 PPF),
+          Recognition 125 PPM (38.1 PPF) and Identification 250 PPM (76.2 PPF). A distance meets a
+          level when its density reaches that figure. The 2025 edition revises these levels.
         </List.Item>
         <List.Item>
           Mounting height and tilt aren&apos;t modelled. Wide-angle lenses often have barrel

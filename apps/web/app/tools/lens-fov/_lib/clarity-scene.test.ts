@@ -40,16 +40,10 @@ describe('scenePixels', () => {
 });
 
 describe('claritySlider', () => {
-  it('marks each DORI level, nearest first, and runs past Detection', () => {
+  it('runs past where the density falls to the lowest published level', () => {
     const slider = claritySlider(defaults);
-    expect(slider.marks.map((mark) => mark.level)).toEqual([
-      'identification',
-      'recognition',
-      'observation',
-      'detection',
-    ]);
-    const detection = slider.marks[3]?.distanceM ?? 0;
-    expect(slider.max).toBeCloseTo(detection * 1.25, 10);
+    const detection = defaults.doriDistances.find((row) => row.level === 'detection');
+    expect(slider.max).toBeCloseTo((detection?.distanceM ?? 0) * 1.25, 10);
     expect(slider.min).toBeCloseTo(slider.max / 100, 10);
   });
 

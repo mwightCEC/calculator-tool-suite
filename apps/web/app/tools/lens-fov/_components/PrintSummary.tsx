@@ -30,9 +30,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
       getShareUrl={getShareUrl}
     >
       <section className={classes.result}>
-        <p className={classes.resultLabel}>
-          {summary.headline.label} <span className={classes.source}>{summary.doriLevel}</span>
-        </p>
+        <p className={classes.resultLabel}>{summary.headline.label}</p>
         <p className={classes.resultValue}>{summary.headline.value}</p>
         <p className={classes.resultRange}>{summary.headline.detail}</p>
       </section>
@@ -66,50 +64,26 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
         />
       </div>
 
-      <h2 className={classes.heading}>DORI distances</h2>
-      <table className={classes.table}>
-        <thead>
-          <tr>
-            <th scope="col">Level</th>
-            <th scope="col" className={classes.number}>
-              Density
-            </th>
-            <th scope="col" className={classes.number}>
-              Up to
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {summary.doriRows.map((row) => (
-            <tr key={row.level}>
-              <td>
-                {row.label}
-                {row.met && ' (met)'}
-              </td>
-              <td className={classes.number}>{row.density}</td>
-              <td className={classes.number}>{row.distance}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
       <h2 className={classes.heading}>Lens comparison</h2>
       <table className={classes.table}>
         <thead>
           <tr>
             <th scope="col">Lens</th>
             <th scope="col" className={classes.number}>
-              FOV
+              H. FOV
             </th>
-            <th scope="col" className={classes.number}>
-              {summary.solvingDistance ? 'Up to' : 'Width'}
-            </th>
-            {!summary.solvingDistance && (
+            {summary.solvingDistance ? (
+              <th scope="col" className={classes.number}>
+                Farthest distance
+              </th>
+            ) : (
               <>
                 <th scope="col" className={classes.number}>
-                  Density
+                  Width
                 </th>
-                <th scope="col">DORI</th>
+                <th scope="col" className={classes.number}>
+                  Pixel density
+                </th>
               </>
             )}
           </tr>
@@ -123,12 +97,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
               </td>
               <td className={classes.number}>{row.fov}</td>
               <td className={classes.number}>{row.reach}</td>
-              {!summary.solvingDistance && (
-                <>
-                  <td className={classes.number}>{row.density}</td>
-                  <td>{row.level}</td>
-                </>
-              )}
+              {!summary.solvingDistance && <td className={classes.number}>{row.density}</td>}
             </tr>
           ))}
         </tbody>
@@ -143,6 +112,30 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
           </div>
         ))}
       </dl>
+
+      <h2 className={classes.heading}>Pixel density guidance</h2>
+      <table className={classes.table}>
+        <thead>
+          <tr>
+            <th scope="col">IEC 62676-4:2014 level</th>
+            <th scope="col" className={classes.number}>
+              PPM
+            </th>
+            <th scope="col" className={classes.number}>
+              ≈ PPF
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {summary.guidanceRows.map((row) => (
+            <tr key={row.label}>
+              <td>{row.label}</td>
+              <td className={classes.number}>{row.ppm}</td>
+              <td className={classes.number}>{row.ppf}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       <h2 className={classes.heading}>Notes</h2>
       <ul className={classes.notes}>

@@ -1,4 +1,4 @@
-import type { DoriLevel, LensFovResult } from '@cctv/calc-core';
+import type { LensFovResult } from '@cctv/calc-core';
 
 /*
  * The clarity sample: a drawn test scene of known real-world size, shown at the
@@ -94,19 +94,15 @@ export interface ClaritySlider {
   /** Range in metres. */
   min: number;
   max: number;
-  /** Where each DORI level stops, in metres, nearest (Identification) first. */
-  marks: { level: DoriLevel; distanceM: number }[];
 }
 
 /**
- * The distance slider runs from close in to past Detection's reach (and past the
- * calculator's distance, when that is farther), with a mark where each level stops.
+ * The distance slider runs from close in to past where the density falls to the lowest
+ * published level, 25 px/m (and past the calculator's distance, when that is farther).
  */
 export function claritySlider(result: LensFovResult): ClaritySlider {
-  const marks = [...result.doriDistances]
-    .reverse()
-    .map(({ level, distanceM }) => ({ level, distanceM }));
-  const farthest = Math.max(...marks.map((mark) => mark.distanceM), result.distanceM);
+  const reaches = result.doriDistances.map((row) => row.distanceM);
+  const farthest = Math.max(...reaches, result.distanceM);
   const max = farthest * 1.25;
-  return { min: max / 100, max, marks };
+  return { min: max / 100, max };
 }

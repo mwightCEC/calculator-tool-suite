@@ -18,17 +18,23 @@ import {
   type SensorFormat,
   type SolveFor,
 } from '@cctv/calc-core';
-import type { z } from 'zod';
+import { z } from 'zod';
 
 /*
- * The Lens / FOV calculator's whole state: calc-core's input for one camera.
+ * The Lens / FOV calculator's whole state: calc-core's input for one camera, with the
+ * target always a pixel density (links saved with a published level open as its density).
  * Validated by a schema so it can be restored from a shared link.
  */
 
-export const lensFovCalculatorStateSchema = lensFovInputSchema;
+export const lensFovCalculatorStateSchema = lensFovInputSchema.extend({
+  target: z.object({
+    kind: z.literal('custom'),
+    density: z.number().min(MIN_CUSTOM_DENSITY).max(MAX_CUSTOM_DENSITY),
+  }),
+});
 export type LensFovCalculatorState = z.infer<typeof lensFovCalculatorStateSchema>;
 
-/** Value of the resolution, sensor and target choices that opens their custom fields. */
+/** Value of the resolution and sensor choices that opens their custom fields. */
 export const CUSTOM = 'custom';
 
 export type LensFovCalculatorAction =
@@ -40,13 +46,8 @@ export type LensFovCalculatorAction =
   | { type: 'set-focal-length'; focalLengthMm: number }
   | { type: 'set-solve-for'; solveFor: SolveFor }
   | { type: 'set-distance'; distance: number }
-  | { type: 'set-dori-target'; level: DoriLevel }
   | { type: 'set-custom-density'; density: number }
   | { type: 'set-length-unit'; unit: CableLengthUnit };
-
-export function createInitialLensFovCalculatorState(): LensFovCalculatorState {
-  return createDefaultLensFovInput();
-}
 
 const roundTo = (value: number, decimals: number) => {
   const factor = 10 ** decimals;
@@ -66,13 +67,19 @@ export function convertDensity(density: number, unit: CableLengthUnit): number {
   return clamp(roundTo(converted, 1), MIN_CUSTOM_DENSITY, MAX_CUSTOM_DENSITY);
 }
 
-/** The target's pixel density in the state's unit: per foot for feet, per metre for metres. */
-export function targetDensity(state: LensFovCalculatorState): number {
-  if (state.target.kind === 'custom') {
-    return state.target.density;
-  }
-  const perMetre = DORI_PIXELS_PER_METRE[state.target.level];
-  return state.lengthUnit === 'm' ? perMetre : roundTo(perMetre * METRES_PER_FOOT, 1);
+/** A published level's pixel density per foot (to one decimal) or per metre. */
+export function levelDensity(level: DoriLevel, unit: CableLengthUnit): number {
+  const perMetre = DORI_PIXELS_PER_METRE[level];
+  return unit === 'm' ? perMetre : roundTo(perMetre * METRES_PER_FOOT, 1);
+}
+
+/** calc-core's defaults, aiming for Recognition's density when solving for distance. */
+export function createInitialLensFovCalculatorState(): LensFovCalculatorState {
+  const input = createDefaultLensFovInput();
+  return {
+    ...input,
+    target: { kind: 'custom', density: levelDensity('recognition', input.lengthUnit) },
+  };
 }
 
 /** The sensor's current active area, as a custom sensor to start from. */
@@ -130,9 +137,6 @@ export function lensFovCalculatorReducer(
     case 'set-distance':
       return { ...state, distance: action.distance };
 
-    case 'set-dori-target':
-      return { ...state, target: { kind: 'dori', level: action.level } };
-
     case 'set-custom-density':
       return { ...state, target: { kind: 'custom', density: action.density } };
 
@@ -144,10 +148,7 @@ export function lensFovCalculatorReducer(
         ...state,
         lengthUnit: action.unit,
         distance: convertDistance(state.distance, action.unit),
-        target:
-          state.target.kind === 'custom'
-            ? { kind: 'custom', density: convertDensity(state.target.density, action.unit) }
-            : state.target,
+        target: { kind: 'custom', density: convertDensity(state.target.density, action.unit) },
       };
   }
 }
