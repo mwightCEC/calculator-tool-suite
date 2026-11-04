@@ -16,13 +16,10 @@ import {
   describeDoriLevel,
   describeHeadline,
   describeNote,
-  describeOptics,
 } from '../../_lib/result-summary';
 import type { LensFovCalculatorState } from '../../_state/lens-fov-calculator-state';
 import { buildShareUrl } from '../../_state/share-link';
 import { HowCalculated } from '../HowCalculated';
-import { DoriDistances } from './DoriDistances';
-import { LensComparison } from './LensComparison';
 import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'lens-fov-results';
@@ -31,10 +28,9 @@ interface ResultsCardProps {
   result: LensFovResult;
   /** The inputs behind the result: camera, mode and units. */
   state: LensFovCalculatorState;
-  onSelectLens: (focalLengthMm: number) => void;
 }
 
-export function ResultsCard({ result, state, onSelectLens }: ResultsCardProps) {
+export function ResultsCard({ result, state }: ResultsCardProps) {
   const headline = describeHeadline(state, result);
 
   return (
@@ -84,19 +80,6 @@ export function ResultsCard({ result, state, onSelectLens }: ResultsCardProps) {
       )}
 
       <MetricRow tiles={buildMetricTiles(state, result)} />
-
-      <Disclosure title="DORI and lens breakdown">
-        <Stack gap="md">
-          <DoriDistances state={state} result={result} />
-          <LensComparison state={state} result={result} onSelectLens={onSelectLens} />
-          <div>
-            <Text component="h3" className={classes.sectionTitle}>
-              Angles and sensor
-            </Text>
-            <Text className={classes.optics}>{describeOptics(result)}</Text>
-          </div>
-        </Stack>
-      </Disclosure>
 
       <Disclosure title="How this is calculated">
         <HowCalculated />

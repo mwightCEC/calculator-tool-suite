@@ -11,6 +11,7 @@ import {
   describeCamera,
   describeDoriLevel,
   describeHeadline,
+  describeLensComparison,
   describeNote,
   describeOptics,
   describeTarget,
@@ -124,6 +125,21 @@ describe('lensComparisonRows', () => {
     const state = stateWith({ type: 'set-solve-for', solveFor: 'distance' });
     expect(lensComparisonRows(state, calculateLensFov(state).lensComparison)[0]?.reach).toBe(
       '33.4 ft'
+    );
+  });
+});
+
+describe('describeLensComparison', () => {
+  it('names the distance when showing coverage', () => {
+    expect(describeLensComparison(defaults, defaultResult)).toBe(
+      'At 30 ft with this camera and sensor.'
+    );
+  });
+
+  it('names the target when solving for distance', () => {
+    const state = stateWith({ type: 'set-solve-for', solveFor: 'distance' });
+    expect(describeLensComparison(state, calculateLensFov(state))).toBe(
+      'Farthest distance for Recognition with this camera and sensor.'
     );
   });
 });
