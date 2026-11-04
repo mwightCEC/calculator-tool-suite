@@ -9,12 +9,12 @@ import { CameraFields } from './CameraFields';
 import { PrintSummary } from './PrintSummary';
 import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
 import { TargetSection } from './TargetSection';
-import { VisualsCard } from './visuals/VisualsCard';
+import { LensVisuals } from './visuals/LensVisuals';
 import classes from './LensFovCalculator.module.css';
 
 /**
- * Two columns on large screens, inputs on the left and sticky results on the right,
- * then the camera view and coverage across the full width.
+ * Two columns on large screens: the drawings on the left, and the camera configuration
+ * above the results on the right, kept in view so the drawings change as the inputs do.
  */
 export function LensFovCalculator() {
   const { state, result, actions } = useLensFovCalculator();
@@ -24,7 +24,11 @@ export function LensFovCalculator() {
     <>
       <div className={classes.layout}>
         <div className={classes.split}>
-          <Stack gap="md" className={classes.inputs}>
+          <Stack gap="md" className={classes.visuals}>
+            <LensVisuals state={state} result={result} />
+          </Stack>
+
+          <Stack gap="md" className={classes.side}>
             <Paper
               component="section"
               withBorder
@@ -44,14 +48,9 @@ export function LensFovCalculator() {
               <CameraFields state={state} actions={actions} />
               <TargetSection state={state} actions={actions} />
             </Paper>
-          </Stack>
-
-          <div className={classes.results}>
             <ResultsCard result={result} state={state} onSelectLens={actions.setFocalLength} />
-          </div>
+          </Stack>
         </div>
-
-        <VisualsCard state={state} result={result} />
 
         <MobileResultBar
           label={headline.label}

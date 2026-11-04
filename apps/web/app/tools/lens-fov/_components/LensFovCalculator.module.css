@@ -13,7 +13,7 @@
   }
 }
 
-/* Inputs and results; the sticky results stop at the end of this row, above the visuals. */
+/* Drawings on the left; configuration and results on the right. */
 .split {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -21,7 +21,8 @@
   align-items: start;
 }
 
-.inputs {
+.visuals,
+.side {
   min-width: 0;
 }
 
@@ -75,12 +76,12 @@
   }
 
   .split {
-    /* Inputs and results share the width about 7:5, as in the other calculators. */
+    /* Drawings and the inputs with results share the width about 7:5, as in the other calculators. */
     grid-template-columns: minmax(0, 7fr) minmax(360px, 5fr);
   }
 
-  /* Results stay in view while the inputs scroll. */
-  .results {
+  /* Inputs and results stay in view while the drawings scroll. */
+  .side {
     position: sticky;
     top: calc(var(--app-shell-header-height) + var(--mantine-spacing-md));
     max-height: calc(100dvh - var(--app-shell-header-height) - 2 * var(--mantine-spacing-md));

@@ -40,7 +40,9 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   Voltage drop's Power supply are `SettingsPanel`s), a 7:5 inputs / results split, and the
   shared results card (title and badge, headline tile, metric row, then collapsible breakdown
   and "How this is calculated" sections). Lens / FOV has one camera, so its configuration card
-  has no groups, and it adds a full-width visuals card below the split.
+  has no groups. Its left column holds three collapsible visual cards (Camera view, Coverage,
+  Clarity sample); the configuration card sits above the results on the right, and that column
+  stays in view so the drawings change as the inputs do.
 - Shared logic: `apps/web/lib/` (`camera-groups/` group list and colours, `share/` link codec
   and URL sync hook, `saved-state.ts`, `format.ts`, camera and bitrate labels).
 - Number inputs go through `apps/web/hooks/use-number-draft.ts`: values commit as typed, blur
@@ -135,8 +137,8 @@ config or routing changes.
   DORI uses the IEC 62676-4:2014 horizontal densities (25 / 62.5 / 125 / 250 px/m); the 2025
   edition is named but not used. Keep the wording honest: a result "meets the pixel density"
   for a level, never a promise of recognising someone (calc-core `src/lens-fov/`). The camera
-  view and coverage diagram are drawn to scale from `_lib/visual-geometry.ts`; the drawing tab
-  and pixel grid are page settings, not in share links or saved state. The clarity sample is a
+  view and coverage diagram are drawn to scale from `_lib/visual-geometry.ts`; which visual cards
+  are open and the pixel grid are page settings, not in share links or saved state. The clarity sample is a
   drawn test scene of known size (`_lib/clarity-scene.ts`; no real person or plate) shown at the
   pixels it would get at a distance; it may later be swapped for Clinton's own photo.
 - Shared links: `?v=<version>&s=<base64url of a compact positional array>`, built with
