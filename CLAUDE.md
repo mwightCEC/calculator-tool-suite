@@ -135,10 +135,13 @@ config or routing changes.
 - Lens / FOV models one camera with a distortion-free (rectilinear) lens aimed straight at a
   flat target; height and tilt aren't modelled. Sensor types are stored by their diagonal and
   fitted to the image's shape; custom sensors are cropped, never stretched. It solves for
-  coverage at a distance, or the farthest distance for a DORI level or custom density.
-  DORI uses the IEC 62676-4:2014 horizontal densities (25 / 62.5 / 125 / 250 px/m); the 2025
-  edition is named but not used. Keep the wording honest: a result "meets the pixel density"
-  for a level, never a promise of recognising someone (calc-core `src/lens-fov/`). The camera
+  coverage at a distance, or the farthest distance for an entered pixel density (the web state
+  only holds a density; v1 links with a published level open as that level's density). The
+  IEC 62676-4:2014 horizontal densities (25 / 62.5 / 125 / 250 px/m) appear only as pixel
+  density guidance and the coverage shading, named by level (Detection … Identification) but
+  never as "DORI"; the 2025 edition is named but not used. Keep the wording honest: a distance
+  "meets the pixel density" for a level, never a promise of recognising someone (calc-core
+  `src/lens-fov/`, which still takes level targets). The camera
   view and coverage diagram are drawn to scale from `_lib/visual-geometry.ts`; which visual cards
   are open and the pixel grid are page settings, not in share links or saved state. The clarity sample is a
   drawn test scene of known size (`_lib/clarity-scene.ts`; no real person or plate) shown at the

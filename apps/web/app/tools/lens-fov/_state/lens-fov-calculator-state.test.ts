@@ -5,7 +5,7 @@ import {
   createInitialLensFovCalculatorState,
   lensFovCalculatorReducer as reduce,
   lensFovCalculatorStateSchema,
-  targetDensity,
+  levelDensity,
   type LensFovCalculatorAction,
   type LensFovCalculatorState,
 } from './lens-fov-calculator-state';
@@ -78,17 +78,13 @@ describe('lens, mode, distance and target', () => {
       { type: 'set-focal-length', focalLengthMm: 6 },
       { type: 'set-solve-for', solveFor: 'distance' },
       { type: 'set-distance', distance: 45 },
-      { type: 'set-dori-target', level: 'identification' }
+      { type: 'set-custom-density', density: 80 }
     );
     expect(state).toMatchObject({
       focalLengthMm: 6,
       solveFor: 'distance',
       distance: 45,
-      target: { kind: 'dori', level: 'identification' },
-    });
-    expect(apply({ type: 'set-custom-density', density: 80 }).target).toEqual({
-      kind: 'custom',
-      density: 80,
+      target: { kind: 'custom', density: 80 },
     });
   });
 
@@ -98,11 +94,11 @@ describe('lens, mode, distance and target', () => {
   });
 });
 
-describe('targetDensity', () => {
-  it('shows a DORI level per foot or per metre, and a custom density as entered', () => {
-    expect(targetDensity(initial())).toBe(38.1);
-    expect(targetDensity(apply({ type: 'set-length-unit', unit: 'm' }))).toBe(125);
-    expect(targetDensity(apply({ type: 'set-custom-density', density: 80 }))).toBe(80);
+describe('levelDensity', () => {
+  it("gives a published level's density per foot, rounded, or per metre", () => {
+    expect(levelDensity('recognition', 'ft')).toBe(38.1);
+    expect(levelDensity('recognition', 'm')).toBe(125);
+    expect(levelDensity('detection', 'ft')).toBe(7.6);
   });
 });
 
@@ -117,10 +113,9 @@ describe('length unit', () => {
     expect(state.target).toEqual({ kind: 'custom', density: 250 });
   });
 
-  it('keeps a DORI target and ignores the unit already in use', () => {
+  it('ignores the unit already in use', () => {
     const state = initial();
     expect(reduce(state, { type: 'set-length-unit', unit: 'ft' })).toBe(state);
-    expect(apply({ type: 'set-length-unit', unit: 'm' }).target).toEqual(state.target);
   });
 
   it('keeps converted values within range', () => {

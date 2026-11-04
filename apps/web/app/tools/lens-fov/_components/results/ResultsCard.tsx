@@ -2,7 +2,7 @@
 
 import type { LensFovResult } from '@cctv/calc-core';
 import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
-import { Badge, Button, Group, Stack, Text } from '@mantine/core';
+import { Button, Group, Stack, Text } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
 import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
 import {
@@ -13,7 +13,6 @@ import {
 import {
   buildMetricTiles,
   describeCamera,
-  describeDoriLevel,
   describeHeadline,
   describeNote,
 } from '../../_lib/result-summary';
@@ -34,21 +33,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
   const headline = describeHeadline(state, result);
 
   return (
-    <ResultsPanel
-      id={RESULTS_CARD_ID}
-      title="Field of view"
-      badge={
-        <Badge
-          variant="light"
-          color={result.doriLevel ? 'blue' : 'amber'}
-          radius="sm"
-          className={classes.doriBadge}
-          data-level={result.doriLevel ?? 'below'}
-        >
-          {describeDoriLevel(result.doriLevel)}
-        </Badge>
-      }
-    >
+    <ResultsPanel id={RESULTS_CARD_ID} title="Field of view">
       <HeadlineTile
         value={headline.value}
         label={headline.label}

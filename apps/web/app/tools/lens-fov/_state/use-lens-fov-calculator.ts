@@ -4,7 +4,6 @@ import { useCallback, useMemo, useReducer } from 'react';
 import {
   calculateLensFov,
   type CableLengthUnit,
-  type DoriLevel,
   type Resolution,
   type SensorFormat,
   type SolveFor,
@@ -53,7 +52,6 @@ export function useLensFovCalculator() {
       dispatch({ type: 'set-focal-length', focalLengthMm }),
     setSolveFor: (solveFor: SolveFor) => dispatch({ type: 'set-solve-for', solveFor }),
     setDistance: (distance: number) => dispatch({ type: 'set-distance', distance }),
-    setDoriTarget: (level: DoriLevel) => dispatch({ type: 'set-dori-target', level }),
     setCustomDensity: (density: number) => dispatch({ type: 'set-custom-density', density }),
     setLengthUnit: (unit: CableLengthUnit) => dispatch({ type: 'set-length-unit', unit }),
   };

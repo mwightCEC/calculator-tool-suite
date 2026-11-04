@@ -6,7 +6,7 @@ import type {
   SolveFor,
 } from '@cctv/calc-core';
 import { z } from 'zod';
-import type { LensFovCalculatorState } from './lens-fov-calculator-state';
+import { levelDensity, type LensFovCalculatorState } from './lens-fov-calculator-state';
 
 /*
  * Lens / FOV share link format v1: a compact positional JSON array.
@@ -14,7 +14,8 @@ import type { LensFovCalculatorState } from './lens-fov-calculator-state';
  *   [resolution, sensor, focalLengthMm, solveFor, distance, target, lengthUnit]
  *   resolution = tier index, or [width, height] in pixels for a custom size
  *   sensor     = sensor type index, or [widthMm, heightMm] for a custom sensor
- *   target     = DORI level index, or [density] for a custom density (per foot or metre)
+ *   target     = [density] per foot or metre; older links may hold a published level's
+ *                index instead, which opens as that level's density
  *
  * Choices are stored as indexes into the tables below. Those tables ARE the
  * format: only ever append to them. Reordering or removing an entry would make
@@ -47,6 +48,7 @@ export const V1_SENSOR_FORMATS = [
   '1/1.2',
 ] as const satisfies readonly SensorFormat[];
 export const V1_SOLVE_FOR = ['coverage', 'distance'] as const satisfies readonly SolveFor[];
+/** Published levels that older links stored as the target; read, no longer written. */
 export const V1_DORI_LEVELS = [
   'detection',
   'observation',
@@ -83,7 +85,7 @@ export function stateToV1Payload(state: LensFovCalculatorState): Payload {
     state.focalLengthMm,
     V1_SOLVE_FOR.indexOf(state.solveFor),
     state.distance,
-    target.kind === 'dori' ? V1_DORI_LEVELS.indexOf(target.level) : [target.density],
+    [target.density],
     V1_LENGTH_UNITS.indexOf(state.lengthUnit),
   ];
 }
@@ -101,6 +103,12 @@ export function v1PayloadToState(raw: unknown): unknown {
   const [resolution, sensor, focalLengthMm, solveForIndex, distance, target, unitIndex] =
     parsed.data;
 
+  const lengthUnit = V1_LENGTH_UNITS[unitIndex];
+  const level = typeof target === 'number' ? V1_DORI_LEVELS[target] : undefined;
+  // An out-of-range level or unit leaves the density undefined, for the schema to reject.
+  const levelValue = level && lengthUnit ? levelDensity(level, lengthUnit) : undefined;
+  const density = typeof target === 'number' ? levelValue : target[0];
+
   return {
     resolution:
       typeof resolution === 'number'
@@ -113,10 +121,7 @@ export function v1PayloadToState(raw: unknown): unknown {
     focalLengthMm,
     solveFor: V1_SOLVE_FOR[solveForIndex],
     distance,
-    target:
-      typeof target === 'number'
-        ? { kind: 'dori', level: V1_DORI_LEVELS[target] }
-        : { kind: 'custom', density: target[0] },
-    lengthUnit: V1_LENGTH_UNITS[unitIndex],
+    target: { kind: 'custom', density },
+    lengthUnit,
   };
 }

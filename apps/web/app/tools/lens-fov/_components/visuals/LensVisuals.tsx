@@ -7,7 +7,7 @@ import { formatLength } from '../../_lib/lens-fov-labels';
 import type { LensFovCalculatorState } from '../../_state/lens-fov-calculator-state';
 import { CameraView } from './CameraView';
 import { ClaritySample } from './ClaritySample';
-import { CoverageDiagram, DoriLegend } from './CoverageDiagram';
+import { CoverageDiagram, DensityLevelLegend } from './CoverageDiagram';
 import { VisualCard } from './VisualCard';
 import classes from './Visuals.module.css';
 
@@ -44,14 +44,14 @@ export function LensVisuals({ state, result }: LensVisualsProps) {
 
       <VisualCard
         title="Coverage"
-        description="Seen from above, to scale. Shading shows how far each DORI level reaches with this lens."
+        description="Seen from above, to scale. Shading shows how far each pixel density level reaches with this lens."
       >
         <CoverageDiagram
           result={result}
           unit={unit}
           distancePrefix={state.solveFor === 'distance' ? 'Farthest' : undefined}
         />
-        <DoriLegend />
+        <DensityLevelLegend />
         <Text className={classes.note}>
           The distances assume a distortion-free lens aimed straight ahead; mounting height and tilt
           aren&apos;t modelled.

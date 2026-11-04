@@ -29,14 +29,14 @@ function stateAfter(...actions: LensFovCalculatorAction[]): LensFovCalculatorSta
   return actions.reduce(lensFovCalculatorReducer, createInitialLensFovCalculatorState());
 }
 
-/** Tiers and types, solving for distance to a DORI level, in metres. */
+/** Tiers and types, solving for distance to a pixel density, in metres. */
 const presetState = () =>
   stateAfter(
     { type: 'set-resolution', resolution: '8MP' },
     { type: 'set-sensor', sensor: '1/1.8' },
     { type: 'set-focal-length', focalLengthMm: 12.5 },
     { type: 'set-solve-for', solveFor: 'distance' },
-    { type: 'set-dori-target', level: 'identification' },
+    { type: 'set-custom-density', density: 76.2 },
     { type: 'set-length-unit', unit: 'm' },
     { type: 'set-distance', distance: 14.2 }
   );
@@ -68,7 +68,7 @@ describe('encoding (v1)', () => {
   });
 
   it.each([
-    ['tiers, a DORI target and metres', presetState],
+    ['tiers, a density target and metres', presetState],
     ['custom sizes and a custom density', customState],
     ['the defaults', createInitialLensFovCalculatorState],
   ])('round-trips %s exactly', (_label, make) => {
@@ -77,7 +77,7 @@ describe('encoding (v1)', () => {
   });
 
   it('writes a short, URL-safe positional array', () => {
-    expect(stateToV1Payload(presetState())).toEqual([8, 7, 12.5, 1, 14.2, 3, 1]);
+    expect(stateToV1Payload(presetState())).toEqual([8, 7, 12.5, 1, 14.2, [250], 1]);
     expect(stateToV1Payload(customState())).toEqual([
       [2688, 1520],
       [5.12, 3.18],
@@ -98,7 +98,7 @@ describe('v1 index tables', () => {
     ['resolutions', V1_RESOLUTIONS, RESOLUTIONS],
     ['sensor types', V1_SENSOR_FORMATS, SENSOR_FORMATS],
     ['solve-for modes', V1_SOLVE_FOR, SOLVE_FOR],
-    ['DORI levels', V1_DORI_LEVELS, DORI_LEVELS],
+    ['published levels', V1_DORI_LEVELS, DORI_LEVELS],
     ['length units', V1_LENGTH_UNITS, CABLE_LENGTH_UNITS],
   ] as const)('cover every %s option', (_label, table, options) => {
     expect([...table].sort()).toEqual([...options].sort());
@@ -126,6 +126,17 @@ describe('decodeShareParams', () => {
     expect(decodeShareParams(new URLSearchParams())).toEqual({ status: 'none' });
   });
 
+  it("opens an older link's published level as that level's density in its unit", () => {
+    const metres = decodeShareParams(linkParams('1', [8, 7, 12.5, 1, 14.2, 3, 1]));
+    expect(metres).toEqual({ status: 'loaded', state: presetState() });
+
+    const feet = decodeShareParams(linkParams('1', [5, 3, 2.8, 1, 30, 2, 0]));
+    expect(feet.status === 'loaded' && feet.state.target).toEqual({
+      kind: 'custom',
+      density: 38.1,
+    });
+  });
+
   /** A v1 payload with one item replaced, as a tampered or broken link might carry. */
   const tampered = (position: number, value: unknown) => () => {
     const payload: unknown[] = stateToV1Payload(presetState());
@@ -143,7 +154,7 @@ describe('decodeShareParams', () => {
     ['a lens below 0.8 mm', tampered(2, 0.5)],
     ['an unknown mode', tampered(3, 2)],
     ['a zero distance', tampered(4, 0)],
-    ['an out-of-range DORI level', tampered(5, V1_DORI_LEVELS.length)],
+    ['an out-of-range published level', tampered(5, V1_DORI_LEVELS.length)],
     ['a custom density above 10000', tampered(5, [20_000])],
     ['an unknown length unit', tampered(6, 2)],
     ['a missing item', () => linkParams(SHARE_FORMAT_VERSION, [8, 7, 12.5, 1, 14.2, 3])],

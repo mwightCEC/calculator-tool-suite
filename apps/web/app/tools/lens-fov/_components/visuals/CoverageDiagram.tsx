@@ -19,7 +19,7 @@ interface CoverageDiagramProps {
   distancePrefix?: string;
 }
 
-/** Top-down plan of the field of view with the DORI bands, to scale. */
+/** Top-down plan of the field of view with the pixel density level bands, to scale. */
 export function CoverageDiagram({ result, unit, distancePrefix }: CoverageDiagramProps) {
   const { ref, width: measured } = useElementSize();
   const arrowId = useSvgId('plan-arrow');
@@ -141,10 +141,10 @@ export function CoverageDiagram({ result, unit, distancePrefix }: CoverageDiagra
   );
 }
 
-/** Key to the DORI bands, nearest the camera first. */
-export function DoriLegend() {
+/** Key to the pixel density level bands, nearest the camera first. */
+export function DensityLevelLegend() {
   return (
-    <ul className={classes.legend} aria-label="DORI bands">
+    <ul className={classes.legend} aria-label="Pixel density levels">
       {[...DORI_LEVELS].reverse().map((level) => (
         <li key={level} className={classes.legendItem}>
           <span className={classes.swatch} data-level={level} aria-hidden="true" />

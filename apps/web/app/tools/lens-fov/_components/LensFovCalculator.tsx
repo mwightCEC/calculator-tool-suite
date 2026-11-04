@@ -40,7 +40,7 @@ export function LensFovCalculator() {
                   Camera configuration
                 </Title>
                 <Text size="sm" className={classes.description}>
-                  Enter the camera and lens, then the distance to the target or the DORI level to
+                  Enter the camera and lens, then the distance to the target or the pixel density to
                   reach.
                 </Text>
               </div>

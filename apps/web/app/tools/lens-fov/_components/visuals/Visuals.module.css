@@ -250,7 +250,7 @@
   font-weight: 600;
 }
 
-/* DORI bands: stronger nearer the camera, where the density is highest. */
+/* Pixel density level bands: stronger nearer the camera, where the density is highest. */
 .band,
 .swatch {
   --band-share: 12%;
@@ -344,9 +344,4 @@
 /* Each image pixel shows as a hard-edged block, as a camera would record it. */
 .clarityImage[data-pixelated] {
   image-rendering: pixelated;
-}
-
-/* Room for the mark letters under the track. */
-.claritySlider {
-  margin-bottom: var(--mantine-spacing-md);
 }

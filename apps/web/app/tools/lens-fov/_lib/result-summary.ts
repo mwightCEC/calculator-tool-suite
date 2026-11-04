@@ -1,16 +1,10 @@
-import {
-  type DoriLevel,
-  type LensComparisonRow,
-  type LensFovNote,
-  type LensFovResult,
-} from '@cctv/calc-core';
+import { type LensComparisonRow, type LensFovNote, type LensFovResult } from '@cctv/calc-core';
 import type { MetricTile } from '../../../../components/ResultsCard/ResultsPanel';
 import { RESOLUTION_LABELS } from '../../../../lib/camera-labels';
 import { formatNumber } from '../../../../lib/format';
 import type { LensFovCalculatorState } from '../_state/lens-fov-calculator-state';
 import {
   DENSITY_UNIT_LABELS,
-  DORI_LEVEL_LABELS,
   formatDegrees,
   formatDensity,
   formatLength,
@@ -19,11 +13,6 @@ import {
 } from './lens-fov-labels';
 
 const otherUnit = (state: LensFovCalculatorState) => (state.lengthUnit === 'ft' ? 'm' : 'ft');
-
-/** "Recognition", or "Below detection" under 25 px/m. */
-export function describeDoriLevel(level: DoriLevel | null): string {
-  return level ? DORI_LEVEL_LABELS[level] : 'Below detection';
-}
 
 /** "60.3 × 33.9 ft": horizontal × vertical coverage with the unit once. */
 export function describeCoverage(state: LensFovCalculatorState, result: LensFovResult): string {
@@ -45,11 +34,9 @@ export function describeCamera(state: LensFovCalculatorState): string {
   return `${image} · ${sensorText} · ${formatNumber(state.focalLengthMm, 1)} mm lens`;
 }
 
-/** What the distance mode aims for: "Recognition" or "80 PPF". */
+/** What the distance mode aims for: "38.1 PPF". */
 export function describeTarget(state: LensFovCalculatorState): string {
-  return state.target.kind === 'dori'
-    ? DORI_LEVEL_LABELS[state.target.level]
-    : `${formatNumber(state.target.density, 1)} ${DENSITY_UNIT_LABELS[state.lengthUnit]}`;
+  return `${formatNumber(state.target.density, 1)} ${DENSITY_UNIT_LABELS[state.lengthUnit]}`;
 }
 
 export interface Headline {
@@ -98,29 +85,6 @@ export function buildMetricTiles(
   ];
 }
 
-export interface DoriDistanceRow {
-  level: DoriLevel;
-  label: string;
-  density: string;
-  distance: string;
-  /** True when the current distance is within this level's farthest distance. */
-  met: boolean;
-}
-
-/** The farthest distance for each DORI level with this camera and lens. */
-export function doriDistanceRows(
-  state: LensFovCalculatorState,
-  result: LensFovResult
-): DoriDistanceRow[] {
-  return result.doriDistances.map((row) => ({
-    level: row.level,
-    label: DORI_LEVEL_LABELS[row.level],
-    density: formatDensity(row.pixelsPerMetre, state.lengthUnit),
-    distance: formatLength(row.distanceM, state.lengthUnit),
-    met: result.distanceM <= row.distanceM * (1 + 1e-9),
-  }));
-}
-
 export interface LensRow {
   focalLengthMm: number;
   lens: string;
@@ -128,7 +92,6 @@ export interface LensRow {
   /** Coverage width at the distance, or the farthest distance for the target. */
   reach: string;
   density: string;
-  level: string;
   current: boolean;
 }
 
@@ -143,7 +106,6 @@ export function lensComparisonRows(
     fov: formatDegrees(row.horizontalFovDeg),
     reach: formatLength(row.targetDistanceM ?? row.horizontalCoverageM, state.lengthUnit),
     density: formatDensity(row.pixelsPerMetre, state.lengthUnit),
-    level: describeDoriLevel(row.doriLevel),
     current: row.focalLengthMm === state.focalLengthMm,
   }));
 }
