@@ -16,7 +16,8 @@ const URL_WRITE_DELAY_MS = 300;
 /**
  * Keeps a calculator's state, the page URL and the browser's saved copy in step:
  * 1. On first load, restores state from a shared link (or reports a bad one),
- *    otherwise from the state saved when the page was last used.
+ *    otherwise from the state saved when the page was last used (if that was
+ *    recent enough: see SAVED_STATE_MAX_AGE_MS).
  * 2. Afterwards, saves every change and writes it back to the URL with
  *    replaceState, so the address bar is always a shareable link and Back isn't
  *    flooded with entries. The default calculation keeps a clean URL and clears
