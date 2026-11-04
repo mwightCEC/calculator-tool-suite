@@ -148,8 +148,11 @@ config or routing changes.
   and needs a new format version.
 - Saved state: each tool keeps its last state in localStorage
   (`cctv-tool-suite:<tool>-calculator`), stored as the same share parameters so it gets the
-  same versions and validation. A link in the URL wins over saved state; the default state
-  clears it (`lib/share/saved-state.ts`).
+  same versions and validation, inside a JSON entry with the save time. Saved state expires
+  4 hours after the last save (`SAVED_STATE_MAX_AGE_MS`); expired, future-dated or untimed
+  (pre-expiry) entries are removed on load and the tool starts fresh. Share links never
+  expire. A link in the URL wins over saved state; the default state clears it
+  (`lib/share/saved-state.ts`).
 - No calculator has a Simple / Advanced input mode any more; every group and setting is always
   available. Old links that carry the mode open with it ignored.
 - PoE budget and Voltage drop use `CameraConfigurationCard` with `noun="device"` ("Device

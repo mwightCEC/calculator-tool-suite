@@ -4,10 +4,20 @@ import type { ShareCodec } from './share-codec';
  * Each calculator's last state, saved in the browser so it survives leaving the
  * page. It is stored as the same query string a share link carries, so saved
  * state gets the same format versions and schema validation as a link.
+ *
+ * Saved state expires: every save records the time, and state left untouched
+ * for longer than SAVED_STATE_MAX_AGE_MS is forgotten, so a return visit the
+ * next day starts fresh. Share links never expire.
  */
+
+/** How long saved state lasts after the calculator was last used. */
+export const SAVED_STATE_MAX_AGE_MS = 4 * 60 * 60 * 1000;
 
 /** The subset of Web Storage used here, so tests can pass a stand-in. */
 export type SavedStateStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+
+/** What is stored under a calculator's key. */
+type SavedEntry = { savedAt: number; params: string };
 
 /** localStorage, or null where it is unavailable (server render, blocked storage). */
 export function browserStorage(): SavedStateStorage | null {
@@ -18,28 +28,64 @@ export function browserStorage(): SavedStateStorage | null {
   }
 }
 
-/** The saved share parameters, or null when nothing is saved or storage can't be read. */
+/** The stored entry, or null when it isn't one (including the older, untimed format). */
+function parseEntry(saved: string): SavedEntry | null {
+  try {
+    const entry: unknown = JSON.parse(saved);
+    if (
+      typeof entry === 'object' &&
+      entry !== null &&
+      'savedAt' in entry &&
+      'params' in entry &&
+      typeof entry.savedAt === 'number' &&
+      typeof entry.params === 'string'
+    ) {
+      return { savedAt: entry.savedAt, params: entry.params };
+    }
+  } catch {
+    // Not JSON: an entry saved before saved state expired.
+  }
+  return null;
+}
+
+/**
+ * The saved share parameters, or null when nothing is saved or storage can't be
+ * read. Expired or unrecognised entries are removed.
+ */
 export function readSavedParams(
   storage: SavedStateStorage | null,
-  key: string
+  key: string,
+  now = Date.now()
 ): URLSearchParams | null {
   try {
     const saved = storage?.getItem(key);
-    return saved ? new URLSearchParams(saved) : null;
+    if (!saved) {
+      return null;
+    }
+    const entry = parseEntry(saved);
+    const age = entry ? now - entry.savedAt : Number.NaN;
+    // A future time (clock changed) counts as expired, so it can't live forever.
+    if (!entry || !(age >= 0 && age <= SAVED_STATE_MAX_AGE_MS)) {
+      storage?.removeItem(key);
+      return null;
+    }
+    return new URLSearchParams(entry.params);
   } catch {
     return null;
   }
 }
 
-/** Saves the share parameters, or forgets the saved state when given null. */
+/** Saves the share parameters with the time, or forgets the saved state when given null. */
 export function writeSavedParams(
   storage: SavedStateStorage | null,
   key: string,
-  params: URLSearchParams | null
+  params: URLSearchParams | null,
+  now = Date.now()
 ) {
   try {
     if (params) {
-      storage?.setItem(key, params.toString());
+      const entry: SavedEntry = { savedAt: now, params: params.toString() };
+      storage?.setItem(key, JSON.stringify(entry));
     } else {
       storage?.removeItem(key);
     }

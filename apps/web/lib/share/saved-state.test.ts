@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import {
+  SAVED_STATE_MAX_AGE_MS,
   readSavedParams,
   resolveStartingState,
   writeSavedParams,
@@ -42,15 +43,59 @@ const blockedStorage: SavedStateStorage = {
 };
 
 describe('saved share parameters', () => {
+  const params = codec.encodeShareParams({ cameras: 3 });
+  const SAVED_AT = Date.UTC(2026, 10, 4, 9);
+
   it('saves, reads back and forgets', () => {
     const storage = memoryStorage();
-    writeSavedParams(storage, KEY, codec.encodeShareParams({ cameras: 3 }));
-    expect(readSavedParams(storage, KEY)?.toString()).toBe(
-      codec.encodeShareParams({ cameras: 3 }).toString()
-    );
+    writeSavedParams(storage, KEY, params);
+    expect(readSavedParams(storage, KEY)?.toString()).toBe(params.toString());
     writeSavedParams(storage, KEY, null);
     expect(storage.items.has(KEY)).toBe(false);
     expect(readSavedParams(storage, KEY)).toBeNull();
+  });
+
+  it('keeps saved state up to the maximum age', () => {
+    const storage = memoryStorage();
+    writeSavedParams(storage, KEY, params, SAVED_AT);
+    const lastMoment = SAVED_AT + SAVED_STATE_MAX_AGE_MS;
+    expect(readSavedParams(storage, KEY, lastMoment)?.toString()).toBe(params.toString());
+  });
+
+  it('forgets saved state older than the maximum age', () => {
+    const storage = memoryStorage();
+    writeSavedParams(storage, KEY, params, SAVED_AT);
+    expect(readSavedParams(storage, KEY, SAVED_AT + SAVED_STATE_MAX_AGE_MS + 1)).toBeNull();
+    expect(storage.items.has(KEY)).toBe(false);
+  });
+
+  it('counts the age from the latest save', () => {
+    const storage = memoryStorage();
+    writeSavedParams(storage, KEY, params, SAVED_AT);
+    const resaved = SAVED_AT + SAVED_STATE_MAX_AGE_MS - 1;
+    writeSavedParams(storage, KEY, params, resaved);
+    expect(readSavedParams(storage, KEY, resaved + SAVED_STATE_MAX_AGE_MS)).not.toBeNull();
+  });
+
+  it('forgets saved state with a time in the future', () => {
+    const storage = memoryStorage();
+    writeSavedParams(storage, KEY, params, SAVED_AT);
+    expect(readSavedParams(storage, KEY, SAVED_AT - 1)).toBeNull();
+    expect(storage.items.has(KEY)).toBe(false);
+  });
+
+  it('forgets entries without a save time, including the older plain format', () => {
+    for (const stored of [
+      params.toString(),
+      '{"params":"v=1"}',
+      '{"savedAt":"x","params":1}',
+      'null',
+    ]) {
+      const storage = memoryStorage();
+      storage.setItem(KEY, stored);
+      expect(readSavedParams(storage, KEY, SAVED_AT)).toBeNull();
+      expect(storage.items.has(KEY)).toBe(false);
+    }
   });
 
   it('copes with missing or blocked storage', () => {
