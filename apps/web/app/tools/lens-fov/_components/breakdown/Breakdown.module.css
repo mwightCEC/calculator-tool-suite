@@ -1,0 +1,54 @@
+/* Lens comparison, angles and pixel density guidance, below the drawings. */
+
+.sectionTitle {
+  margin: 0 0 var(--mantine-spacing-xs);
+  font-size: var(--mantine-font-size-md);
+  font-weight: 700;
+}
+
+.intro {
+  margin-bottom: var(--mantine-spacing-xs);
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.note {
+  margin-top: var(--mantine-spacing-xs);
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.optics {
+  font-size: var(--mantine-font-size-sm);
+}
+
+.table {
+  font-size: var(--mantine-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.number {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table tr[data-current] {
+  background-color: var(--app-panel-bg);
+}
+
+.lensCell {
+  display: inline-flex;
+  gap: var(--mantine-spacing-xs);
+  align-items: center;
+}
+
+.lensButton {
+  color: var(--app-accent-text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.table tr[data-current] .lensButton {
+  text-decoration: none;
+}

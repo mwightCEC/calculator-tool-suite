@@ -80,8 +80,16 @@
     grid-template-columns: minmax(0, 7fr) minmax(360px, 5fr);
   }
 
+  /* The drawings come after the inputs in the page but sit in the left column. */
+  .visuals {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
   /* Inputs and results stay in view while the drawings scroll. */
   .side {
+    grid-row: 1;
+    grid-column: 2;
     position: sticky;
     top: calc(var(--app-shell-header-height) + var(--mantine-spacing-md));
     max-height: calc(100dvh - var(--app-shell-header-height) - 2 * var(--mantine-spacing-md));

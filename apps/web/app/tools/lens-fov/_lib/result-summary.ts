@@ -148,6 +148,16 @@ export function lensComparisonRows(
   }));
 }
 
+/** What the lens comparison shows: "At 30 ft with this camera and sensor." */
+export function describeLensComparison(
+  state: LensFovCalculatorState,
+  result: LensFovResult
+): string {
+  return state.solveFor === 'coverage'
+    ? `At ${formatLength(result.distanceM, state.lengthUnit)} with this camera and sensor.`
+    : `Farthest distance for ${describeTarget(state)} with this camera and sensor.`;
+}
+
 /** Angles and the sensor area used: "90.3° × 58.1° (98.4° diagonal) · 5.63 × 3.17 mm active area" */
 export function describeOptics(result: LensFovResult): string {
   const { sensor } = result;
