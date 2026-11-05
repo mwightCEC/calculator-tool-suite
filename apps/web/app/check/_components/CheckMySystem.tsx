@@ -2,14 +2,22 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { IconAlertTriangle, IconArrowLeft } from '@tabler/icons-react';
+import { IconAlertTriangle, IconArrowLeft, IconBolt, IconPlug } from '@tabler/icons-react';
 import { Alert, Button, Loader, Stack, Text, Title } from '@mantine/core';
 import { decodeCartHash, type CartLinkResult } from '../_lib/cart-payload';
-import { describeCartSummary } from '../_lib/check-labels';
+import {
+  describeCartSummary,
+  poeCheckDetails,
+  poeCheckHref,
+  poeCheckTitle,
+  voltageDropCheckDetails,
+  voltageDropCheckHref,
+  voltageDropCheckTitle,
+} from '../_lib/check-labels';
 import { planChecks } from '../_lib/plan-checks';
 import { allowedReturnUrl } from '../_lib/return-url';
+import { CheckCard } from './CheckCard';
 import { NotCheckedList } from './NotCheckedList';
-import { VoltageDropCheckCard } from './VoltageDropCheckCard';
 
 /**
  * The page a cart's "Check my system" button opens. The cart arrives in the URL
@@ -80,15 +88,27 @@ function CheckContent({ result }: { result: CartLinkResult | null }) {
     <Stack gap="lg">
       <Text fw={500}>{describeCartSummary(plan.summary)}</Text>
 
-      {plan.voltageDrop.length ? (
+      {plan.voltageDrop.length || plan.poe ? (
         <Stack gap="md">
           {plan.voltageDrop.map((check) => (
-            <VoltageDropCheckCard key={`${check.kind}:${check.volts}`} check={check} />
+            <CheckCard
+              key={`${check.kind}:${check.volts}`}
+              icon={IconBolt}
+              title={voltageDropCheckTitle(check)}
+              details={voltageDropCheckDetails(check)}
+              href={voltageDropCheckHref(check)}
+              buttonLabel="Open voltage drop check"
+            />
           ))}
-          <Text size="sm" c="dimmed">
-            Your cart can’t say how long each cable is, so every run starts at 100 ft of 18 AWG.
-            Enter your real lengths and wire size in the calculator: the results depend on them.
-          </Text>
+          {plan.poe && (
+            <CheckCard
+              icon={IconPlug}
+              title={poeCheckTitle(plan.poe)}
+              details={poeCheckDetails(plan.poe)}
+              href={poeCheckHref(plan.poe)}
+              buttonLabel="Open PoE budget check"
+            />
+          )}
         </Stack>
       ) : (
         <Alert color="gray" title="Nothing in this cart can be checked yet">
