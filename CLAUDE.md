@@ -43,8 +43,9 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   has no groups. Its left column holds three collapsible visual cards (Camera view, Coverage,
   Clarity sample) and, below them, a "Lens and pixel density" card (lens comparison, angles,
   and the IEC levels as pixel density guidance) in place of a results-card breakdown; the
-  configuration card sits above the results on the right, and that column stays in view so
-  the drawings change as the inputs do. On smaller screens the inputs and results come first.
+  results card sits above the configuration card on the right, and that column stays in view
+  so the drawings change as the inputs do. On smaller screens the configuration comes first,
+  then the results, then the drawings.
 - Shared logic: `apps/web/lib/` (`camera-groups/` group list and colours, `share/` link codec
   and URL sync hook, `saved-state.ts`, `format.ts`, camera and bitrate labels).
 - Number inputs go through `apps/web/hooks/use-number-draft.ts`: values commit as typed, blur

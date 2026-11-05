@@ -22,7 +22,8 @@
 }
 
 .visuals,
-.side {
+.side,
+.results {
   min-width: 0;
 }
 
@@ -94,5 +95,10 @@
     top: calc(var(--app-shell-header-height) + var(--mantine-spacing-md));
     max-height: calc(100dvh - var(--app-shell-header-height) - 2 * var(--mantine-spacing-md));
     overflow-y: auto;
+  }
+
+  /* The results sit above the configuration here; on phones the inputs come first. */
+  .results {
+    order: -1;
   }
 }
