@@ -13,8 +13,8 @@ import type { CameraItem, LowVoltageInput, PowerInput } from './cart-payload';
  */
 
 export type CameraAssignment =
-  | { check: 'voltage-drop'; supplyKey: string; input: LowVoltageInput; exampleSupply: boolean }
-  | { check: 'poe'; input: Extract<PowerInput, { type: 'poe' }>; exampleSwitch: boolean }
+  | { check: 'voltage-drop'; supplyKey: string; input: LowVoltageInput }
+  | { check: 'poe'; input: Extract<PowerInput, { type: 'poe' }> }
   | { check: 'none' };
 
 /** Supplies and camera inputs with the same key can be checked together. */
@@ -32,12 +32,12 @@ export function assignCamera(camera: CameraItem, sources: CartPowerSources): Cam
   for (const input of camera.power) {
     if (input.type === 'poe') {
       if (sources.hasPoeInjector) {
-        return { check: 'poe', input, exampleSwitch: false };
+        return { check: 'poe', input };
       }
     } else {
       const key = supplyKey(input.type, input.volts);
       if (sources.supplyKeys.has(key)) {
-        return { check: 'voltage-drop', supplyKey: key, input, exampleSupply: false };
+        return { check: 'voltage-drop', supplyKey: key, input };
       }
     }
   }
@@ -45,11 +45,11 @@ export function assignCamera(camera: CameraItem, sources: CartPowerSources): Cam
   const noSupplies = sources.supplyKeys.size === 0;
   for (const input of camera.power) {
     if (input.type === 'poe') {
-      return { check: 'poe', input, exampleSwitch: true };
+      return { check: 'poe', input };
     }
     if (noSupplies) {
       const key = supplyKey(input.type, input.volts);
-      return { check: 'voltage-drop', supplyKey: key, input, exampleSupply: true };
+      return { check: 'voltage-drop', supplyKey: key, input };
     }
   }
   return { check: 'none' };

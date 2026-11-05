@@ -43,7 +43,7 @@ const supply24ac: PowerSupplyItem = {
 };
 
 describe('planChecks', () => {
-  it('turns the spec’s worked example into one voltage drop check', () => {
+  it('turns the spec’s worked example into a voltage drop and a PoE check', () => {
     const plan = planChecks(
       cart([
         dome,
@@ -61,7 +61,7 @@ describe('planChecks', () => {
       ])
     );
 
-    expect(plan.summary).toEqual({ cameras: 12, powerSupplies: 1, otherItems: 6 });
+    expect(plan.summary).toEqual({ cameras: 12, powerSupplies: 1, poeInjectors: 1, otherItems: 5 });
     expect(plan.voltageDrop).toHaveLength(1);
     const [check] = plan.voltageDrop;
     expect(check?.state.powerSupply).toEqual({
@@ -76,9 +76,23 @@ describe('planChecks', () => {
       { name: 'EX-DOME-1', deviceCount: 8, load: { input: 'amps', amps: 0.14 } },
       { name: 'EX-BULLET-2', deviceCount: 2, load: { input: 'amps', amps: 0.5 } },
     ]);
+    expect(plan.poe?.state.powerSource).toEqual({
+      budgetWatts: 360,
+      ports: 4,
+      portStandard: 'bt-type4',
+      reservePercent: 20,
+    });
+    expect(
+      plan.poe?.state.deviceGroups.map(({ name, deviceCount, power, cableLength }) => ({
+        name,
+        deviceCount,
+        power,
+        cableLength,
+      }))
+    ).toEqual([
+      { name: 'EX-IP-3', deviceCount: 2, power: { input: 'watts', watts: 6.6 }, cableLength: null },
+    ]);
     expect(plan.skipped.map(({ sku, reason }) => [sku, reason])).toEqual([
-      ['EX-IP-3', 'poe-not-yet'],
-      ['CE-PS400POE', 'poe-not-yet'],
       ['CE-HVR16', 'recorder'],
       ['EX-MOUNT', 'not-powered'],
     ]);
@@ -181,11 +195,11 @@ describe('planChecks', () => {
 
 describe('describeCartSummary', () => {
   it('lists what came in', () => {
-    expect(describeCartSummary({ cameras: 12, powerSupplies: 1, otherItems: 3 })).toBe(
-      '12 cameras, 1 power supply and 3 other items from your cart'
-    );
-    expect(describeCartSummary({ cameras: 1, powerSupplies: 0, otherItems: 0 })).toBe(
-      '1 camera from your cart'
-    );
+    expect(
+      describeCartSummary({ cameras: 12, powerSupplies: 1, poeInjectors: 2, otherItems: 3 })
+    ).toBe('12 cameras, 1 power supply, 2 PoE injectors and 3 other items from your cart');
+    expect(
+      describeCartSummary({ cameras: 1, powerSupplies: 0, poeInjectors: 0, otherItems: 0 })
+    ).toBe('1 camera from your cart');
   });
 });

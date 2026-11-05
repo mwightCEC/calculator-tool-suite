@@ -1,12 +1,4 @@
-import {
-  MAX_CAMERAS_PER_GROUP,
-  MAX_GROUP_NAME_LENGTH,
-  MAX_SUPPLY_AMPS,
-  type DeviceLoad,
-  type SupplyKind,
-} from '@cctv/calc-core';
-import { MAX_CAMERA_GROUPS } from '../../../lib/camera-groups/group-list';
-import { groupColors } from '../../../theme/palettes';
+import { MAX_SUPPLY_AMPS, type DeviceLoad, type SupplyKind } from '@cctv/calc-core';
 import {
   createInitialVoltageDropCalculatorState,
   voltageDropCalculatorStateSchema,
@@ -14,8 +6,16 @@ import {
   type VoltageDropGroupState,
 } from '../../tools/voltage-drop/_state/voltage-drop-calculator-state';
 import { supplyKey } from './assign-cameras';
-import type { CameraItem, LowVoltageInput, PowerSupplyItem } from './cart-payload';
-import type { SkippedLine } from './skipped';
+import {
+  fitModels,
+  groupBasics,
+  mergeModels,
+  skippedModel,
+  type AssignedCamera,
+  type CameraModel,
+} from './camera-models';
+import type { LowVoltageInput, PowerSupplyItem } from './cart-payload';
+import { skippedLine, type SkippedLine } from './skipped';
 
 /*
  * Cart → Voltage drop checks (spec: "Voltage drop mapping"). One check per
@@ -29,10 +29,8 @@ import type { SkippedLine } from './skipped';
 export const EXAMPLE_SUPPLY_AMPS = 5;
 
 /** A camera line assigned to a voltage drop check, before lines are merged. */
-export interface VoltageDropCamera {
-  camera: CameraItem;
+export interface VoltageDropCamera extends AssignedCamera<LowVoltageInput> {
   supplyKey: string;
-  input: LowVoltageInput;
 }
 
 export interface VoltageDropCheck {
@@ -68,68 +66,19 @@ function loadFor(input: LowVoltageInput): DeviceLoad {
     : { input: 'watts', watts: input.watts ?? 0 };
 }
 
-interface MergedModel {
-  sku: string;
-  name?: string;
-  input: LowVoltageInput;
-  deviceCount: number;
-}
-
-/** Lines of the same model with the same power input become one group. */
-function mergeModels(cameras: readonly VoltageDropCamera[]): MergedModel[] {
-  const merged = new Map<string, MergedModel>();
-  for (const { camera, input } of cameras) {
-    const key = `${camera.sku}|${JSON.stringify(input)}`;
-    const existing = merged.get(key);
-    if (existing) {
-      existing.deviceCount += camera.qty;
-    } else {
-      merged.set(key, {
-        sku: camera.sku,
-        ...(camera.name ? { name: camera.name } : {}),
-        input,
-        deviceCount: camera.qty,
-      });
-    }
-  }
-  return [...merged.values()];
-}
-
-function skippedModel(model: MergedModel, reason: SkippedLine['reason']): SkippedLine {
-  return {
-    sku: model.sku,
-    ...(model.name ? { name: model.name } : {}),
-    qty: model.deviceCount,
-    reason,
-  };
-}
-
-function skippedSupply(supply: PowerSupplyItem, reason: SkippedLine['reason']): SkippedLine {
-  return {
-    sku: supply.sku,
-    ...(supply.name ? { name: supply.name } : {}),
-    qty: supply.qty,
-    reason,
-  };
-}
-
 function buildState(
   kind: SupplyKind,
   volts: number,
   ratedAmps: number,
-  models: readonly MergedModel[]
+  models: readonly CameraModel<LowVoltageInput>[]
 ): VoltageDropCalculatorState | undefined {
   const defaults = createInitialVoltageDropCalculatorState();
   const template = defaults.deviceGroups[0]!;
   const deviceGroups: VoltageDropGroupState[] = models.map((model, index) => ({
-    id: `g${index + 1}`,
-    name: model.sku.slice(0, MAX_GROUP_NAME_LENGTH).trim(),
-    deviceCount: model.deviceCount,
+    ...groupBasics(model, index),
     load: loadFor(model.input),
     gauge: template.gauge,
     cableLength: template.cableLength,
-    // The palette cycles, so neighbouring groups never share a colour.
-    colorIndex: index % groupColors.length,
   }));
   const parsed = voltageDropCalculatorStateSchema.safeParse({
     ...defaults,
@@ -153,7 +102,7 @@ export function planVoltageDropChecks(
 
   for (const supply of supplies) {
     if (!keys.includes(supplyKey(supply.output.type, supply.output.volts))) {
-      skipped.push(skippedSupply(supply, 'no-matching-camera'));
+      skipped.push(skippedLine(supply, 'no-matching-camera'));
     }
   }
 
@@ -161,29 +110,23 @@ export function planVoltageDropChecks(
     const assigned = cameras.filter((camera) => camera.supplyKey === key);
     const { type: kind, volts } = assigned[0]!.input;
     const keySupplies = supplies.filter(
-      (supply) => supply.output.type === kind && supply.output.volts === volts
+      (supply) => supplyKey(supply.output.type, supply.output.volts) === key
     );
     const totalAmps = keySupplies.reduce((sum, supply) => sum + supplyLineAmps(supply), 0);
     const models = mergeModels(assigned);
 
     if (totalAmps > MAX_SUPPLY_AMPS) {
       skipped.push(
-        ...keySupplies.map((supply) => skippedSupply(supply, 'supply-over-limit')),
+        ...keySupplies.map((supply) => skippedLine(supply, 'supply-over-limit')),
         ...models.map((model) => skippedModel(model, 'supply-over-limit'))
       );
       continue;
     }
 
-    const usable = models.filter((model) => model.deviceCount <= MAX_CAMERAS_PER_GROUP);
-    skipped.push(
-      ...models
-        .filter((model) => model.deviceCount > MAX_CAMERAS_PER_GROUP)
-        .map((model) => skippedModel(model, 'too-many-devices')),
-      ...usable.slice(MAX_CAMERA_GROUPS).map((model) => skippedModel(model, 'too-many-groups'))
-    );
-    const grouped = usable.slice(0, MAX_CAMERA_GROUPS);
+    const { grouped, skipped: overLimits } = fitModels(models);
+    skipped.push(...overLimits);
     if (!grouped.length) {
-      skipped.push(...keySupplies.map((supply) => skippedSupply(supply, 'no-matching-camera')));
+      skipped.push(...keySupplies.map((supply) => skippedLine(supply, 'no-matching-camera')));
       continue;
     }
 
@@ -191,7 +134,7 @@ export function planVoltageDropChecks(
     const state = buildState(kind, volts, ratedAmps, grouped);
     if (!state) {
       skipped.push(
-        ...keySupplies.map((supply) => skippedSupply(supply, 'invalid-data')),
+        ...keySupplies.map((supply) => skippedLine(supply, 'invalid-data')),
         ...grouped.map((model) => skippedModel(model, 'invalid-data'))
       );
       continue;
