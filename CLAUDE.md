@@ -177,6 +177,13 @@ config or routing changes.
   optional sections (Storage's Drive configuration; Bandwidth's Remote viewing and Network
   check and overhead) collapse without changing the calculation.
 
+- Check my system (`app/check/`, not in the tool registry): the company website's cart opens
+  `/check#cart=<base64url JSON>` (the "Cart link spec: Check my system" doc). The cart is in the
+  fragment so it never reaches a server. The page sorts cart lines into checks and opens each
+  calculator with its normal share link; lines it can't check are listed with the reason. Only
+  Voltage drop is mapped so far (one check per supply type and voltage, supplies combined, one
+  group per camera SKU); PoE cameras and injectors show as "coming soon". The cart format `v: 1`
+  is frozen once the website ships links: add optional fields only.
 - Camera group colours: neighbouring groups never share a colour (`lib/camera-groups/group-colors.ts`,
   enforced in the reducer for add, duplicate, delete, undo and loading a link).
 - Camera presets (the `CameraModel` type in calc-core) and the bitrate measurement campaign

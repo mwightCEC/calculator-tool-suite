@@ -11,7 +11,7 @@ export const SHARE_VERSION_PARAM = 'v';
 export const SHARE_STATE_PARAM = 's';
 
 /** Base64url (URL-safe, unpadded) of UTF-8 text, so group names can use any characters. */
-function toBase64Url(text: string): string {
+export function toBase64Url(text: string): string {
   let binary = '';
   for (const byte of new TextEncoder().encode(text)) {
     binary += String.fromCharCode(byte);
@@ -19,7 +19,7 @@ function toBase64Url(text: string): string {
   return btoa(binary).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
 }
 
-function fromBase64Url(encoded: string): string {
+export function fromBase64Url(encoded: string): string {
   const base64 = encoded.replaceAll('-', '+').replaceAll('_', '/');
   const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
   const bytes = Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
