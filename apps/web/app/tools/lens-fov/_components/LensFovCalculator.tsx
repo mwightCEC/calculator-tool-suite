@@ -14,8 +14,8 @@ import { LensVisuals } from './visuals/LensVisuals';
 import classes from './LensFovCalculator.module.css';
 
 /**
- * Two columns on large screens: the drawings and lens breakdown on the left, and the camera
- * configuration above the results on the right, kept in view so the drawings change as the
+ * Two columns on large screens: the drawings and lens breakdown on the left, and the results
+ * above the camera configuration on the right, kept in view so the drawings change as the
  * inputs do. One column on smaller screens, inputs and results first.
  */
 export function LensFovCalculator() {
@@ -26,7 +26,7 @@ export function LensFovCalculator() {
     <>
       <div className={classes.layout}>
         <div className={classes.split}>
-          {/* Inputs and results come first, so a phone reaches them before the drawings. */}
+          {/* Inputs and results come first, so a phone reaches the inputs before the drawings. */}
           <Stack gap="md" className={classes.side}>
             <Paper
               component="section"
@@ -47,7 +47,10 @@ export function LensFovCalculator() {
               <CameraFields state={state} actions={actions} />
               <TargetSection state={state} actions={actions} />
             </Paper>
-            <ResultsCard result={result} state={state} />
+            {/* Above the configuration on large screens; after it on phones. */}
+            <div className={classes.results}>
+              <ResultsCard result={result} state={state} />
+            </div>
           </Stack>
 
           <Stack gap="md" className={classes.visuals}>
