@@ -16,6 +16,7 @@ import {
   formatVolts,
   formatWatts,
 } from '../../../../lib/format';
+import { remainingDetail, remainingLabel } from '../../../../lib/reserve-tile';
 import type { VoltageDropCalculatorState } from '../_state/voltage-drop-calculator-state';
 import { describeLoad } from './group-summary';
 import { describeGauge, describeSupply } from './voltage-drop-labels';
@@ -196,9 +197,9 @@ export function buildMetricTiles(
           detail: `${formatWatts(result.totalWatts)} output`,
         },
         {
-          label: over ? 'Over by' : 'Remaining',
+          label: remainingLabel(over),
           value: formatAmps(Math.abs(result.remainingAmps)),
-          detail: over ? 'past the usable rating' : 'before the reserve',
+          detail: remainingDetail(over, reservePercent),
         },
       ]
     : [

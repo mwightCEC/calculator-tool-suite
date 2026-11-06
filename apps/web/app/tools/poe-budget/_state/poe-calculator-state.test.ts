@@ -65,7 +65,7 @@ describe('poeCalculatorReducer', () => {
     // New groups go at the top; a copy goes just after its source.
     const added = apply({ type: 'add-group' }, { type: 'duplicate-group', id: 'g1' });
     expect(ids(added)).toEqual(['g2', 'g1', 'g3']);
-    expect(added.deviceGroups[0]?.name).toBe('Camera group 2');
+    expect(added.deviceGroups[0]?.name).toBe('Device group 2');
 
     const copy = added.deviceGroups[2];
     const removed = reduce(added, { type: 'remove-group', id: 'g3' });

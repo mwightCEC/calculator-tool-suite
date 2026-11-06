@@ -19,7 +19,7 @@ describe('createDefaultVoltageDropInput', () => {
       deviceGroups: [
         {
           id: 'g1',
-          name: 'Camera group 1',
+          name: 'Device group 1',
           deviceCount: 4,
           load: { input: 'amps', amps: 0.5 },
           gauge: 'awg-18',

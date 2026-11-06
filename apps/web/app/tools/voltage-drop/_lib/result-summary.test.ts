@@ -65,7 +65,7 @@ describe('headline text', () => {
     expect(worstRun(result).groupId).toBe('g1');
     expect(describeWorstDrop(state, result)).toEqual({
       value: '13.3%',
-      detail: 'Camera group 1: 1.6 V drop · 10.4 V at the device',
+      detail: 'Device group 1: 1.6 V drop · 10.4 V at the device',
     });
   });
 
@@ -75,7 +75,7 @@ describe('headline text', () => {
     expect(worstRun(result).groupId).toBe('g2');
     expect(describeWorstDrop(state, result)).toEqual({
       value: "Can't power",
-      detail: "Camera group 2: the run can't deliver the device's power",
+      detail: "Device group 2: the run can't deliver the device's power",
     });
     expect(describeWorstDeviceVolts(result)).toBeNull();
   });
@@ -145,7 +145,7 @@ describe('buildMetricTiles', () => {
     );
     expect(buildMetricTiles(state, calculateVoltageDrop(state))).toEqual([
       { label: 'Supply load', value: '6 A', detail: '72 W output' },
-      { label: 'Over by', value: '1 A', detail: 'past the usable rating' },
+      { label: 'Short by', value: '1 A', detail: null },
       { label: 'Supply rating', value: '5 A', detail: 'no reserve' },
     ]);
   });
@@ -234,7 +234,7 @@ describe('describeProblem', () => {
     const result = calculateVoltageDrop(state);
     expect(result.problems).toEqual([{ kind: 'over-limit', groupId: 'g1' }]);
     expect(describeProblem(result.problems[0]!, state, result)).toBe(
-      'Camera group 1: 13.3% drop, over the 10% limit. Use 16 AWG or thicker, or keep runs under 187 ft.'
+      'Device group 1: 13.3% drop, over the 10% limit. Use 16 AWG or thicker, or keep runs under 187 ft.'
     );
   });
 
@@ -246,7 +246,7 @@ describe('describeProblem', () => {
     });
     const result = calculateVoltageDrop(state);
     expect(describeProblem({ kind: 'over-limit', groupId: 'g1' }, state, result)).toBe(
-      'Camera group 1: 85.1% drop, over the 10% limit. No listed wire size is enough at this length: keep runs under 469 ft or use a higher-voltage supply.'
+      'Device group 1: 85.1% drop, over the 10% limit. No listed wire size is enough at this length: keep runs under 469 ft or use a higher-voltage supply.'
     );
   });
 
@@ -254,7 +254,7 @@ describe('describeProblem', () => {
     const state = stateAfter({ type: 'add-group' }, ...CANNOT_POWER);
     const result = calculateVoltageDrop(state);
     expect(describeProblem({ kind: 'cannot-power', groupId: 'g2' }, state, result)).toBe(
-      "Camera group 2: the run can't deliver 60 W at 12 V DC. No listed wire size is enough at this length: keep runs under 16 ft or use a higher-voltage supply."
+      "Device group 2: the run can't deliver 60 W at 12 V DC. No listed wire size is enough at this length: keep runs under 16 ft or use a higher-voltage supply."
     );
   });
 
@@ -268,7 +268,7 @@ describe('describeProblem', () => {
 describe('supplySegments', () => {
   it('splits the rating into groups, free and reserve', () => {
     expect(supplySegments(defaults, defaultResult)).toEqual([
-      { key: 'g1', label: 'Camera group 1', value: 2, color: 'var(--group-color-0)' },
+      { key: 'g1', label: 'Device group 1', value: 2, color: 'var(--group-color-0)' },
       { key: 'free', label: 'Free', value: 2, color: 'var(--app-capacity-unused)' },
       { key: 'reserve', label: 'Reserve', value: 1, color: 'var(--app-capacity-reserve)' },
     ]);
@@ -278,7 +278,7 @@ describe('supplySegments', () => {
     const state = stateAfter({ type: 'update-group', id: 'g1', changes: { deviceCount: 12 } });
     const segments = supplySegments(state, calculateVoltageDrop(state));
     expect(segments.map((segment) => [segment.label, segment.value])).toEqual([
-      ['Camera group 1', 6],
+      ['Device group 1', 6],
       ['Free', 0],
       ['Reserve', 0],
     ]);

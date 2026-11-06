@@ -37,7 +37,7 @@ describe('buildPrintSummary', () => {
     expect(summary.groups).toEqual([
       {
         key: 'g1',
-        name: 'Camera group 1',
+        name: 'Device group 1',
         devices: '4',
         power: '6 W max',
         cable: '100 m assumed',

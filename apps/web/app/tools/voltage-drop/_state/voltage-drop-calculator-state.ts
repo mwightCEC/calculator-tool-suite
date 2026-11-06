@@ -110,7 +110,7 @@ export function convertRunLength(length: number, unit: CableLengthUnit): number 
   return Math.min(MAX_RUN_LENGTH, Math.max(0.1, Math.round(converted * 10) / 10));
 }
 
-const FIRST_GROUP: ListedGroup = { id: 'g1', name: 'Camera group 1', colorIndex: 0 };
+const FIRST_GROUP: ListedGroup = { id: 'g1', name: 'Device group 1', colorIndex: 0 };
 
 /** A default group in the state's wire system and length unit. */
 function newGroup(
@@ -169,7 +169,7 @@ export function voltageDropCalculatorReducer(
     case 'add-group':
       return withGroups(
         state,
-        addGroup(groups, (fields) => newGroup(state, fields), 'start')
+        addGroup(groups, (fields) => newGroup(state, fields), 'start', 'Device group')
       );
 
     case 'duplicate-group':

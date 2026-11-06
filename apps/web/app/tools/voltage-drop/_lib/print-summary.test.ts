@@ -31,7 +31,7 @@ describe('buildPrintSummary', () => {
     expect(summary.runs).toEqual([
       expect.objectContaining({
         key: 'g1',
-        name: 'Camera group 1',
+        name: 'Device group 1',
         devices: '4',
         load: '0.5 A',
         wire: '18 AWG',
@@ -75,7 +75,7 @@ describe('buildPrintSummary', () => {
     ]);
     expect(summary.problems).toHaveLength(2);
     expect(summary.problems[0]).toMatch(/^Supply load unavailable/);
-    expect(summary.problems[1]).toMatch(/^Camera group 1: the run can't deliver 6 W/);
+    expect(summary.problems[1]).toMatch(/^Device group 1: the run can't deliver 6 W/);
   });
 
   it('lists the problems and runs no listed wire can fix', () => {
@@ -88,7 +88,7 @@ describe('buildPrintSummary', () => {
     );
     expect(summary.statusLabel).toBe('Over limit');
     expect(summary.problems).toHaveLength(1);
-    expect(summary.problems[0]).toMatch(/^Camera group 1: .* over the 10% limit/);
+    expect(summary.problems[0]).toMatch(/^Device group 1: .* over the 10% limit/);
     expect(summary.runs[0]?.smallestWire).toBe('None listed');
   });
 });

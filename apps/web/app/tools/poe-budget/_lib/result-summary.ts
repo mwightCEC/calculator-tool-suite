@@ -9,6 +9,7 @@ import {
 import type { MetricTile } from '../../../../components/ResultsCard/ResultsPanel';
 import type { BarSegment } from '../../../../components/SegmentBar/SegmentBar';
 import { formatNumber, formatWatts } from '../../../../lib/format';
+import { remainingDetail, remainingLabel } from '../../../../lib/reserve-tile';
 import type { PoeCalculatorState } from '../_state/poe-calculator-state';
 import { PORT_STANDARD_SHORT_LABELS } from './poe-labels';
 
@@ -64,9 +65,9 @@ export function buildMetricTiles(state: PoeCalculatorState, result: PoeResult): 
   const over = result.remainingWatts < 0;
   return [
     {
-      label: over ? 'Over by' : 'Remaining',
+      label: remainingLabel(over),
       value: formatWatts(Math.abs(result.remainingWatts)),
-      detail: over ? 'past the usable budget' : 'before the reserve',
+      detail: remainingDetail(over, reservePercent),
     },
     {
       label: 'PoE budget',

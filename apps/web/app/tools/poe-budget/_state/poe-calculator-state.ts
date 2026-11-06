@@ -122,7 +122,8 @@ export function poeCalculatorReducer(
         addGroup(
           groups,
           ({ id, name, colorIndex }) => ({ ...createPoeDeviceGroup(id, name), colorIndex }),
-          'start'
+          'start',
+          'Device group'
         )
       );
 

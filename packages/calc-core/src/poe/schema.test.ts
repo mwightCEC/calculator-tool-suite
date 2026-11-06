@@ -19,7 +19,7 @@ describe('createDefaultPoeInput', () => {
       deviceGroups: [
         {
           id: 'g1',
-          name: 'Camera group 1',
+          name: 'Device group 1',
           deviceCount: 4,
           power: { input: 'watts', watts: 6 },
           cableLength: null,

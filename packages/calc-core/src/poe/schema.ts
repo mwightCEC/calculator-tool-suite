@@ -70,7 +70,7 @@ export function createPoeDeviceGroup(id: string, name: string): PoeDeviceGroup {
 export function createDefaultPoeInput(): PoeInput {
   return {
     powerSource: { budgetWatts: 120, ports: 8, portStandard: 'at', reservePercent: 20 },
-    deviceGroups: [createPoeDeviceGroup('g1', 'Camera group 1')],
+    deviceGroups: [createPoeDeviceGroup('g1', 'Device group 1')],
     cableLengthUnit: 'ft',
   };
 }
