@@ -75,7 +75,7 @@ function notes(state: PoeCalculatorState): string[] {
   ];
   if (state.deviceGroups.some((group) => group.power.input === 'watts')) {
     list.push(
-      'Cable loss is an estimate (50 V, 12.5 Ω per 100 m of Cat5e). A switch that reserves power by PoE class may set aside more than the devices draw.'
+      "Cable loss is an estimate (the port standard's minimum voltage, 12.5 Ω per 100 m of Cat5e). A switch that reserves power by PoE class may set aside more than the devices draw."
     );
   }
   return list;

@@ -118,8 +118,10 @@ config or routing changes.
   high estimate: OK up to 70%, caution up to 90%, then calc-core's `over-capacity`, which the
   UI shows as "Above 90%" (a planning limit) and as "Exceeds link" only over 100%.
 - PoE budget checks one switch / NVR against device groups given by PoE class (the class's
-  switch-side allocation) or datasheet watts (plus an I²R cable-loss estimate, 100 m assumed
-  without a length; the field says so when blank). Budget status: OK within budget less the reserve, then into reserve,
+  switch-side allocation) or datasheet watts (plus a cable-loss estimate, 100 m assumed
+  without a length; the field says so when blank). The loss solves P = (V − I·R)·I at the port
+  standard's minimum voltage (44 / 50 / 50 / 52 V), the method behind the class allocations
+  (25.5 W at 100 m → 30 W); a run with no solution is flagged "can't power" in the cable check. Budget status: OK within budget less the reserve, then into reserve,
   then over budget; also port count, port standard and the 100 m run limit (calc-core `src/poe/`).
   The results card lists the four as separate checks (`_lib/checks.ts`); the card badge, mobile
   bar and Export show the worst one, so "Within budget" never hides a port or cable failure.

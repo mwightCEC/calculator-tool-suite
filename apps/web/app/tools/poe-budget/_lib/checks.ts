@@ -68,19 +68,27 @@ function standardCheck(state: PoeCalculatorState, result: PoeResult): PoeCheck {
   };
 }
 
+function idsWhere(result: PoeResult, test: (group: PoeResult['groups'][number]) => boolean) {
+  return result.groups.filter(test).map((group) => group.groupId);
+}
+
+/** Runs over 100 m, and runs that lose too much power to feed their device. */
 function cableCheck(state: PoeCalculatorState, result: PoeResult): PoeCheck {
   const limit = cableLimit(state);
-  const failing = result.groups.filter((group) => group.cableTooLong).map((group) => group.groupId);
+  const tooLong = idsWhere(result, (group) => group.cableTooLong);
+  const cannotPower = idsWhere(result, (group) => group.cannotPower);
+  const details = [
+    tooLong.length > 0 && `Over ${limit}: ${names(state, tooLong)}`,
+    cannotPower.length > 0 && `Can't carry the power: ${names(state, cannotPower)}`,
+  ].filter((detail): detail is string => detail !== false);
+  const failing = tooLong.length + cannotPower.length > 0;
   return {
     key: 'cable',
     label: 'Cable length',
-    level: failing.length === 0 ? 'ok' : 'fail',
-    status: failing.length === 0 ? 'OK' : 'Too long',
-    headline: 'Cable too long',
-    detail:
-      failing.length === 0
-        ? `Every run within ${limit}`
-        : `Over ${limit}: ${names(state, failing)}`,
+    level: failing ? 'fail' : 'ok',
+    status: !failing ? 'OK' : tooLong.length > 0 ? 'Too long' : "Can't power",
+    headline: tooLong.length > 0 ? 'Cable too long' : "Cable can't power device",
+    detail: failing ? details.join(' · ') : `Every run within ${limit}`,
   };
 }
 

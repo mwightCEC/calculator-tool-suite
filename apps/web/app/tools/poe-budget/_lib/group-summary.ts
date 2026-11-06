@@ -25,6 +25,9 @@ export function summarizeGroup(
 /** What one device takes from the budget, e.g. "6.2 W from the budget, including 0.2 W cable loss". */
 export function describeAllocation(usage: PoeGroupUsage): string {
   const budget = `${formatWatts(usage.perDeviceWatts)} from the budget`;
+  if (usage.cableLossWatts === null) {
+    return `${budget} for the device alone: this cable run can't carry its power`;
+  }
   return usage.cableLossWatts > 0
     ? `${budget}, including ${formatWatts(usage.cableLossWatts)} estimated cable loss`
     : `${budget} (the class allocation)`;

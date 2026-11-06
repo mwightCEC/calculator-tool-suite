@@ -19,16 +19,16 @@ function summarize(state: PoeCalculatorState) {
 describe('buildPrintSummary', () => {
   it('summarises the defaults', () => {
     const summary = summarize(createInitialPoeCalculatorState());
-    expect(summary.usage).toEqual({ value: '24.7 W', detail: 'of 96 W usable' });
+    expect(summary.usage).toEqual({ value: '24.8 W', detail: 'of 96 W usable' });
     expect(summary.statusLabel).toBe('All checks pass');
     expect(summary.checks).toEqual([
-      { label: 'Power budget', value: 'Within budget · 24.7 W of 96 W usable' },
+      { label: 'Power budget', value: 'Within budget · 24.8 W of 96 W usable' },
       { label: 'PoE ports', value: 'OK · 4 of 8 PoE ports used' },
       { label: 'Port standard', value: 'OK · Every group fits PoE+ ports' },
       { label: 'Cable length', value: 'OK · Every run within 328 ft' },
     ]);
     expect(summary.keyFigures).toEqual([
-      { label: 'Remaining', value: '71.3 W left' },
+      { label: 'Remaining', value: '71.2 W left' },
       { label: 'PoE budget', value: '120 W' },
       { label: 'Reserve', value: '20% (24 W)' },
       { label: 'Ports', value: '4 of 8 PoE ports used' },
@@ -42,7 +42,7 @@ describe('buildPrintSummary', () => {
         power: '6 W max',
         cable: '100 m assumed',
         perDevice: '6.2 W',
-        total: '24.7 W',
+        total: '24.8 W',
       },
     ]);
     expect(summary.settings).toContainEqual({
