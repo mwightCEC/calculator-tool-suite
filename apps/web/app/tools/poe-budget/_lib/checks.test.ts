@@ -49,7 +49,7 @@ describe('buildChecks', () => {
       expect.objectContaining({
         level: 'fail',
         status: 'Too long',
-        detail: 'Over 328 ft: Camera group 1',
+        detail: 'Over 328 ft: Device group 1',
       })
     );
   });
@@ -69,7 +69,7 @@ describe('buildChecks', () => {
         level: 'fail',
         status: "Can't power",
         headline: "Cable can't power device",
-        detail: "Can't carry the power: Camera group 1",
+        detail: "Can't carry the power: Device group 1",
       })
     );
   });
@@ -84,7 +84,7 @@ describe('buildChecks', () => {
       expect.objectContaining({
         status: 'Too long',
         headline: 'Cable too long',
-        detail: "Over 328 ft: Camera group 1 · Can't carry the power: Camera group 1",
+        detail: "Over 328 ft: Device group 1 · Can't carry the power: Device group 1",
       })
     );
   });
@@ -94,7 +94,7 @@ describe('buildChecks', () => {
       expect.objectContaining({
         level: 'fail',
         status: 'Too low',
-        detail: 'Needs more than PoE+: Camera group 1',
+        detail: 'Needs more than PoE+: Device group 1',
       })
     );
   });

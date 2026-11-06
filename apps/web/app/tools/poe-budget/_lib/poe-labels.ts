@@ -48,13 +48,16 @@ export const RESERVE_OPTIONS = POE_RESERVE_PERCENTS.map((percent) => ({
   label: `${percent}%`,
 }));
 
-/** "12.95 W max", the class's device power as datasheets list it; the dropdown adds the class. */
+/** "Class 3 · 15.4 W": the class and the switch-side power the budget takes for it. */
 export const POE_CLASS_SELECT_DATA = POE_CLASS_SPECS.map((spec) => ({
   value: String(spec.poeClass),
-  label: `${formatNumber(spec.deviceWatts, 2)} W max`,
+  label: `Class ${spec.poeClass} · ${formatNumber(spec.switchWatts, 1)} W`,
 }));
 
-/** "Class 3" by class value, shown beside each power in the dropdown. */
-export const POE_CLASS_NAMES: Record<string, string> = Object.fromEntries(
-  POE_CLASS_SPECS.map((spec) => [String(spec.poeClass), `Class ${spec.poeClass}`])
+/** "device max 12.95 W" by class value, shown beside each option in the dropdown. */
+export const POE_CLASS_DEVICE_NOTES: Record<string, string> = Object.fromEntries(
+  POE_CLASS_SPECS.map((spec) => [
+    String(spec.poeClass),
+    `device max ${formatNumber(spec.deviceWatts, 2)} W`,
+  ])
 );

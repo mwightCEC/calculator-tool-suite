@@ -44,12 +44,13 @@ function nextGroupNumber(groups: readonly ListedGroup[]): number {
 
 /**
  * Adds a new group at the end (default) or the start of the list, coloured to
- * differ from its neighbour.
+ * differ from its neighbour and named "<label> <n>" ("Camera group 3").
  */
 export function addGroup<T extends ListedGroup>(
   groups: T[],
   create: (fields: ListedGroup) => T,
-  position: 'start' | 'end' = 'end'
+  position: 'start' | 'end' = 'end',
+  label = 'Camera group'
 ): T[] {
   if (groups.length >= MAX_CAMERA_GROUPS) {
     return groups;
@@ -58,7 +59,7 @@ export function addGroup<T extends ListedGroup>(
   const index = position === 'start' ? 0 : groups.length;
   const group = create({
     id: `g${number}`,
-    name: `Camera group ${number}`,
+    name: `${label} ${number}`,
     colorIndex: pickColorForInsert(groups, index),
   });
   return groups.toSpliced(index, 0, group);

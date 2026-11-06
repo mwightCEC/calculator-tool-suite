@@ -98,7 +98,7 @@ export function createVoltageDropGroup(id: string, name: string): VoltageDropGro
 export function createDefaultVoltageDropInput(): VoltageDropInput {
   return {
     powerSupply: { kind: 'dc', volts: 12, ratedAmps: 5, reservePercent: 20 },
-    deviceGroups: [createVoltageDropGroup('g1', 'Camera group 1')],
+    deviceGroups: [createVoltageDropGroup('g1', 'Device group 1')],
     dropLimitPercent: 10,
     wireSystem: 'awg',
     cableLengthUnit: 'ft',

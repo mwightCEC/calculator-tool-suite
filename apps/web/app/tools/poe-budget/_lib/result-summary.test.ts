@@ -69,7 +69,7 @@ describe('buildMetricTiles', () => {
       changes: { reservePercent: 0, ports: 2, budgetWatts: 100 },
     });
     expect(buildMetricTiles(state, calculatePoe(state))).toEqual([
-      { label: 'Over by', value: '20 W', detail: 'past the usable budget' },
+      { label: 'Short by', value: '20 W', detail: null },
       { label: 'PoE budget', value: '100 W', detail: 'no reserve' },
       { label: 'Ports', value: '4 of 2', detail: 'not enough PoE ports' },
     ]);
@@ -133,7 +133,7 @@ describe('describeProblem', () => {
       describeProblem({ kind: 'port-standard', groupId }, state, result);
     expect(text('g1')).toBe('PTZ: needs class 5 (PoE++ Type 3), more than PoE+ ports supply.');
     expect(text('g2')).toBe(
-      'Camera group 2: needs more power than any PoE class provides, more than PoE+ ports supply.'
+      'Device group 2: needs more power than any PoE class provides, more than PoE+ ports supply.'
     );
   });
 
@@ -142,7 +142,7 @@ describe('describeProblem', () => {
     const metres = poeCalculatorReducer(feet, { type: 'set-cable-length-unit', unit: 'm' });
     const problem = { kind: 'cable-too-long', groupId: 'g1' } as const;
     expect(describeProblem(problem, feet, calculatePoe(feet))).toBe(
-      "Camera group 1: the cable run is longer than Ethernet's 328 ft limit. Use a PoE extender or a switch closer to the devices."
+      "Device group 1: the cable run is longer than Ethernet's 328 ft limit. Use a PoE extender or a switch closer to the devices."
     );
     expect(describeProblem(problem, metres, calculatePoe(metres))).toContain(
       "Ethernet's 100 m limit"
@@ -157,7 +157,7 @@ describe('describeProblem', () => {
     });
     const result = calculatePoe(state);
     expect(describeProblem({ kind: 'port-standard', groupId: 'g1' }, state, result)).toMatch(
-      /^Camera group 1: /
+      /^Device group 1: /
     );
   });
 });
@@ -171,7 +171,7 @@ describe('budgetSegments', () => {
       createInitialPoeCalculatorState(),
       calculatePoe(createInitialPoeCalculatorState())
     );
-    expect(segments.map((segment) => segment.label)).toEqual(['Camera group 1', 'Free', 'Reserve']);
+    expect(segments.map((segment) => segment.label)).toEqual(['Device group 1', 'Free', 'Reserve']);
     expect(segments[0]?.value).toBeCloseTo(24.767);
     expect(segments[1]?.value).toBeCloseTo(71.233);
     expect(segments[2]?.value).toBe(24);

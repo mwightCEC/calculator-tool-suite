@@ -19,7 +19,7 @@ import { parseOption } from '../../../../lib/camera-labels';
 import { describeAllocation } from '../_lib/group-summary';
 import {
   CABLE_LENGTH_UNIT_OPTIONS,
-  POE_CLASS_NAMES,
+  POE_CLASS_DEVICE_NOTES,
   POE_CLASS_SELECT_DATA,
   POWER_INPUT_OPTIONS,
 } from '../_lib/poe-labels';
@@ -100,9 +100,9 @@ export function DeviceFields({
                 data={POE_CLASS_SELECT_DATA}
                 renderOption={({ option }) => (
                   <Group justify="space-between" gap="md" wrap="nowrap" className={classes.option}>
-                    <span>{option.label}</span>
+                    <span>{option.label} at switch</span>
                     <Text size="xs" className={classes.groupNote}>
-                      {POE_CLASS_NAMES[option.value]}
+                      {POE_CLASS_DEVICE_NOTES[option.value]}
                     </Text>
                   </Group>
                 )}
