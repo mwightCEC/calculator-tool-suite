@@ -8,7 +8,7 @@ export function HowCalculated() {
       <List size="sm" spacing="xs">
         <List.Item>
           Each group writes <i>bitrate × cameras × recorded hours</i> per day. Storage needed is
-          daily footage × retention days, plus the reserve.
+          daily footage × retention days, divided by (1 − reserve) so the reserve stays free.
         </List.Item>
         <List.Item>
           Real camera bitrate varies a lot with the scene (foliage, traffic, crowds, rain), night/IR

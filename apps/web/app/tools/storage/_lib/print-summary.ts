@@ -22,6 +22,7 @@ import {
   rangeDigits,
 } from '../../../../lib/format';
 import type { CameraGroupState, StorageCalculatorState } from '../_state/storage-calculator-state';
+import { describeDriveArray } from './drive-array';
 import { describeRecording } from './group-summary';
 import {
   describeDriveCount,
@@ -182,6 +183,10 @@ function notes(result: StorageCalculationResult): string[] {
   const list = [
     'Capacities are decimal TB (10¹² bytes), as printed on drives. Recorders and operating systems may show less because they use binary units.',
   ];
+  const { note } = describeDriveArray(result);
+  if (note) {
+    list.push(note);
+  }
   if (result.isEstimated) {
     list.push(
       'Bitrates marked "est." are planning estimates; real bitrate varies with scene, night/IR and camera model. Choose Manual with the cameras’ real bitrate for the most reliable results.'

@@ -9,6 +9,8 @@ export interface RaidTradeoff {
   text: string;
   /** A benefit (true) or a cost (false). */
   benefit: boolean;
+  /** A cost serious enough to show as a warning. */
+  warning?: boolean;
 }
 
 interface RaidDetails {
@@ -21,6 +23,14 @@ interface RaidDetails {
 
 const benefit = (text: string): RaidTradeoff => ({ text, benefit: true });
 const cost = (text: string): RaidTradeoff => ({ text, benefit: false });
+const warning = (text: string): RaidTradeoff => ({ text, benefit: false, warning: true });
+
+/** Above this many drives, the drives box notes that systems usually split them up. */
+export const LARGE_ARRAY_DRIVES = 16;
+
+/** Note for a drive count above LARGE_ARRAY_DRIVES. */
+export const LARGE_ARRAY_NOTE =
+  'More than 16 drives are usually split across several recorders or RAID groups, which can need more drives than shown.';
 
 export const RAID_DETAILS: Record<RaidLevel, RaidDetails> = {
   none: {
@@ -28,7 +38,7 @@ export const RAID_DETAILS: Record<RaidLevel, RaidDetails> = {
     faultTolerance: 0,
     tradeoffs: [
       benefit('Uses every drive’s full capacity'),
-      cost('No protection: a failed drive loses its recordings'),
+      warning('No protection: a failed drive loses its recordings'),
     ],
   },
   raid1: {
@@ -78,6 +88,8 @@ export interface DriveArraySummary {
   driveSizeTb: number;
   /** Drive tiles to draw (at most MAX_DRIVE_TILES). */
   tilesShown: number;
+  /** LARGE_ARRAY_NOTE for a large drive count, otherwise null. */
+  note: string | null;
   tradeoffs: RaidTradeoff[];
 }
 
@@ -122,6 +134,7 @@ export function describeDriveArray(result: StorageCalculationResult): DriveArray
     driveCount,
     driveSizeTb,
     tilesShown: Math.min(driveCount, MAX_DRIVE_TILES),
+    note: driveCount > LARGE_ARRAY_DRIVES ? LARGE_ARRAY_NOTE : null,
     tradeoffs: details.tradeoffs,
   };
 }

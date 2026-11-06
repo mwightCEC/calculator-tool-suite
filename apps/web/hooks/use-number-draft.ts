@@ -14,6 +14,8 @@ export interface NumberLimits {
   max: number;
   /** Formats a limit or corrected value for the message, e.g. with its unit. */
   format?: (value: number) => string;
+  /** Only whole numbers are allowed, so a typed decimal is rounded. */
+  wholeNumbers?: boolean;
 }
 
 interface NumberDraftOptions {
@@ -49,6 +51,8 @@ export function describeCorrection(
     reason = 'the maximum';
   } else if (typed < limits.min) {
     reason = 'the minimum';
+  } else if (limits.wholeNumbers && !Number.isInteger(typed)) {
+    reason = 'the nearest whole number';
   }
   return `Changed to ${format(committed)}, ${reason}.`;
 }

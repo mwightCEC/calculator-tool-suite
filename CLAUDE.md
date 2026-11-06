@@ -106,6 +106,8 @@ config or routing changes.
   changes (see the README in that folder).
 - Storage-needed mode sizes drives for the high estimate (and says which drive size it used);
   days-from-capacity headlines the worst-case (low) days, in complete days, and says so.
+  All drives form one array; above 16 drives the drives box (and Export) notes that systems
+  usually split them across recorders or RAID groups (`_lib/drive-array.ts`).
 - Storage and Bandwidth groups take their bitrate as Estimated (the model range) or Manual
   (one entered per-camera value, used as is). VBR and CBR were merged into Manual: their
   share-link indexes (1, 2) and Storage's v1 source names both open as Manual. The choice sits
