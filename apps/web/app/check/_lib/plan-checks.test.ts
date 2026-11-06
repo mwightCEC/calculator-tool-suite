@@ -120,9 +120,10 @@ describe('planChecks', () => {
       ])
     ).toEqual([
       ['dc', 12, 20, ['EX-DOME-1']],
-      // 50 W at 24 V
-      ['ac', 24, 2.08, ['EX-AC-FIRST']],
+      // 50 VA at 24 V, unrounded so the rating shows as 50 VA
+      ['ac', 24, 50 / 24, ['EX-AC-FIRST']],
     ]);
+    expect(voltageDropCheckDetails(plan.voltageDrop[1]!)[0]).toMatch(/^50 VA from /);
   });
 
   it('combines supplies of the same voltage and merges lines of the same model', () => {

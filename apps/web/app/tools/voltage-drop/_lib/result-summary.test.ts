@@ -94,8 +94,19 @@ describe('run text', () => {
 
   it('describes the drop and the limits', () => {
     expect(describeRunDrop(usage!)).toBe('5.3% · 11.36 V');
-    expect(describeRunLimits(usage!, 'ft')).toBe('Smallest wire 20 AWG · longest run 187 ft');
-    expect(describeRunLimits(usage!, 'm')).toBe('Smallest wire 20 AWG · longest run 57 m');
+    expect(describeRunLimits(usage!, 'awg-18', 'ft')).toBe(
+      'Passes on 20 AWG or thicker · up to 187 ft on 18 AWG'
+    );
+    expect(describeRunLimits(usage!, 'awg-18', 'm')).toBe(
+      'Passes on 20 AWG or thicker · up to 57 m on 18 AWG'
+    );
+  });
+
+  it('names the wire a failing run needs', () => {
+    const longUsage = calculateVoltageDrop(stateAfter(LONG_RUN)).groups[0]!;
+    expect(describeRunLimits(longUsage, 'awg-18', 'ft')).toBe(
+      'Needs 16 AWG or thicker · up to 187 ft on 18 AWG'
+    );
   });
 
   it('says when no wire fits or the run cannot power the device', () => {
@@ -104,7 +115,9 @@ describe('run text', () => {
     expect(describeRunDrop(usage2)).toBe("Can't power");
     const far = stateAfter({ type: 'update-group', id: 'g1', changes: { cableLength: 5000 } });
     const farUsage = calculateVoltageDrop(far).groups[0]!;
-    expect(describeRunLimits(farUsage, 'ft')).toBe('No listed wire fits · longest run 187 ft');
+    expect(describeRunLimits(farUsage, 'awg-18', 'ft')).toBe(
+      'No listed wire passes · up to 187 ft on 18 AWG'
+    );
   });
 
   it('rounds run lengths down', () => {
@@ -115,8 +128,11 @@ describe('run text', () => {
 
 describe('supply text', () => {
   it('describes the defaults', () => {
-    expect(describeSupplyLoad(defaultResult)).toEqual({ value: '2 A', detail: 'of 4 A usable' });
-    expect(describeRemaining(defaultResult)).toBe('2 A left');
+    expect(describeSupplyLoad(defaults, defaultResult)).toEqual({
+      value: '2 A',
+      detail: 'of 4 A usable',
+    });
+    expect(describeRemaining(defaults, defaultResult)).toBe('2 A left');
   });
 
   it('describes no reserve and an overload', () => {
@@ -125,7 +141,7 @@ describe('supply text', () => {
       { type: 'update-group', id: 'g1', changes: { deviceCount: 12 } }
     );
     const result = calculateVoltageDrop(state);
-    expect(describeRemaining(result)).toBe('1 A over the usable rating');
+    expect(describeRemaining(state, result)).toBe('1 A over the usable rating');
   });
 });
 
@@ -151,6 +167,36 @@ describe('buildMetricTiles', () => {
   });
 });
 
+describe('an AC transformer', () => {
+  // 24 V AC rated 100 VA (about 4.17 A); the default 4 × 0.5 A load is 48 VA.
+  const ac = stateAfter(
+    { type: 'update-supply', changes: { kind: 'ac', volts: 24 } },
+    { type: 'update-supply', changes: { ratedAmps: 100 / 24 } }
+  );
+  const acResult = calculateVoltageDrop(ac);
+
+  it('shows the supply figures in VA', () => {
+    expect(buildMetricTiles(ac, acResult)).toEqual([
+      { label: 'Supply load', value: '48 VA', detail: '2 A drawn' },
+      { label: 'Remaining', value: '32 VA', detail: 'before the reserve' },
+      { label: 'Supply rating', value: '100 VA', detail: '20% reserve (20 VA)' },
+    ]);
+    expect(describeSupplyLoad(ac, acResult)).toEqual({ value: '48 VA', detail: 'of 80 VA usable' });
+    expect(describeRemaining(ac, acResult)).toBe('32 VA left');
+  });
+
+  it('names the VA rating when over it', () => {
+    const over = voltageDropCalculatorReducer(ac, {
+      type: 'update-group',
+      id: 'g1',
+      changes: { deviceCount: 12 },
+    });
+    expect(describeProblem({ kind: 'over-budget' }, over, calculateVoltageDrop(over))).toBe(
+      'Draws 144 VA, more than the 100 VA rating. Use a larger supply or split the devices across more than one.'
+    );
+  });
+});
+
 describe('supply figures when a run cannot power its device', () => {
   // The audit's case: 4 × 6 W on 1000 ft of 18 AWG at 12 V DC.
   const state = stateAfter(
@@ -166,11 +212,11 @@ describe('supply figures when a run cannot power its device', () => {
   });
 
   it('shows the load and what is left as unavailable, keeping the rating', () => {
-    expect(describeSupplyLoad(result)).toEqual({
+    expect(describeSupplyLoad(state, result)).toEqual({
       value: 'Unavailable',
       detail: "a run can't be powered",
     });
-    expect(describeRemaining(result)).toBe('Unavailable');
+    expect(describeRemaining(state, result)).toBe('Unavailable');
     expect(buildMetricTiles(state, result)).toEqual([
       { label: 'Supply load', value: 'Unavailable', detail: "a run can't be powered" },
       { label: 'Remaining', value: 'Unavailable', detail: 'needs the supply load' },

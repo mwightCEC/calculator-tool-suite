@@ -25,6 +25,8 @@ export function HowCalculated() {
       </List.Item>
       <List.Item>
         <b>24 V AC</b> is treated like DC at its RMS voltage, using the wire&apos;s resistance only.
+        AC transformers are rated in <b>VA</b>, so the supply figures are in VA: the current the
+        rating allows is VA ÷ voltage, for example about 4.2 A from 100 VA at 24 V.
       </List.Item>
       <List.Item>
         The <b>smallest wire</b> and <b>longest run</b> are the thinnest listed size and the longest

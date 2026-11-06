@@ -6,6 +6,7 @@ import {
   createInitialVoltageDropCalculatorState,
   hasCustomGroups,
   supplyPresetIndex,
+  updateSupply,
   voltageDropCalculatorReducer as reduce,
   voltageDropCalculatorStateSchema,
   type VoltageDropCalculatorAction,
@@ -55,6 +56,29 @@ describe('supplyPresetIndex', () => {
     expect(supplyPresetIndex({ kind: 'dc', volts: 12 })).toBe(0);
     expect(supplyPresetIndex({ kind: 'ac', volts: 24 })).toBe(2);
     expect(supplyPresetIndex({ kind: 'ac', volts: 12 })).toBeUndefined();
+  });
+});
+
+describe('updateSupply', () => {
+  const ac = { kind: 'ac', volts: 24, ratedAmps: 100 / 24, reservePercent: 20 } as const;
+
+  it('keeps an AC transformer’s VA when its voltage changes', () => {
+    const next = updateSupply(ac, { volts: 28 });
+    expect(next.volts).toBe(28);
+    expect(next.ratedAmps * next.volts).toBeCloseTo(100, 9);
+  });
+
+  it('keeps the current for DC, a change of kind or a new rating', () => {
+    const dc = { ...ac, kind: 'dc', volts: 12, ratedAmps: 5 } as const;
+    expect(updateSupply(dc, { volts: 24 }).ratedAmps).toBe(5);
+    expect(updateSupply(dc, { kind: 'ac', volts: 24 }).ratedAmps).toBe(5);
+    expect(updateSupply(ac, { kind: 'dc', volts: 12 }).ratedAmps).toBe(100 / 24);
+    expect(updateSupply(ac, { volts: 28, ratedAmps: 3 }).ratedAmps).toBe(3);
+  });
+
+  it('keeps the rated current within range', () => {
+    const big = { ...ac, volts: 60, ratedAmps: 200 };
+    expect(updateSupply(big, { volts: 5 }).ratedAmps).toBe(200);
   });
 });
 

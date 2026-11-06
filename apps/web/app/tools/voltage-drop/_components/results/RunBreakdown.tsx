@@ -29,7 +29,7 @@ export function RunBreakdown({ state, result }: RunBreakdownProps) {
                   </span>
                 </Group>
                 <Text className={classes.runLimits}>
-                  {describeRunLimits(usage, state.cableLengthUnit)}
+                  {describeRunLimits(usage, group.gauge, state.cableLengthUnit)}
                 </Text>
               </li>
             )

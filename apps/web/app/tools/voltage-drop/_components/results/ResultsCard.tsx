@@ -11,7 +11,6 @@ import {
   ResultsPanel,
 } from '../../../../../components/ResultsCard/ResultsPanel';
 import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
-import { formatAmps } from '../../../../../lib/format';
 import {
   buildMetricTiles,
   describeDevices,
@@ -26,6 +25,7 @@ import {
   supplySegments,
   visibleProblems,
 } from '../../_lib/result-summary';
+import { formatSupplyAmps } from '../../_lib/supply-units';
 import { buildShareUrl } from '../../_state/share-link';
 import type { VoltageDropCalculatorState } from '../../_state/voltage-drop-calculator-state';
 import { HowCalculated } from '../HowCalculated';
@@ -116,7 +116,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
               <SegmentBar
                 detailed
                 segments={supplySegments(state, result)}
-                formatValue={formatAmps}
+                formatValue={(amps) => formatSupplyAmps(state.powerSupply, amps)}
               />
             ) : (
               <Text size="sm" className={classes.unavailable}>
