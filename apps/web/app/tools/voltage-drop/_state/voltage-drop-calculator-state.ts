@@ -6,6 +6,7 @@ import {
   equivalentGauge,
   groupsMatchWireSystem,
   MAX_RUN_LENGTH,
+  MAX_SUPPLY_AMPS,
   METRES_PER_FOOT,
   voltageDropGroupSchema,
   voltageDropInputShape,
@@ -110,6 +111,23 @@ export function convertRunLength(length: number, unit: CableLengthUnit): number 
   return Math.min(MAX_RUN_LENGTH, Math.max(0.1, Math.round(converted * 10) / 10));
 }
 
+/**
+ * Applies supply changes. An AC transformer is rated in VA, so changing its
+ * voltage keeps the VA and recalculates the rated current (within its range).
+ */
+export function updateSupply(supply: PowerSupply, changes: Partial<PowerSupply>): PowerSupply {
+  const next = { ...supply, ...changes };
+  const keepVoltAmps =
+    supply.kind === 'ac' &&
+    next.kind === 'ac' &&
+    changes.ratedAmps === undefined &&
+    next.volts !== supply.volts;
+  if (keepVoltAmps) {
+    next.ratedAmps = Math.min(MAX_SUPPLY_AMPS, (supply.ratedAmps * supply.volts) / next.volts);
+  }
+  return next;
+}
+
 const FIRST_GROUP: ListedGroup = { id: 'g1', name: 'Device group 1', colorIndex: 0 };
 
 /** A default group in the state's wire system and length unit. */
@@ -189,7 +207,7 @@ export function voltageDropCalculatorReducer(
       return withGroups(state, action.groups);
 
     case 'update-supply':
-      return { ...state, powerSupply: { ...state.powerSupply, ...action.changes } };
+      return { ...state, powerSupply: updateSupply(state.powerSupply, action.changes) };
 
     case 'set-drop-limit':
       return { ...state, dropLimitPercent: action.dropLimitPercent };

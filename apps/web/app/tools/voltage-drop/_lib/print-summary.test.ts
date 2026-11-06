@@ -57,6 +57,11 @@ describe('buildPrintSummary', () => {
     );
     expect(summary.runs[0]).toEqual(expect.objectContaining({ name: 'PTZ', load: '6 W' }));
     expect(summary.notes).toHaveLength(6);
+    // An AC transformer's figures are in VA: 5 A at 24 V is 120 VA.
+    expect(summary.keyFigures).toEqual(
+      expect.arrayContaining([{ label: 'Reserve', value: '20% (24 VA)' }])
+    );
+    expect(summary.settings[0]).toEqual({ label: 'Supply', value: '24 V AC, 120 VA rated' });
   });
 
   it('marks the supply figures unavailable when a run cannot power its device', () => {

@@ -130,7 +130,11 @@ export function planVoltageDropChecks(
       continue;
     }
 
-    const ratedAmps = keySupplies.length ? roundAmps(totalAmps) : EXAMPLE_SUPPLY_AMPS;
+    // AC ratings show in VA, so their amps stay unrounded: 100 VA at 24 V shows as 100 VA.
+    let ratedAmps = EXAMPLE_SUPPLY_AMPS;
+    if (keySupplies.length) {
+      ratedAmps = kind === 'ac' ? totalAmps : roundAmps(totalAmps);
+    }
     const state = buildState(kind, volts, ratedAmps, grouped);
     if (!state) {
       skipped.push(

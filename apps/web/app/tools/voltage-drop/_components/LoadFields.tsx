@@ -21,6 +21,7 @@ import { UnitInput } from '../../../../components/UnitInput/UnitInput';
 import { UNIT_SELECT_WIDTH, UnitSelect } from '../../../../components/UnitSelect/UnitSelect';
 import { parseOption } from '../../../../lib/camera-labels';
 import { describeRun } from '../_lib/group-summary';
+import { describeRunLimits } from '../_lib/result-summary';
 import {
   CABLE_LENGTH_UNIT_OPTIONS,
   gaugeSelectData,
@@ -53,7 +54,8 @@ interface LoadFieldsProps {
 
 /**
  * A device group's fields in a grid with labels above: count, load per device and
- * wire size in one row (two or one on narrow cards), then run length with its drop.
+ * wire size in one row (two or one on narrow cards), then run length with its drop,
+ * the thinnest wire that passes and the longest run on the chosen wire.
  * Units sit inside their fields. Info icons only where they explain something.
  */
 export function LoadFields({
@@ -156,7 +158,13 @@ export function LoadFields({
             help={LENGTH_HELP}
             className={classes.runLength}
             controlId={`${id}-length`}
-            note={describeRun(usage)}
+            note={
+              <>
+                {describeRun(usage)}
+                <br />
+                {describeRunLimits(usage, group.gauge, cableLengthUnit)}
+              </>
+            }
           >
             <UnitInput
               id={`${id}-length`}

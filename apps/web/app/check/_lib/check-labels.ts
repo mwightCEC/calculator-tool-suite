@@ -1,6 +1,7 @@
 import { formatNumber } from '../../../lib/format';
 import { PORT_STANDARD_SHORT_LABELS } from '../../tools/poe-budget/_lib/poe-labels';
 import { poeShareCodec } from '../../tools/poe-budget/_state/share-link';
+import { formatSupplyAmps } from '../../tools/voltage-drop/_lib/supply-units';
 import { describeSupply } from '../../tools/voltage-drop/_lib/voltage-drop-labels';
 import { voltageDropShareCodec } from '../../tools/voltage-drop/_state/share-link';
 import type { CartSummary } from './plan-checks';
@@ -53,16 +54,16 @@ export function voltageDropCheckTitle(check: VoltageDropCheck): string {
 
 /** Lines under a voltage drop check's title: the supply, the cameras, then what to enter. */
 export function voltageDropCheckDetails(check: VoltageDropCheck): string[] {
-  const amps = `${formatNumber(check.ratedAmps)} A`;
+  const rating = formatSupplyAmps(check, check.ratedAmps);
   const units = check.supplies.reduce((sum, supply) => sum + supply.qty, 0);
   let supplyLine: string;
   if (!units) {
-    supplyLine = `No power supply in your cart, so this uses an example ${amps} supply. Enter yours.`;
+    supplyLine = `No power supply in your cart, so this uses an example ${rating} supply. Enter yours.`;
   } else if (units === 1) {
-    supplyLine = `${amps} from ${check.supplies[0]!.sku}.`;
+    supplyLine = `${rating} from ${check.supplies[0]!.sku}.`;
   } else {
     supplyLine =
-      `${amps} from ${plural(units, 'power supply', 'power supplies')} combined ` +
+      `${rating} from ${plural(units, 'power supply', 'power supplies')} combined ` +
       `(${listSkus(check.supplies)}). If the cameras are split between them, check each supply’s share.`;
   }
   return [

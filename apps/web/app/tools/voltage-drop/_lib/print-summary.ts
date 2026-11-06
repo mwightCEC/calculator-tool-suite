@@ -1,5 +1,5 @@
 import type { VoltageDropResult } from '@cctv/calc-core';
-import { formatAmps, formatNumber, formatWatts } from '../../../../lib/format';
+import { formatNumber, formatVoltAmps, formatWatts } from '../../../../lib/format';
 import type { VoltageDropCalculatorState } from '../_state/voltage-drop-calculator-state';
 import { describeLoad } from './group-summary';
 import {
@@ -19,6 +19,7 @@ import {
   worstRun,
   type ResultFigure,
 } from './result-summary';
+import { formatSupplyAmps } from './supply-units';
 import { describeGauge, describeSupply, WIRE_SYSTEM_LABELS } from './voltage-drop-labels';
 
 /*
@@ -102,9 +103,11 @@ export function buildPrintSummary(
   state: VoltageDropCalculatorState,
   result: VoltageDropResult
 ): PrintSummary {
-  const supply = describeSupplyLoad(result);
+  const supply = describeSupplyLoad(state, result);
   const loadKnown = isSupplyLoadKnown(result);
-  const { reservePercent } = state.powerSupply;
+  const { kind, reservePercent } = state.powerSupply;
+  // An AC transformer's output is in VA, like its rating.
+  const output = kind === 'ac' ? formatVoltAmps(result.totalWatts) : formatWatts(result.totalWatts);
   return {
     drop: describeWorstDrop(state, result),
     statusLabel: RUN_STATUS_LABELS[worstRun(result).status],
@@ -115,12 +118,12 @@ export function buildPrintSummary(
           ? `${supply.value} ${supply.detail} (${SUPPLY_STATUS_LABELS[result.supplyStatus].toLowerCase()})`
           : `${supply.value}: ${supply.detail}`,
       },
-      { label: 'Remaining', value: describeRemaining(result) },
+      { label: 'Remaining', value: describeRemaining(state, result) },
+      { label: 'Output', value: loadKnown ? output : SUPPLY_LOAD_UNAVAILABLE },
       {
-        label: 'Output',
-        value: loadKnown ? formatWatts(result.totalWatts) : SUPPLY_LOAD_UNAVAILABLE,
+        label: 'Reserve',
+        value: `${reservePercent}% (${formatSupplyAmps(state.powerSupply, result.reserveAmps)})`,
       },
-      { label: 'Reserve', value: `${reservePercent}% (${formatAmps(result.reserveAmps)})` },
     ],
     problems: [
       ...(loadKnown ? [] : [SUPPLY_LOAD_UNAVAILABLE_NOTE]),
@@ -130,7 +133,7 @@ export function buildPrintSummary(
     settings: [
       {
         label: 'Supply',
-        value: `${describeSupply(state.powerSupply)}, ${formatAmps(result.ratedAmps)} rated`,
+        value: `${describeSupply(state.powerSupply)}, ${formatSupplyAmps(state.powerSupply, result.ratedAmps)} rated`,
       },
       { label: 'Drop limit', value: `${state.dropLimitPercent}%` },
       { label: 'Wire sizes', value: `${WIRE_SYSTEM_LABELS[state.wireSystem]}, copper` },

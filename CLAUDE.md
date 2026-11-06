@@ -132,8 +132,11 @@ config or routing changes.
   these assumptions in plain words above the groups and under the Supply field (no "home run"
   jargon). Loads by amps are constant current; by watts, constant power (current rises as the
   voltage falls). Each run gets its drop, the smallest passing wire and the longest passing
-  run; the supply load uses the same OK / into-reserve / over statuses as PoE budget
-  (calc-core `src/voltage-drop/`). A run that can't power its device has no steady current,
+  run, shown under the group's run length as well as in the breakdown; the supply load uses
+  the same OK / into-reserve / over statuses as PoE budget (calc-core `src/voltage-drop/`).
+  calc-core and share links keep the supply rating in amps, but an AC supply is entered and
+  shown in VA (amps × volts, `_lib/supply-units.ts`); changing an AC supply's voltage keeps
+  its VA (`updateSupply`). A run that can't power its device has no steady current,
   so the web layer shows supply load, remaining and output as "Unavailable" and hides the
   supply checks (`_lib/result-summary.ts`). Passing the drop limit isn't a device-voltage
   check; the results say to compare with the device's minimum input voltage.

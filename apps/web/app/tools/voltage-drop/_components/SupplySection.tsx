@@ -89,21 +89,39 @@ export function SupplySection({
             />
           </FieldRow>
 
-          <FieldRow
-            label="Rated current"
-            help="Most current the supply can deliver across all outputs, from its label or datasheet. For an AC transformer rated in VA, divide by the voltage: 100 VA at 24 V is about 4.2 A."
-            controlId="supply-amps"
-          >
-            <UnitInput
-              id="supply-amps"
-              value={powerSupply.ratedAmps}
-              onChange={(ratedAmps) => onChange({ ratedAmps })}
-              min={0.01}
-              max={MAX_SUPPLY_AMPS}
-              decimals={2}
-              unit="A"
-            />
-          </FieldRow>
+          {powerSupply.kind === 'ac' ? (
+            <FieldRow
+              label="Rated power"
+              help="Most power the transformer can deliver across all outputs, in VA from its label or datasheet. The current it allows is VA ÷ voltage: 100 VA at 24 V is about 4.2 A."
+              controlId="supply-va"
+            >
+              <UnitInput
+                id="supply-va"
+                value={Math.round(powerSupply.ratedAmps * powerSupply.volts * 10) / 10}
+                onChange={(voltAmps) => onChange({ ratedAmps: voltAmps / powerSupply.volts })}
+                min={1}
+                max={Math.floor(MAX_SUPPLY_AMPS * powerSupply.volts)}
+                decimals={1}
+                unit="VA"
+              />
+            </FieldRow>
+          ) : (
+            <FieldRow
+              label="Rated current"
+              help="Most current the supply can deliver across all outputs, from its label or datasheet."
+              controlId="supply-amps"
+            >
+              <UnitInput
+                id="supply-amps"
+                value={powerSupply.ratedAmps}
+                onChange={(ratedAmps) => onChange({ ratedAmps })}
+                min={0.01}
+                max={MAX_SUPPLY_AMPS}
+                decimals={2}
+                unit="A"
+              />
+            </FieldRow>
+          )}
 
           {showCustom && (
             <>
@@ -143,7 +161,7 @@ export function SupplySection({
 
           <FieldRow
             label="Supply reserve"
-            help="Share of the rated current kept free as headroom for start-up surges, heaters in cold weather and devices added later."
+            help="Share of the supply's rating kept free as headroom for start-up surges, heaters in cold weather and devices added later."
             controlId="supply-reserve"
           >
             <Select

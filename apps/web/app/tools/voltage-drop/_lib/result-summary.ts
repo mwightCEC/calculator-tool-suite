@@ -6,6 +6,7 @@ import {
   type VoltageDropGroupUsage,
   type VoltageDropProblem,
   type VoltageDropResult,
+  type WireGauge,
 } from '@cctv/calc-core';
 import type { MetricTile } from '../../../../components/ResultsCard/ResultsPanel';
 import type { BarSegment } from '../../../../components/SegmentBar/SegmentBar';
@@ -19,6 +20,7 @@ import {
 import { remainingDetail, remainingLabel } from '../../../../lib/reserve-tile';
 import type { VoltageDropCalculatorState } from '../_state/voltage-drop-calculator-state';
 import { describeLoad } from './group-summary';
+import { formatSupplyAmps } from './supply-units';
 import { describeGauge, describeSupply } from './voltage-drop-labels';
 
 export const RUN_STATUS_LABELS: Record<RunStatus, string> = {
@@ -101,13 +103,23 @@ export function describeRunDrop(usage: VoltageDropGroupUsage): string {
   return `${formatPercent(usage.dropFraction)} · ${formatVolts(usage.deviceVolts)}`;
 }
 
-/** "Smallest wire 20 AWG · longest run 188 ft", or "No listed wire fits · …" when none does. */
-export function describeRunLimits(usage: VoltageDropGroupUsage, unit: CableLengthUnit): string {
-  const wire =
-    usage.smallestGauge === null
-      ? 'No listed wire fits'
-      : `Smallest wire ${describeGauge(usage.smallestGauge)}`;
-  return `${wire} · longest run ${formatRunLength(usage.maxLengthM, unit)}`;
+/**
+ * The answers an installer wants for a run: the thinnest wire that keeps it within
+ * the limit and the longest run on the chosen wire, e.g.
+ * "Passes on 22 AWG or thicker · up to 375 ft on 18 AWG". A failing run says
+ * "Needs 14 AWG or thicker"; "No listed wire passes" when none does.
+ */
+export function describeRunLimits(
+  usage: VoltageDropGroupUsage,
+  gauge: WireGauge,
+  unit: CableLengthUnit
+): string {
+  let wire = 'No listed wire passes';
+  if (usage.smallestGauge !== null) {
+    const verb = usage.status === 'ok' ? 'Passes on' : 'Needs';
+    wire = `${verb} ${describeGauge(usage.smallestGauge)} or thicker`;
+  }
+  return `${wire} · up to ${formatRunLength(usage.maxLengthM, unit)} on ${describeGauge(gauge)}`;
 }
 
 /**
@@ -131,25 +143,31 @@ export function visibleProblems(result: VoltageDropResult): VoltageDropProblem[]
     : result.problems.filter((problem) => 'groupId' in problem);
 }
 
-/** The supply figure: "2 A", "of 4 A usable". */
-export function describeSupplyLoad(result: VoltageDropResult): ResultFigure {
+/** The supply figure: "2 A", "of 4 A usable" (in VA for an AC supply). */
+export function describeSupplyLoad(
+  state: VoltageDropCalculatorState,
+  result: VoltageDropResult
+): ResultFigure {
   if (!isSupplyLoadKnown(result)) {
     return { value: SUPPLY_LOAD_UNAVAILABLE, detail: "a run can't be powered" };
   }
+  const supply = state.powerSupply;
   return {
-    value: formatAmps(result.totalAmps),
-    detail: `of ${formatAmps(result.usableAmps)} usable`,
+    value: formatSupplyAmps(supply, result.totalAmps),
+    detail: `of ${formatSupplyAmps(supply, result.usableAmps)} usable`,
   };
 }
 
-/** "2 A left", or how far over the usable rating the load is. */
-export function describeRemaining(result: VoltageDropResult): string {
+/** "2 A left", or how far over the usable rating the load is (in VA for an AC supply). */
+export function describeRemaining(
+  state: VoltageDropCalculatorState,
+  result: VoltageDropResult
+): string {
   if (!isSupplyLoadKnown(result)) {
     return SUPPLY_LOAD_UNAVAILABLE;
   }
-  return result.remainingAmps >= 0
-    ? `${formatAmps(result.remainingAmps)} left`
-    : `${formatAmps(-result.remainingAmps)} over the usable rating`;
+  const remaining = formatSupplyAmps(state.powerSupply, Math.abs(result.remainingAmps));
+  return result.remainingAmps >= 0 ? `${remaining} left` : `${remaining} over the usable rating`;
 }
 
 export interface ResultStatus {
@@ -182,39 +200,50 @@ export function describeDevices(state: VoltageDropCalculatorState): string {
   return `${plural(devices, 'device')} in ${plural(state.deviceGroups.length, 'group')}`;
 }
 
-/** The figures under the headline: the supply load, what's left, the rating and its reserve. */
+/** "48 W output" for DC; "2 A drawn" for AC, whose load is already shown in VA. */
+function describeOutput(state: VoltageDropCalculatorState, result: VoltageDropResult): string {
+  return state.powerSupply.kind === 'ac'
+    ? `${formatAmps(result.totalAmps)} drawn`
+    : `${formatWatts(result.totalWatts)} output`;
+}
+
+/**
+ * The figures under the headline: the supply load, what's left, the rating and
+ * its reserve, in amps for DC and VA for AC.
+ */
 export function buildMetricTiles(
   state: VoltageDropCalculatorState,
   result: VoltageDropResult
 ): MetricTile[] {
-  const { reservePercent } = state.powerSupply;
+  const supply = state.powerSupply;
+  const { reservePercent } = supply;
   const over = result.remainingAmps < 0;
   const loadTiles: MetricTile[] = isSupplyLoadKnown(result)
     ? [
         {
           label: 'Supply load',
-          value: formatAmps(result.totalAmps),
-          detail: `${formatWatts(result.totalWatts)} output`,
+          value: formatSupplyAmps(supply, result.totalAmps),
+          detail: describeOutput(state, result),
         },
         {
           label: remainingLabel(over),
-          value: formatAmps(Math.abs(result.remainingAmps)),
+          value: formatSupplyAmps(supply, Math.abs(result.remainingAmps)),
           detail: remainingDetail(over, reservePercent),
         },
       ]
     : [
-        { label: 'Supply load', ...describeSupplyLoad(result) },
+        { label: 'Supply load', ...describeSupplyLoad(state, result) },
         { label: 'Remaining', value: SUPPLY_LOAD_UNAVAILABLE, detail: 'needs the supply load' },
       ];
   return [
     ...loadTiles,
     {
       label: 'Supply rating',
-      value: formatAmps(result.ratedAmps),
+      value: formatSupplyAmps(supply, result.ratedAmps),
       detail:
         reservePercent === 0
           ? 'no reserve'
-          : `${reservePercent}% reserve (${formatAmps(result.reserveAmps)})`,
+          : `${reservePercent}% reserve (${formatSupplyAmps(supply, result.reserveAmps)})`,
     },
   ];
 }
@@ -235,7 +264,7 @@ export function describeProblem(
 ): string {
   switch (problem.kind) {
     case 'over-budget':
-      return `Draws ${formatAmps(result.totalAmps)}, more than the ${formatAmps(result.ratedAmps)} rating. Use a larger supply or split the devices across more than one.`;
+      return `Draws ${formatSupplyAmps(state.powerSupply, result.totalAmps)}, more than the ${formatSupplyAmps(state.powerSupply, result.ratedAmps)} rating. Use a larger supply or split the devices across more than one.`;
     case 'into-reserve':
       return `Uses part of the ${state.powerSupply.reservePercent}% reserve. It fits the rating, but leaves little headroom for heaters, start-up surges or more devices.`;
     case 'over-limit':
