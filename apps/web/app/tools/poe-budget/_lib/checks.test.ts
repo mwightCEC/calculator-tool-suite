@@ -54,6 +54,41 @@ describe('buildChecks', () => {
     );
   });
 
+  it('fails the cable check when a run cannot carry the device power', () => {
+    // 80 W on four pairs over 100 m needs more than 44 V PoE (af) ports can push.
+    const checks = checksAfter(
+      { type: 'update-switch', changes: { portStandard: 'af' } },
+      {
+        type: 'update-group',
+        id: 'g1',
+        changes: { deviceCount: 1, power: { input: 'watts', watts: 80 } },
+      }
+    );
+    expect(checks[3]).toEqual(
+      expect.objectContaining({
+        level: 'fail',
+        status: "Can't power",
+        headline: "Cable can't power device",
+        detail: "Can't carry the power: Camera group 1",
+      })
+    );
+  });
+
+  it('lists a run that is both too long and unable to carry the power', () => {
+    const checks = checksAfter({
+      type: 'update-group',
+      id: 'g1',
+      changes: { cableLength: 1000, power: { input: 'watts', watts: 25.5 } },
+    });
+    expect(checks[3]).toEqual(
+      expect.objectContaining({
+        status: 'Too long',
+        headline: 'Cable too long',
+        detail: "Over 328 ft: Camera group 1 · Can't carry the power: Camera group 1",
+      })
+    );
+  });
+
   it('names the groups a port standard is too low for', () => {
     expect(checksAfter(HIGH_POWER)[2]).toEqual(
       expect.objectContaining({

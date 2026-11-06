@@ -1,8 +1,19 @@
-import { CABLE_LOSS_VOLTS, LOOP_OHMS_PER_100_M, poeClassSpec } from '@cctv/calc-core';
+import {
+  LOOP_OHMS_PER_100_M,
+  PORT_STANDARD_MIN_VOLTS,
+  PORT_STANDARDS,
+  poeClassSpec,
+} from '@cctv/calc-core';
 import { List } from '@mantine/core';
+import { PORT_STANDARD_SHORT_LABELS } from '../_lib/poe-labels';
 
 const class3 = poeClassSpec(3);
 const class4 = poeClassSpec(4);
+
+/** "PoE 44 V, PoE+ 50 V, …" from the calc-core table. */
+const MIN_VOLTS = PORT_STANDARDS.map(
+  (standard) => `${PORT_STANDARD_SHORT_LABELS[standard]} ${PORT_STANDARD_MIN_VOLTS[standard]} V`
+).join(', ');
 
 /** Plain-language explanation of the method and its limits. */
 export function HowCalculated() {
@@ -19,9 +30,15 @@ export function HowCalculated() {
       </List.Item>
       <List.Item>
         Given in <b>watts</b>, the allocation is the datasheet&apos;s maximum draw plus an estimate
-        of the power lost in the cable: <i>(watts ÷ {CABLE_LOSS_VOLTS} V)² × resistance</i>, using{' '}
-        {LOOP_OHMS_PER_100_M} Ω per 100 m of Cat5e, halved when the device uses all four pairs. With
-        no cable length, 100 m is assumed.
+        of the power lost in the cable, using {LOOP_OHMS_PER_100_M} Ω per 100 m of Cat5e, halved
+        when the device uses all four pairs. With no cable length, 100 m is assumed.
+      </List.Item>
+      <List.Item>
+        The cable loss allows for the voltage the cable drops: the device gets{' '}
+        <i>(port volts − current × resistance) × current</i>, so the current is solved for, and the
+        loss is <i>current² × resistance</i>. The port voltage is the lowest the standard allows (
+        {MIN_VOLTS}), the same method behind the class allocations: 25.5 W at 100 m takes 30 W. A
+        run that can&apos;t carry the device&apos;s power at all is flagged.
       </List.Item>
       <List.Item>
         The <b>reserve</b> is headroom for start-up surges, heaters in cold weather and devices

@@ -26,22 +26,23 @@ describe('calculatePoe', () => {
         deviceCount: 4,
         requiredClass: 2,
         cableLengthM: null,
-        cableLossWatts: expect.closeTo(0.18),
-        perDeviceWatts: expect.closeTo(6.18),
-        totalWatts: expect.closeTo(24.72),
+        cableLossWatts: expect.closeTo(0.1917),
+        perDeviceWatts: expect.closeTo(6.1917),
+        totalWatts: expect.closeTo(24.767),
         fitsPortStandard: true,
         cableTooLong: false,
+        cannotPower: false,
       },
     ]);
     expect(result).toEqual(
       expect.objectContaining({
         totalDevices: 4,
-        totalWatts: expect.closeTo(24.72),
+        totalWatts: expect.closeTo(24.767),
         budgetWatts: 120,
         reserveWatts: 24,
         usableWatts: 96,
-        remainingWatts: expect.closeTo(71.28),
-        utilisation: expect.closeTo(0.2575),
+        remainingWatts: expect.closeTo(71.233),
+        utilisation: expect.closeTo(0.258),
         budgetStatus: 'ok',
         ports: 8,
         enoughPorts: true,
@@ -54,7 +55,7 @@ describe('calculatePoe', () => {
     const group = { ...createPoeDeviceGroup('g1', 'Lobby'), cableLength: 164.042 };
     const [usage] = calculatePoe(inputWith({ deviceGroups: [group] })).groups;
     expect(usage?.cableLengthM).toBeCloseTo(50);
-    expect(usage?.cableLossWatts).toBeCloseTo(0.09);
+    expect(usage?.cableLossWatts).toBeCloseTo(0.0928);
   });
 
   it('takes the class allocation, with no extra cable loss, when power is given by class', () => {
@@ -118,6 +119,63 @@ describe('calculatePoe', () => {
       { kind: 'not-enough-ports' },
       { kind: 'cable-too-long', groupId: 'g1' },
       { kind: 'port-standard', groupId: 'g2' },
+    ]);
+  });
+
+  it('budgets 30 W for a 25.5 W device at 100 m, so four overrun a 116 W PoE+ switch', () => {
+    // The audit's repro: the old P ÷ 50 V estimate gave 28.8 W each and "All checks pass".
+    const group = {
+      ...createPoeDeviceGroup('g1', 'PTZ'),
+      power: { input: 'watts' as const, watts: 25.5 },
+    };
+    const result = calculatePoe(
+      inputWith({
+        powerSource: { budgetWatts: 116, ports: 8, portStandard: 'at', reservePercent: 0 },
+        deviceGroups: [group],
+      })
+    );
+    expect(result.groups[0]?.cableLossWatts).toBeCloseTo(4.5, 6);
+    expect(result.groups[0]?.perDeviceWatts).toBeCloseTo(30, 6);
+    expect(result.totalWatts).toBeCloseTo(120, 6);
+    expect(result.problems).toEqual([{ kind: 'over-budget' }]);
+  });
+
+  it('uses each port standard minimum voltage, so PoE (af) ports lose more in the cable', () => {
+    const group = {
+      ...createPoeDeviceGroup('g1', 'Dome'),
+      power: { input: 'watts' as const, watts: 12.95 },
+    };
+    const lossOn = (portStandard: PoeInput['powerSource']['portStandard']) =>
+      calculatePoe(
+        inputWith({
+          powerSource: { budgetWatts: 120, ports: 8, portStandard, reservePercent: 20 },
+          deviceGroups: [group],
+        })
+      ).groups[0]?.cableLossWatts;
+    expect(lossOn('af')).toBeCloseTo(1.314, 3);
+    expect(lossOn('at')).toBeCloseTo(0.969, 3);
+  });
+
+  it('flags a run that cannot carry the device power and counts only its draw', () => {
+    const group = {
+      ...createPoeDeviceGroup('g1', 'PTZ'),
+      power: { input: 'watts' as const, watts: 25.5 },
+      cableLength: 300,
+    };
+    const result = calculatePoe(inputWith({ deviceGroups: [group], cableLengthUnit: 'm' }));
+    expect(result.groups[0]).toEqual(
+      expect.objectContaining({
+        cableLossWatts: null,
+        perDeviceWatts: 25.5,
+        totalWatts: 102,
+        cableTooLong: true,
+        cannotPower: true,
+      })
+    );
+    expect(result.problems).toEqual([
+      { kind: 'into-reserve' },
+      { kind: 'cable-too-long', groupId: 'g1' },
+      { kind: 'cannot-power', groupId: 'g1' },
     ]);
   });
 

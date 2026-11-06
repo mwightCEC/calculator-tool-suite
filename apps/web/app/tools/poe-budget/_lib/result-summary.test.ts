@@ -31,8 +31,8 @@ describe('headline text', () => {
   it('describes the defaults', () => {
     const state = createInitialPoeCalculatorState();
     const result = calculatePoe(state);
-    expect(describeUsage(result)).toEqual({ value: '24.7 W', detail: 'of 96 W usable' });
-    expect(describeRemaining(result)).toBe('71.3 W left');
+    expect(describeUsage(result)).toEqual({ value: '24.8 W', detail: 'of 96 W usable' });
+    expect(describeRemaining(result)).toBe('71.2 W left');
     expect(describeBudget(state, result)).toBe('120 W budget less a 20% reserve (24 W)');
     expect(describePorts(result)).toBe('4 of 8 PoE ports used');
   });
@@ -57,7 +57,7 @@ describe('buildMetricTiles', () => {
   it('shows what is left, the budget with its reserve, and the ports', () => {
     const state = createInitialPoeCalculatorState();
     expect(buildMetricTiles(state, calculatePoe(state))).toEqual([
-      { label: 'Remaining', value: '71.3 W', detail: 'before the reserve' },
+      { label: 'Remaining', value: '71.2 W', detail: 'before the reserve' },
       { label: 'PoE budget', value: '120 W', detail: '20% reserve (24 W)' },
       { label: 'Ports', value: '4 of 8', detail: 'PoE ports used' },
     ]);
@@ -93,7 +93,7 @@ describe('describeProblem', () => {
     });
     const result = calculatePoe(state);
     expect(result.problems.map((problem) => describeProblem(problem, state, result))).toEqual([
-      'Needs 24.7 W, more than the 20 W budget. Use a switch with a larger budget or split the devices across more than one.',
+      'Needs 24.8 W, more than the 20 W budget. Use a switch with a larger budget or split the devices across more than one.',
       '4 devices but only 3 PoE ports.',
     ]);
   });
@@ -103,6 +103,18 @@ describe('describeProblem', () => {
     const result = calculatePoe(state);
     expect(describeProblem({ kind: 'into-reserve' }, state, result)).toBe(
       'Uses part of the 20% reserve. It fits the budget, but leaves little headroom for heaters, start-up surges or more devices.'
+    );
+  });
+
+  it('says when a cable run cannot carry the device power', () => {
+    const state = stateAfter({
+      type: 'update-group',
+      id: 'g1',
+      changes: { name: 'Gate', cableLength: 1000, power: { input: 'watts', watts: 25.5 } },
+    });
+    const result = calculatePoe(state);
+    expect(describeProblem({ kind: 'cannot-power', groupId: 'g1' }, state, result)).toBe(
+      'Gate: too much power is lost in this cable run for the device to get what it needs. Shorten the run, use a higher PoE standard or a PoE extender.'
     );
   });
 
@@ -160,8 +172,8 @@ describe('budgetSegments', () => {
       calculatePoe(createInitialPoeCalculatorState())
     );
     expect(segments.map((segment) => segment.label)).toEqual(['Camera group 1', 'Free', 'Reserve']);
-    expect(segments[0]?.value).toBeCloseTo(24.72);
-    expect(segments[1]?.value).toBeCloseTo(71.28);
+    expect(segments[0]?.value).toBeCloseTo(24.767);
+    expect(segments[1]?.value).toBeCloseTo(71.233);
     expect(segments[2]?.value).toBe(24);
     expect(segments[0]?.color).toBe('var(--group-color-0)');
   });

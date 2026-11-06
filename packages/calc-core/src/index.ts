@@ -135,13 +135,13 @@ export {
   type PoeSwitch,
 } from './poe/schema';
 export {
-  CABLE_LOSS_VOLTS,
   cableLengthInMetres,
   cableLossWatts,
   LOOP_OHMS_PER_100_M,
   MAX_CABLE_RUN_M,
   METRES_PER_FOOT,
   pairsForDeviceWatts,
+  PORT_STANDARD_MIN_VOLTS,
 } from './poe/cable-loss';
 export {
   BUDGET_STATUSES,

@@ -17,7 +17,8 @@ export type PoeProblem =
   | { kind: 'into-reserve' }
   | { kind: 'not-enough-ports' }
   | { kind: 'port-standard'; groupId: string }
-  | { kind: 'cable-too-long'; groupId: string };
+  | { kind: 'cable-too-long'; groupId: string }
+  | { kind: 'cannot-power'; groupId: string };
 
 export interface PoeGroupUsage {
   groupId: string;
@@ -26,15 +27,23 @@ export interface PoeGroupUsage {
   requiredClass: PoeClass | null;
   /** Cable run in metres; null when the group gave none. */
   cableLengthM: number | null;
-  /** Estimated cable loss per device (by watts only; 0 by class, which already allows for it). */
-  cableLossWatts: number;
-  /** Switch-side power taken from the budget per device, in watts. */
+  /**
+   * Estimated cable loss per device (by watts only; 0 by class, which already
+   * allows for it). Null when the cable can't carry the device's power.
+   */
+  cableLossWatts: number | null;
+  /**
+   * Switch-side power taken from the budget per device, in watts. When the
+   * cable can't power the device, only the device's own draw is counted.
+   */
   perDeviceWatts: number;
   totalWatts: number;
   /** False when the switch's port standard can't power this device. */
   fitsPortStandard: boolean;
   /** True when the cable run is longer than Ethernet's 100 m. */
   cableTooLong: boolean;
+  /** True when no current delivers the device's watts through this cable from this port standard. */
+  cannotPower: boolean;
 }
 
 export interface PoeResult {
@@ -88,12 +97,13 @@ function groupUsage(
       perDeviceWatts,
       totalWatts: perDeviceWatts * group.deviceCount,
       fitsPortStandard: poeClass <= PORT_STANDARD_MAX_CLASS[portStandard],
+      cannotPower: false,
     };
   }
 
   const { watts } = group.power;
-  const lossWatts = cableLossWatts(watts, cableLengthM ?? MAX_CABLE_RUN_M);
-  const perDeviceWatts = watts + lossWatts;
+  const lossWatts = cableLossWatts(watts, cableLengthM ?? MAX_CABLE_RUN_M, portStandard);
+  const perDeviceWatts = watts + (lossWatts ?? 0);
   return {
     ...base,
     requiredClass: classForDeviceWatts(watts),
@@ -101,6 +111,7 @@ function groupUsage(
     perDeviceWatts,
     totalWatts: perDeviceWatts * group.deviceCount,
     fitsPortStandard: watts <= portStandardMaxDeviceWatts(portStandard),
+    cannotPower: lossWatts === null,
   };
 }
 
@@ -123,13 +134,17 @@ function problemsFor(
     if (group.cableTooLong) {
       problems.push({ kind: 'cable-too-long', groupId: group.groupId });
     }
+    if (group.cannotPower) {
+      problems.push({ kind: 'cannot-power', groupId: group.groupId });
+    }
   }
   return problems;
 }
 
 /**
  * PoE power each device group takes from one switch, and the checks from the
- * spec: budget against the reserve, port count, port standard and cable length.
+ * spec: budget against the reserve, port count, port standard and cable length
+ * (including a run too long or thin to carry its device's power).
  * Expects input that has passed `poeInputSchema`.
  */
 export function calculatePoe(input: PoeInput): PoeResult {

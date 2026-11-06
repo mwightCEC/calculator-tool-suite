@@ -129,6 +129,8 @@ export function describeProblem(
     }
     case 'cable-too-long':
       return `${groupLabel(state, problem.groupId)}: the cable run is longer than Ethernet's ${cableLimit(state)} limit. Use a PoE extender or a switch closer to the devices.`;
+    case 'cannot-power':
+      return `${groupLabel(state, problem.groupId)}: too much power is lost in this cable run for the device to get what it needs. Shorten the run, use a higher PoE standard or a PoE extender.`;
   }
 }
 
