@@ -10,9 +10,12 @@ export function HowCalculated() {
         <i>current × loop resistance</i>, where the loop counts both conductors, out and back.
       </List.Item>
       <List.Item>
-        Resistance is for <b>copper</b> at 20 °C ({COPPER_RESISTIVITY} Ω·mm² per metre), for example
-        about 6.4 Ω per 1000 ft of 18 AWG. Warm cable and copper-clad aluminium (CCA) have more
-        resistance and drop more.
+        Resistance is for <b>copper</b> at 20 °C. AWG sizes use copper&apos;s resistivity (
+        {COPPER_RESISTIVITY} Ω·mm² per metre) over the gauge&apos;s cross-section, for example about
+        6.4 Ω per 1000 ft of 18 AWG. Metric sizes use the most the IEC 60228 standard allows for
+        flexible (class 5) cable, for example 13.3 Ω per km of 1.5 mm², a little above what the bare
+        cross-section gives. Warm cable and copper-clad aluminium (CCA) have more resistance and
+        drop more.
       </List.Item>
       <List.Item>
         Given in <b>amps</b>, the device draws the same current whatever the voltage. Given in{' '}
