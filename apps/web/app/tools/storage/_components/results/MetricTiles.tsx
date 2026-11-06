@@ -16,7 +16,7 @@ function buildTiles(result: StorageCalculationResult, reservePercent: number): M
     {
       label: 'Usable capacity',
       value: formatTb(drives.usableCapacityTb),
-      detail: `${raid}, ${formatNumber(drives.driveCount, 0)} drives`,
+      detail: `${raid}, ${formatNumber(drives.driveCount, 0)} ${drives.driveCount === 1 ? 'drive' : 'drives'}`,
     },
     {
       label: 'Raw capacity',

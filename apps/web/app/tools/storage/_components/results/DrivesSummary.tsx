@@ -10,7 +10,7 @@ import {
   IconShieldCheck,
 } from '@tabler/icons-react';
 import { ActionIcon, Group, List, Popover, Stack, Text, ThemeIcon } from '@mantine/core';
-import { describeDriveArray } from '../../_lib/drive-array';
+import { describeDriveArray, type RaidTradeoff } from '../../_lib/drive-array';
 import classes from './ResultsCard.module.css';
 
 const HELP = {
@@ -19,6 +19,36 @@ const HELP = {
   'days-from-capacity':
     'The drives you entered, rounded up to a valid count for the RAID level if needed. Retention is estimated from their usable capacity after RAID redundancy and the reserve.',
 } as const;
+
+/** Tick for a benefit, minus for a drawback, warning triangle for a serious one. */
+function TradeoffIcon({ tradeoff }: { tradeoff: RaidTradeoff }) {
+  if (tradeoff.warning) {
+    return (
+      <ThemeIcon
+        size={18}
+        radius="xl"
+        variant="light"
+        color="orange"
+        role="img"
+        aria-label="Warning"
+      >
+        <IconAlertTriangle size={12} />
+      </ThemeIcon>
+    );
+  }
+  return (
+    <ThemeIcon
+      size={18}
+      radius="xl"
+      variant="light"
+      color={tradeoff.benefit ? 'teal' : 'orange'}
+      role="img"
+      aria-label={tradeoff.benefit ? 'Benefit' : 'Drawback'}
+    >
+      {tradeoff.benefit ? <IconCheck size={12} /> : <IconMinus size={12} />}
+    </ThemeIcon>
+  );
+}
 
 /**
  * The recommended (or entered) drives: RAID level, one tile per drive and the
@@ -36,16 +66,11 @@ export function DrivesSummary({ result }: { result: StorageCalculationResult }) 
       className={classes.drivesBox}
     >
       <Group gap="sm" wrap="nowrap" align="flex-start">
-        <ThemeIcon
-          variant="light"
-          color={summary.faultTolerant ? 'brand' : 'orange'}
-          size={36}
-          radius="md"
-        >
+        <ThemeIcon variant="light" size={36} radius="md">
           {summary.faultTolerant ? (
             <IconShieldCheck size={20} stroke={1.75} />
           ) : (
-            <IconAlertTriangle size={20} stroke={1.75} />
+            <IconServer2 size={20} stroke={1.75} />
           )}
         </ThemeIcon>
         <div>
@@ -71,6 +96,11 @@ export function DrivesSummary({ result }: { result: StorageCalculationResult }) 
             </Popover>
           </Group>
           <Text className={classes.drivesDetail}>{summary.description}</Text>
+          {summary.note && (
+            <Text size="sm" mt={4}>
+              {summary.note}
+            </Text>
+          )}
         </div>
       </Group>
 
@@ -99,21 +129,7 @@ export function DrivesSummary({ result }: { result: StorageCalculationResult }) 
 
       <List size="sm" spacing={4}>
         {summary.tradeoffs.map((tradeoff) => (
-          <List.Item
-            key={tradeoff.text}
-            icon={
-              <ThemeIcon
-                size={18}
-                radius="xl"
-                variant="light"
-                color={tradeoff.benefit ? 'teal' : 'orange'}
-                role="img"
-                aria-label={tradeoff.benefit ? 'Benefit' : 'Drawback'}
-              >
-                {tradeoff.benefit ? <IconCheck size={12} /> : <IconMinus size={12} />}
-              </ThemeIcon>
-            }
-          >
+          <List.Item key={tradeoff.text} icon={<TradeoffIcon tradeoff={tradeoff} />}>
             {tradeoff.text}
           </List.Item>
         ))}

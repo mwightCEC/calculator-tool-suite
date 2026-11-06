@@ -5,7 +5,13 @@ import {
   storageCalculatorReducer,
   type StorageCalculatorAction,
 } from '../_state/storage-calculator-state';
-import { describeDriveArray, MAX_DRIVE_TILES, RAID_DETAILS } from './drive-array';
+import {
+  describeDriveArray,
+  LARGE_ARRAY_DRIVES,
+  LARGE_ARRAY_NOTE,
+  MAX_DRIVE_TILES,
+  RAID_DETAILS,
+} from './drive-array';
 
 function summaryAfter(...actions: StorageCalculatorAction[]) {
   const state = actions.reduce(storageCalculatorReducer, createInitialStorageCalculatorState());
@@ -63,6 +69,20 @@ describe('describeDriveArray', () => {
     });
     expect(many.driveCount).toBe(MAX_DRIVE_TILES + 4);
     expect(many.tilesShown).toBe(MAX_DRIVE_TILES);
+  });
+
+  it('notes that a large drive count is usually split up', () => {
+    const drives = (driveCount: number) =>
+      summaryAfter(daysMode, { type: 'update-storage', changes: { driveCount } }).note;
+    expect(drives(LARGE_ARRAY_DRIVES)).toBeNull();
+    expect(drives(LARGE_ARRAY_DRIVES + 1)).toBe(LARGE_ARRAY_NOTE);
+  });
+
+  it('shows no protection as a warning, only without RAID', () => {
+    const warnings = RAID_LEVELS.filter((level) =>
+      RAID_DETAILS[level].tradeoffs.some((tradeoff) => tradeoff.warning)
+    );
+    expect(warnings).toEqual(['none']);
   });
 
   it('lists a benefit and a drawback for every RAID level', () => {

@@ -30,4 +30,13 @@ describe('describeCorrection', () => {
       'Changed to 6, the nearest allowed value.'
     );
   });
+
+  it('says when a typed decimal was rounded to a whole number', () => {
+    const cameras = { min: 1, max: 1000, wholeNumbers: true };
+    expect(describeCorrection(2.5, 3, cameras)).toBe('Changed to 3, the nearest whole number.');
+    expect(describeCorrection(0.4, 1, cameras)).toBe('Changed to 1, the minimum.');
+    expect(describeCorrection(2.5, 3, { min: 1, max: 1000 })).toBe(
+      'Changed to 3, the nearest allowed value.'
+    );
+  });
 });

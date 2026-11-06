@@ -63,7 +63,7 @@ export type BitrateSource = (typeof BITRATE_SOURCES)[number];
 export const BITRATE_INPUT_MIN_MBPS = 0.1;
 export const BITRATE_INPUT_MAX_MBPS = 100;
 
-export const DRIVE_SIZES_TB = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24] as const;
+export const DRIVE_SIZES_TB = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32] as const;
 export type DriveSizeTb = (typeof DRIVE_SIZES_TB)[number];
 
 export const RAID_LEVELS = ['none', 'raid1', 'raid5', 'raid6', 'raid10'] as const;

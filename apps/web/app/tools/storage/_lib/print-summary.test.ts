@@ -6,6 +6,7 @@ import {
   type StorageCalculatorAction,
   type StorageCalculatorState,
 } from '../_state/storage-calculator-state';
+import { LARGE_ARRAY_NOTE } from './drive-array';
 import { buildPrintSummary } from './print-summary';
 
 function stateAfter(...actions: StorageCalculatorAction[]): StorageCalculatorState {
@@ -131,5 +132,14 @@ describe('buildPrintSummary', () => {
     expect(known[0]).toMatch(/decimal TB/);
     expect(estimated.length).toBe(isBitrateModelValidated ? 2 : 3);
     expect(estimated.join(' ')).toMatch(/planning estimates/);
+  });
+
+  it('notes that more than 16 drives are usually split up', () => {
+    const large = stateAfter(
+      { type: 'set-mode', mode: 'days-from-capacity' },
+      { type: 'update-storage', changes: { driveCount: 17 } }
+    );
+    expect(summarize(large).notes).toContain(LARGE_ARRAY_NOTE);
+    expect(summarize(KNOWN_ONLY).notes).not.toContain(LARGE_ARRAY_NOTE);
   });
 });

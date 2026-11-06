@@ -45,7 +45,7 @@ function buildMetrics(result: StorageCalculationResult, state: StorageCalculator
     },
     { label: 'Total cameras', value: formatNumber(cameras, 0), detail: null, icon: IconVideo },
     {
-      label: groups === 1 ? 'Camera group' : 'Camera groups',
+      label: 'Camera groups',
       value: formatNumber(groups, 0),
       detail: null,
       icon: IconStack2,
