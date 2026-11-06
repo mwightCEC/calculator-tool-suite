@@ -126,7 +126,9 @@ config or routing changes.
   The results card lists the four as separate checks (`_lib/checks.ts`); the card badge, mobile
   bar and Export show the worst one, so "Within budget" never hides a port or cable failure.
 - Voltage drop checks home runs (one cable per device) from one low-voltage supply (12 / 24 V DC,
-  24 V AC treated as resistive, or a custom voltage), copper at 20 °C only. The page states
+  24 V AC treated as resistive, or a custom voltage), copper at 20 °C only. AWG resistance comes
+  from copper's resistivity over the gauge's area; mm² sizes use the IEC 60228 class 5 (flexible)
+  maximum resistance (`IEC_60228_CLASS_5_OHMS_PER_KM` in `wire-gauges.ts`). The page states
   these assumptions in plain words above the groups and under the Supply field (no "home run"
   jargon). Loads by amps are constant current; by watts, constant power (current rises as the
   voltage falls). Each run gets its drop, the smallest passing wire and the longest passing

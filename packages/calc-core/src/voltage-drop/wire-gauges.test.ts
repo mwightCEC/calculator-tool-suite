@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   awgAreaMm2,
+  COPPER_RESISTIVITY,
   equivalentGauge,
   gaugesInSystem,
   loopOhms,
@@ -21,11 +22,17 @@ describe('awgAreaMm2', () => {
 
 describe('wireGaugeSpec', () => {
   it('reads the system and size from the id', () => {
-    expect(wireGaugeSpec('mm2-0.75')).toEqual({ gauge: 'mm2-0.75', system: 'mm2', areaMm2: 0.75 });
+    expect(wireGaugeSpec('mm2-0.75')).toEqual({
+      gauge: 'mm2-0.75',
+      system: 'mm2',
+      areaMm2: 0.75,
+      ohmsPerKm: 26,
+    });
     expect(wireGaugeSpec('awg-18')).toEqual({
       gauge: 'awg-18',
       system: 'awg',
       areaMm2: expect.closeTo(0.8231, 3),
+      ohmsPerKm: expect.closeTo(20.95, 2),
     });
   });
 
@@ -60,9 +67,26 @@ describe('ohmsPerMetre', () => {
     ['awg-18', 20.95],
     ['awg-16', 13.17],
     ['awg-10', 3.277],
-    ['mm2-1.5', 11.49],
   ] as const)('%s matches published copper tables (%d Ω/km at 20 °C)', (gauge, ohmsPerKm) => {
     expect(ohmsPerMetre(gauge) * 1000).toBeCloseTo(ohmsPerKm, 1);
+  });
+
+  it.each([
+    ['mm2-0.5', 39.0],
+    ['mm2-0.75', 26.0],
+    ['mm2-1', 19.5],
+    ['mm2-1.5', 13.3],
+    ['mm2-2.5', 7.98],
+    ['mm2-4', 4.95],
+    ['mm2-6', 3.3],
+  ] as const)('%s uses the IEC 60228 class 5 maximum (%d Ω/km at 20 °C)', (gauge, ohmsPerKm) => {
+    expect(ohmsPerMetre(gauge) * 1000).toBeCloseTo(ohmsPerKm, 6);
+  });
+
+  it('is above the nominal cross-section for every metric size', () => {
+    for (const spec of WIRE_GAUGE_SPECS.filter((s) => s.system === 'mm2')) {
+      expect(spec.ohmsPerKm).toBeGreaterThan((COPPER_RESISTIVITY / spec.areaMm2) * 1000);
+    }
   });
 });
 

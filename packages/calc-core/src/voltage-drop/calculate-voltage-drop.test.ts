@@ -123,10 +123,11 @@ describe('calculateVoltageDrop', () => {
         deviceGroups: [group({ gauge: 'mm2-1.5', cableLength: 50 })],
       })
     ).groups;
-    // 1.5 mm² copper ≈ 11.49 Ω/km: 100 m loop ≈ 1.149 Ω, × 0.5 A ≈ 0.575 V.
+    // 1.5 mm² class 5 copper is at most 13.3 Ω/km: 100 m loop = 1.33 Ω, × 0.5 A = 0.665 V.
     expect(usage?.cableLengthM).toBe(50);
-    expect(usage?.dropVolts).toBeCloseTo(0.575, 3);
-    expect(usage?.smallestGauge).toBe('mm2-0.75');
+    expect(usage?.dropVolts).toBeCloseTo(0.665, 6);
+    // 0.75 mm² (26 Ω/km) would drop 1.3 V, 10.8% of 12 V; 1 mm² (19.5 Ω/km) passes.
+    expect(usage?.smallestGauge).toBe('mm2-1');
   });
 
   it('uses the AC supply voltage the same way', () => {
