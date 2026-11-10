@@ -6,12 +6,7 @@ import {
   type RemoteViewingUsage,
 } from '@cctv/calc-core';
 import type { MetricTile } from '../../../../components/ResultsCard/ResultsPanel';
-import {
-  formatApproxRange,
-  formatMbps,
-  formatNumber,
-  formatRangeBounds,
-} from '../../../../lib/format';
+import { formatApproxRange, formatMbps, formatNumber } from '../../../../lib/format';
 import type { BandwidthCalculatorState } from '../_state/bandwidth-calculator-state';
 import {
   LINK_LABELS,
@@ -141,17 +136,20 @@ export function bandwidthSegments(
 /** "~" when the range is an estimate rather than an exact figure. */
 const approx = (range: ValueRange) => (isPointRange(range) ? '' : '~');
 
-/** The results card's figure row: camera streams, the overhead allowance and the per-camera average. */
+/**
+ * The results card's figure list: camera streams, the overhead allowance, the per-camera
+ * average and remote viewing ("Off", with no details, while it is switched off).
+ */
 export function buildMetricTiles(
   state: BandwidthCalculatorState,
   result: BandwidthResult
 ): MetricTile[] {
   const { streamsMbps, averagePerCameraMbps, bandwidthMbps } = result;
-  return [
+  const tiles: MetricTile[] = [
     {
       label: 'Camera streams',
       value: `${approx(streamsMbps)}${formatMbps(streamsMbps.typical)}`,
-      detail: isPointRange(streamsMbps) ? null : `${formatRangeBounds(streamsMbps)} Mbps`,
+      detail: formatApproxRange(streamsMbps, 'Mbps'),
     },
     {
       label: 'Overhead',
@@ -164,4 +162,13 @@ export function buildMetricTiles(
       detail: 'average, before overhead',
     },
   ];
+  const viewing = result.remoteViewing;
+  const figure = viewing && describeRemoteViewing(viewing);
+  tiles.push({
+    label: 'Remote viewing',
+    value: figure ? figure.value : 'Off',
+    detail: figure ? describeViewing(state, result) : null,
+    valueDetail: figure ? figure.likelyRange : null,
+  });
+  return tiles;
 }

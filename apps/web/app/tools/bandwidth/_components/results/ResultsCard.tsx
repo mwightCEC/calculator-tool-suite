@@ -1,32 +1,21 @@
 'use client';
 
-import { isBitrateModelValidated, type BandwidthResult } from '@cctv/calc-core';
-import { IconAlertTriangle, IconPrinter, IconWorldUpload } from '@tabler/icons-react';
-import { Button, Group, Text, ThemeIcon } from '@mantine/core';
-import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
+import { isBitrateModelValidated, type BandwidthResult, type NetworkLinks } from '@cctv/calc-core';
 import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
 import { FaqLink } from '../../../../../components/FaqLink/FaqLink';
+import { ResultsActions } from '../../../../../components/ResultsCard/ResultsActions';
 import {
-  EstimateBadge,
   HeadlineTile,
-  MetricRow,
   PreliminaryBitrateNote,
   ResultsPanel,
+  SummaryRows,
 } from '../../../../../components/ResultsCard/ResultsPanel';
 import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
 import { formatMbps, formatNumber } from '../../../../../lib/format';
-import {
-  bandwidthSegments,
-  buildMetricTiles,
-  describeBandwidth,
-  describeRemoteViewing,
-  describeViewing,
-  describeWarning,
-} from '../../_lib/result-summary';
+import { bandwidthSegments, buildMetricTiles, describeBandwidth } from '../../_lib/result-summary';
 import type { BandwidthCalculatorState } from '../../_state/bandwidth-calculator-state';
 import { buildShareUrl } from '../../_state/share-link';
 import { LinkChecks } from './LinkChecks';
-import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'bandwidth-results';
 
@@ -37,19 +26,21 @@ interface ResultsCardProps {
   result: BandwidthResult;
   /** The inputs behind the result: group names and colours, viewing and overhead settings. */
   state: BandwidthCalculatorState;
+  /** Sets the uplink speed checked under Network checks; null turns the check off. */
+  onUplinkChange: (uplinkMbps: NetworkLinks['uplinkMbps']) => void;
 }
 
-export function ResultsCard({ result, state }: ResultsCardProps) {
+export function ResultsCard({ result, state, onUplinkChange }: ResultsCardProps) {
   const bandwidth = describeBandwidth(result);
-  const viewing = result.remoteViewing && describeRemoteViewing(result.remoteViewing);
-  const warning = describeWarning(result);
 
   return (
     <ResultsPanel
       id={RESULTS_CARD_ID}
       title="Bandwidth estimate"
-      badge={<EstimateBadge isEstimated={result.isEstimated} />}
+      actions={<ResultsActions getShareUrl={() => buildShareUrl(state, window.location.href)} />}
     >
+      {result.isEstimated && !isBitrateModelValidated && <PreliminaryBitrateNote />}
+
       <HeadlineTile
         value={bandwidth.value}
         label={result.isEstimated ? 'Typical camera traffic' : 'Camera traffic'}
@@ -57,42 +48,13 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         footnote={`${plural(result.totalCameras, 'camera')} in ${plural(state.cameraGroups.length, 'group')} · includes ${state.overheadPercent}% overhead`}
       />
 
-      {result.isEstimated && !isBitrateModelValidated && <PreliminaryBitrateNote />}
+      <SummaryRows rows={buildMetricTiles(state, result)} />
 
-      {warning && (
-        <Group gap={6} wrap="nowrap" className={classes.warning} role="status">
-          <IconAlertTriangle size={18} stroke={1.75} aria-hidden="true" />
-          <Text size="sm">{warning}</Text>
-        </Group>
-      )}
-
-      <MetricRow tiles={buildMetricTiles(state, result)} />
-
-      {viewing && (
-        <Group
-          gap="sm"
-          align="flex-start"
-          wrap="nowrap"
-          component="section"
-          aria-labelledby="remote-viewing-result-title"
-          className={classes.box}
-        >
-          <ThemeIcon variant="light" size={36} radius="md">
-            <IconWorldUpload size={20} stroke={1.75} />
-          </ThemeIcon>
-          <div>
-            <Text component="h3" id="remote-viewing-result-title" className={classes.boxTitle}>
-              Remote viewing: {viewing.value}
-            </Text>
-            {viewing.likelyRange && (
-              <Text className={classes.boxDetail}>{viewing.likelyRange}</Text>
-            )}
-            <Text className={classes.boxDetail}>{describeViewing(state, result)}</Text>
-          </div>
-        </Group>
-      )}
-
-      <LinkChecks checks={result.linkChecks} remoteViewing={state.remoteViewing.enabled} />
+      <LinkChecks
+        checks={result.linkChecks}
+        uplinkMbps={state.network.uplinkMbps}
+        onUplinkChange={onUplinkChange}
+      />
 
       <Disclosure title="Traffic breakdown">
         <SegmentBar
@@ -111,20 +73,6 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
       </Disclosure>
 
       <FaqLink toolId="bandwidth" label="How estimates are calculated" />
-
-      {result.isEstimated && (
-        <Text className={classes.note}>
-          Estimates are shown as a likely range; link checks use the high end.
-        </Text>
-      )}
-
-      <Group gap="xs" grow>
-        <CopyLinkButton getShareUrl={() => buildShareUrl(state, window.location.href)} />
-        {/* Opens the print dialog with the printable summary (PrintSummary); "Save as PDF" gives a file. */}
-        <Button leftSection={<IconPrinter size={16} />} onClick={() => window.print()}>
-          Export
-        </Button>
-      </Group>
     </ResultsPanel>
   );
 }

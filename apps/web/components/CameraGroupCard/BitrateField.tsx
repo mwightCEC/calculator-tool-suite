@@ -120,10 +120,17 @@ export interface EnteredBitrateInputProps {
   label: string;
   value: number;
   onChange: (mbps: number) => void;
+  disabled?: boolean;
 }
 
 /** A per-camera bitrate in Mbps (0.1–100), rounded to 0.1. Also used by Bandwidth's remote viewing. */
-export function EnteredBitrateInput({ id, label, value, onChange }: EnteredBitrateInputProps) {
+export function EnteredBitrateInput({
+  id,
+  label,
+  value,
+  onChange,
+  disabled,
+}: EnteredBitrateInputProps) {
   const { draft, handleChange, handleBlur, feedbackProps } = useNumberDraft({
     value,
     onChange,
@@ -145,6 +152,7 @@ export function EnteredBitrateInput({ id, label, value, onChange }: EnteredBitra
       min={BITRATE_INPUT_MIN_MBPS}
       max={BITRATE_INPUT_MAX_MBPS}
       step={0.1}
+      disabled={disabled}
       decimalScale={1}
       allowNegative={false}
       clampBehavior="none"

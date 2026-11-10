@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { Badge, Group, Paper, Text, Title } from '@mantine/core';
+import { Group, Paper, Stack, Text, Title } from '@mantine/core';
 import classes from './ResultsPanel.module.css';
 
 interface ResultsPanelProps {
   /** Element id, so the mobile result bar can scroll to the card. */
   id: string;
   title: string;
-  /** Shown beside the title, e.g. EstimateBadge or a status badge. */
+  /** Shown beside the title, e.g. a status badge. */
   badge?: ReactNode;
   /** Buttons at the end of the title row, e.g. Copy link and Export; they wrap below when narrow. */
   actions?: ReactNode;
@@ -28,10 +28,12 @@ export function ResultsPanel({ id, title, badge, actions, children }: ResultsPan
       className={classes.card}
     >
       <Group justify="space-between" align="center" wrap={actions ? 'wrap' : 'nowrap'} gap="sm">
-        <Title order={2} id={titleId} className={classes.title}>
-          {title}
-        </Title>
-        {badge}
+        <Group gap="sm" wrap="nowrap">
+          <Title order={2} id={titleId} className={classes.title}>
+            {title}
+          </Title>
+          {badge}
+        </Group>
         {actions && (
           <Group gap="xs" wrap="nowrap">
             {actions}
@@ -40,21 +42,6 @@ export function ResultsPanel({ id, title, badge, actions, children }: ResultsPan
       </Group>
       {children}
     </Paper>
-  );
-}
-
-/** "Estimated" (amber) when any bitrate is estimated, otherwise "From known bitrates" (green). */
-export function EstimateBadge({ isEstimated }: { isEstimated: boolean }) {
-  return (
-    <Badge
-      variant={isEstimated ? 'filled' : 'light'}
-      color={isEstimated ? 'amber' : 'green'}
-      radius="sm"
-      className={classes.badge}
-      data-source={isEstimated ? 'estimated' : 'known'}
-    >
-      {isEstimated ? 'Estimated' : 'From known bitrates'}
-    </Badge>
   );
 }
 
@@ -104,6 +91,8 @@ export interface MetricTile {
   label: string;
   value: string;
   detail?: string | null;
+  /** SummaryRows only: a line under the value, e.g. its likely range. */
+  valueDetail?: string | null;
 }
 
 /** Key figures in a row divided by rules, stacked when the card is narrow. */
@@ -118,5 +107,31 @@ export function MetricRow({ tiles }: { tiles: MetricTile[] }) {
         </div>
       ))}
     </dl>
+  );
+}
+
+/**
+ * Key figures as a list, laid out like PoE budget's checks: the label with its detail
+ * underneath on the left, the value (and any detail of its own) right-aligned
+ * (Storage and Bandwidth).
+ */
+export function SummaryRows({ rows }: { rows: MetricTile[] }) {
+  return (
+    <Stack component="ul" gap="xs" className={classes.summaryList}>
+      {rows.map(({ label, value, detail, valueDetail }) => (
+        <li key={label}>
+          <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
+            <div>
+              <Text className={classes.summaryLabel}>{label}</Text>
+              {detail && <Text className={classes.summaryDetail}>{detail}</Text>}
+            </div>
+            <div className={classes.summaryValueCell}>
+              <Text className={classes.summaryValue}>{value}</Text>
+              {valueDetail && <Text className={classes.summaryDetail}>{valueDetail}</Text>}
+            </div>
+          </Group>
+        </li>
+      ))}
+    </Stack>
   );
 }

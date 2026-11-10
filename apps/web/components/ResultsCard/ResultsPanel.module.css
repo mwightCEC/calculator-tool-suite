@@ -17,16 +17,6 @@
   letter-spacing: -0.01em;
 }
 
-.badge {
-  flex-shrink: 0;
-  text-transform: none;
-}
-
-/* "From known bitrates": light green badge with AA-contrast text. */
-.badge[data-source='known'] {
-  color: var(--app-status-ok);
-}
-
 /* Headline tile */
 
 .hero {
@@ -138,4 +128,34 @@
   flex-shrink: 0;
   margin-top: 2px;
   color: var(--app-status-warn);
+}
+
+/* Summary rows: label and detail on the left, value (and its detail) on the right, as in PoE budget's checks. */
+
+.summaryList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.summaryLabel {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+}
+
+.summaryValueCell {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.summaryValue {
+  font-size: var(--mantine-font-size-sm);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.summaryDetail {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
 }

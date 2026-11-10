@@ -13,8 +13,9 @@ import {
   notifyGroupRemoved,
   notifyGroupsCleared,
 } from '../../../../components/CameraGroupCard/undo-notifications';
+import { savedStateKey } from '../../../../lib/share/clear-all-calculators';
 import { useUrlStateSync } from '../../../../lib/share/use-url-state-sync';
-import { encodeState, voltageDropShareCodec } from './share-link';
+import { voltageDropShareCodec } from './share-link';
 import {
   createInitialVoltageDropCalculatorState,
   hasCustomGroups as groupsAreCustom,
@@ -23,10 +24,10 @@ import {
   type VoltageDropGroupChanges,
 } from './voltage-drop-calculator-state';
 
-/** The default calculation keeps a clean URL with no share parameters. */
-const DEFAULT_STATE_ENCODED = encodeState(createInitialVoltageDropCalculatorState());
+/** The default inputs: Start over and Clear all calculators return here, with a clean URL. */
+const DEFAULT_STATE = createInitialVoltageDropCalculatorState();
 /** Where this calculator's last state is kept in the browser. */
-const SAVED_STATE_KEY = 'cctv-tool-suite:voltage-drop-calculator';
+const SAVED_STATE_KEY = savedStateKey('voltage-drop');
 
 /**
  * Voltage drop calculator state, live results and actions.
@@ -44,7 +45,13 @@ export function useVoltageDropCalculator() {
     (restored: VoltageDropCalculatorState) => dispatch({ type: 'load-state', state: restored }),
     []
   );
-  useUrlStateSync(state, loadState, voltageDropShareCodec, DEFAULT_STATE_ENCODED, SAVED_STATE_KEY);
+  const session = useUrlStateSync(
+    state,
+    loadState,
+    voltageDropShareCodec,
+    DEFAULT_STATE,
+    SAVED_STATE_KEY
+  );
 
   const removeGroup = (id: string) => {
     const index = state.deviceGroups.findIndex((group) => group.id === id);
@@ -83,7 +90,7 @@ export function useVoltageDropCalculator() {
       dispatch({ type: 'set-cable-length-unit', unit }),
   };
 
-  return { state, result, hasCustomGroups, actions };
+  return { state, result, hasCustomGroups, actions, session };
 }
 
 export type VoltageDropCalculatorActions = ReturnType<typeof useVoltageDropCalculator>['actions'];

@@ -1,22 +1,22 @@
 'use client';
 
 import { isBitrateModelValidated, type StorageCalculationResult } from '@cctv/calc-core';
-import { IconAlertTriangle, IconFileExport } from '@tabler/icons-react';
-import { Button, Group, Text } from '@mantine/core';
-import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
+import { IconAlertTriangle } from '@tabler/icons-react';
+import { Group, Text } from '@mantine/core';
 import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
 import { FaqLink } from '../../../../../components/FaqLink/FaqLink';
+import { ResultsActions } from '../../../../../components/ResultsCard/ResultsActions';
 import {
   HeadlineTile,
   PreliminaryBitrateNote,
   ResultsPanel,
+  SummaryRows,
 } from '../../../../../components/ResultsCard/ResultsPanel';
-import { describeHeadline, describeWarning } from '../../_lib/result-summary';
+import { buildSummaryItems, describeHeadline, describeWarning } from '../../_lib/result-summary';
 import { buildShareUrl } from '../../_state/share-link';
 import type { StorageCalculatorState } from '../../_state/storage-calculator-state';
 import { CapacityBar } from './CapacityBar';
 import { DrivesSummary } from './DrivesSummary';
-import { SummaryList } from './SummaryList';
 import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'storage-results';
@@ -40,31 +40,16 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
     <ResultsPanel
       id={RESULTS_CARD_ID}
       title={RESULTS_TITLES[result.mode]}
-      actions={
-        <>
-          <CopyLinkButton
-            size="compact-sm"
-            getShareUrl={() => buildShareUrl(state, window.location.href)}
-          />
-          {/* Opens the print dialog with the printable summary (PrintSummary); "Save as PDF" gives a file. */}
-          <Button
-            size="compact-sm"
-            leftSection={<IconFileExport size={16} />}
-            onClick={() => window.print()}
-          >
-            Export
-          </Button>
-        </>
-      }
+      actions={<ResultsActions getShareUrl={() => buildShareUrl(state, window.location.href)} />}
     >
+      {result.isEstimated && !isBitrateModelValidated && <PreliminaryBitrateNote />}
+
       <HeadlineTile
         value={headline.value}
         label={headline.label}
         range={headline.likelyRange}
         footnote={headline.note}
       />
-
-      {result.isEstimated && !isBitrateModelValidated && <PreliminaryBitrateNote />}
 
       {warning && (
         <Group gap={6} wrap="nowrap" className={classes.warning} role="status">
@@ -73,7 +58,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Group>
       )}
 
-      <SummaryList result={result} state={state} />
+      <SummaryRows rows={buildSummaryItems(result, state)} />
 
       <Disclosure title="Capacity breakdown">
         <CapacityBar

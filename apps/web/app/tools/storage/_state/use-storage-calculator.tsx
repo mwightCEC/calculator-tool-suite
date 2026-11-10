@@ -11,6 +11,7 @@ import {
   notifyGroupRemoved,
   notifyGroupsCleared,
 } from '../../../../components/CameraGroupCard/undo-notifications';
+import { savedStateKey } from '../../../../lib/share/clear-all-calculators';
 import { useUrlStateSync } from '../../../../lib/share/use-url-state-sync';
 import { encodeState, storageShareCodec } from './share-link';
 import {
@@ -20,10 +21,10 @@ import {
   type StorageCalculatorState,
 } from './storage-calculator-state';
 
-/** The default calculation keeps a clean URL with no share parameters. */
-const DEFAULT_STATE_ENCODED = encodeState(createInitialStorageCalculatorState());
+/** The default inputs: Start over and Clear all calculators return here, with a clean URL. */
+const DEFAULT_STATE = createInitialStorageCalculatorState();
 /** Where this calculator's last state is kept in the browser. */
-const SAVED_STATE_KEY = 'cctv-tool-suite:storage-calculator';
+const SAVED_STATE_KEY = savedStateKey('storage');
 const DEFAULT_GROUPS = createInitialStorageCalculatorState().cameraGroups;
 
 /**
@@ -42,7 +43,13 @@ export function useStorageCalculator() {
     (restored: StorageCalculatorState) => dispatch({ type: 'load-state', state: restored }),
     []
   );
-  useUrlStateSync(state, loadState, storageShareCodec, DEFAULT_STATE_ENCODED, SAVED_STATE_KEY);
+  const session = useUrlStateSync(
+    state,
+    loadState,
+    storageShareCodec,
+    DEFAULT_STATE,
+    SAVED_STATE_KEY
+  );
 
   const removeGroup = (id: string) => {
     const index = state.cameraGroups.findIndex((group) => group.id === id);
@@ -81,7 +88,7 @@ export function useStorageCalculator() {
       dispatch({ type: 'update-storage', changes }),
   };
 
-  return { state, result, hasCustomGroups, actions };
+  return { state, result, hasCustomGroups, actions, session };
 }
 
 export type StorageCalculatorActions = ReturnType<typeof useStorageCalculator>['actions'];

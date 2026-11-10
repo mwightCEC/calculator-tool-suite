@@ -2,6 +2,7 @@
 
 import { Paper, Stack, Text, Title } from '@mantine/core';
 import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
+import { RestoredSessionBanner } from '../../../../components/RestoredSessionBanner/RestoredSessionBanner';
 import { formatDensity } from '../_lib/lens-fov-labels';
 import { describeHeadline } from '../_lib/result-summary';
 import { useLensFovCalculator } from '../_state/use-lens-fov-calculator';
@@ -19,11 +20,12 @@ import classes from './LensFovCalculator.module.css';
  * inputs do. One column on smaller screens, inputs and results first.
  */
 export function LensFovCalculator() {
-  const { state, result, actions } = useLensFovCalculator();
+  const { state, result, actions, session } = useLensFovCalculator();
   const headline = describeHeadline(state, result);
 
   return (
     <>
+      <RestoredSessionBanner session={session} />
       <div className={classes.layout}>
         <div className={classes.split}>
           {/* Inputs and results come first, so a phone reaches the inputs before the drawings. */}

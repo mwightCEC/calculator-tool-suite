@@ -1,9 +1,13 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { notifications } from '@mantine/notifications';
+import { notifyWithUndo } from '../../components/CameraGroupCard/undo-notifications';
+import { CALCULATORS_CLEARED_EVENT, CALCULATORS_RESTORED_EVENT } from './clear-all-calculators';
 import {
   browserStorage,
+  opensSavedState,
+  readSavedEntry,
   readSavedParams,
   resolveStartingState,
   writeSavedParams,
@@ -23,6 +27,11 @@ const URL_WRITE_DELAY_MS = 300;
  *    flooded with entries. The default calculation keeps a clean URL and clears
  *    the saved copy.
  *
+ * 3. Reports a restore of the saved inputs, from saved state or a link holding the same
+ *    inputs (RestoredSession) for the banner, whose Start over
+ *    resets the whole calculator with Undo, and follows "Clear all calculators"
+ *    (clear-all-calculators.ts) and its Undo.
+ *
  * Reads window.location directly rather than useSearchParams, which would need
  * a Suspense boundary and client-only rendering in the static export.
  */
@@ -32,19 +41,23 @@ export function useUrlStateSync<State>(
   loadState: (state: State) => void,
   /** Module-level constant, so it is stable between renders. */
   codec: ShareCodec<State>,
-  /** codec.encodeState of the calculator's initial state. */
-  defaultEncoded: string,
-  /** localStorage key for this calculator's saved state. */
+  /** The calculator's initial state; a module-level constant. */
+  defaultState: State,
+  /** localStorage key for this calculator's saved state (savedStateKey). */
   storageKey: string
-) {
+): RestoredSession {
   const restored = useRef(false);
+  // Age of the saved state this visit opened with, while its banner is showing.
+  const [restoredAgeMs, setRestoredAgeMs] = useState<number | null>(null);
 
   useEffect(() => {
     // Only restore once, even when development mode runs effects twice.
     if (restored.current) {
       return;
     }
-    const savedParams = readSavedParams(browserStorage(), storageKey);
+    const now = Date.now();
+    const saved = readSavedEntry(browserStorage(), storageKey, now);
+    const savedParams = saved?.params ?? null;
     const start = resolveStartingState(
       codec.decodeShareParams,
       new URLSearchParams(window.location.search),
@@ -52,6 +65,9 @@ export function useUrlStateSync<State>(
     );
     if (start.source === 'link' || start.source === 'saved') {
       loadState(start.state);
+      if (saved && opensSavedState(codec, start, savedParams)) {
+        setRestoredAgeMs(now - saved.savedAt);
+      }
     } else if (start.source === 'invalid-link') {
       notifications.show({
         color: 'amber',
@@ -65,11 +81,32 @@ export function useUrlStateSync<State>(
     restored.current = true;
   }, [codec, loadState, storageKey]);
 
+  // "Clear all calculators" and its Undo, from the header's help menu.
+  useEffect(() => {
+    const onCleared = () => {
+      loadState(defaultState);
+      setRestoredAgeMs(null);
+    };
+    const onRestored = () => {
+      const savedParams = readSavedParams(browserStorage(), storageKey);
+      const saved = savedParams ? codec.decodeShareParams(savedParams) : null;
+      if (saved?.status === 'loaded') {
+        loadState(saved.state);
+      }
+    };
+    window.addEventListener(CALCULATORS_CLEARED_EVENT, onCleared);
+    window.addEventListener(CALCULATORS_RESTORED_EVENT, onRestored);
+    return () => {
+      window.removeEventListener(CALCULATORS_CLEARED_EVENT, onCleared);
+      window.removeEventListener(CALCULATORS_RESTORED_EVENT, onRestored);
+    };
+  }, [codec, defaultState, loadState, storageKey]);
+
   useEffect(() => {
     if (!restored.current) {
       return;
     }
-    const isDefault = codec.encodeState(state) === defaultEncoded;
+    const isDefault = codec.encodeState(state) === codec.encodeState(defaultState);
     // Saved straight away, so leaving the page right after a change keeps it.
     writeSavedParams(
       browserStorage(),
@@ -86,5 +123,28 @@ export function useUrlStateSync<State>(
       }
     }, URL_WRITE_DELAY_MS);
     return () => window.clearTimeout(timer);
-  }, [codec, defaultEncoded, state, storageKey]);
+  }, [codec, defaultState, state, storageKey]);
+
+  const startOver = useCallback(() => {
+    const previous = state;
+    loadState(defaultState);
+    setRestoredAgeMs(null);
+    notifyWithUndo('started-over', 'Started over with the default inputs', () =>
+      loadState(previous)
+    );
+  }, [defaultState, loadState, state]);
+
+  const dismiss = useCallback(() => setRestoredAgeMs(null), []);
+
+  return { restoredAgeMs, startOver, dismiss };
+}
+
+/** A visit that reopened the calculator's saved state, for the restored-session banner. */
+export interface RestoredSession {
+  /** How old the restored state was when the page opened; null when there's no banner. */
+  restoredAgeMs: number | null;
+  /** Resets the whole calculator to its defaults, with Undo. */
+  startOver: () => void;
+  /** Hides the banner and keeps the restored inputs. */
+  dismiss: () => void;
 }

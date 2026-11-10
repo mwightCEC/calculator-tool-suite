@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import {
   SAVED_STATE_MAX_AGE_MS,
+  opensSavedState,
   readSavedParams,
   resolveStartingState,
   writeSavedParams,
@@ -130,5 +131,38 @@ describe('resolveStartingState', () => {
     expect(start(noLink, brokenLink)).toEqual({ source: 'default' });
     expect(start(noLink, codec.encodeShareParams({ cameras: 0 }))).toEqual({ source: 'default' });
     expect(start(noLink, null)).toEqual({ source: 'default' });
+  });
+});
+
+describe('opensSavedState', () => {
+  const params = (cameras: number) => codec.encodeShareParams({ cameras });
+
+  it('is true when the calculator opens from saved state', () => {
+    expect(opensSavedState(codec, { source: 'saved', state: { cameras: 4 } }, params(4))).toBe(
+      true
+    );
+  });
+
+  it('is true for a link holding the saved inputs (a reload or reopened tab)', () => {
+    expect(opensSavedState(codec, { source: 'link', state: { cameras: 4 } }, params(4))).toBe(true);
+  });
+
+  it('is false for a link with other inputs, such as one someone shared', () => {
+    expect(opensSavedState(codec, { source: 'link', state: { cameras: 9 } }, params(4))).toBe(
+      false
+    );
+  });
+
+  it('is false with nothing saved, saved state that no longer decodes, or the defaults', () => {
+    expect(opensSavedState(codec, { source: 'link', state: { cameras: 4 } }, null)).toBe(false);
+    expect(
+      opensSavedState(
+        codec,
+        { source: 'link', state: { cameras: 4 } },
+        new URLSearchParams('v=1&s=broken')
+      )
+    ).toBe(false);
+    expect(opensSavedState(codec, { source: 'default' }, params(4))).toBe(false);
+    expect(opensSavedState(codec, { source: 'invalid-link' }, params(4))).toBe(false);
   });
 });

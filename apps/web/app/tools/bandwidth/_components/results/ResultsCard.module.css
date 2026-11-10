@@ -1,40 +1,20 @@
-/* Bandwidth-only results styles; the card, headline tile and metric row are in components/ResultsCard. */
-
-.warning {
-  color: var(--app-status-danger);
-}
+/* Bandwidth-only results styles; the card, headline tile and summary rows are in components/ResultsCard. */
 
 .note {
   color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-xs);
 }
 
-.secondaryText {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-sm);
-}
-
-/* Remote viewing box, styled like Storage's drives box. */
-
-.box {
-  padding: var(--mantine-spacing-md);
-  border: 1px solid var(--mantine-color-default-border);
-  border-radius: var(--mantine-radius-md);
-}
-
-.boxTitle {
-  margin: 0;
-  font-size: var(--mantine-font-size-md);
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-.boxDetail {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-sm);
-}
-
 /* Link checks */
+
+/* Uplink speed: a compact picker at the right end of its row, like the values in the rows above. */
+.uplinkRow > :last-child {
+  align-items: flex-end;
+}
+
+.uplinkSelect {
+  width: 8rem;
+}
 
 .sectionTitle {
   margin: 0 0 var(--mantine-spacing-xs);
@@ -74,4 +54,10 @@
 .linkMeter {
   margin-block: 6px 4px;
   background-color: var(--app-capacity-unused);
+}
+
+/* A rule above Network checks, like the one above Traffic breakdown (Disclosure). */
+.networkChecks {
+  padding-top: var(--mantine-spacing-sm);
+  border-top: 1px solid var(--mantine-color-default-border);
 }

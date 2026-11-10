@@ -1,0 +1,4 @@
+/* Clear all calculators: the app's danger red, as in the camera group menu (AA in both schemes). */
+.danger {
+  color: var(--app-status-danger);
+}

@@ -12,13 +12,22 @@ interface NumberStepperProps {
   max: number;
   /** Amount the up / down controls add or remove. Typed values snap to min + n·step. */
   step?: number;
+  disabled?: boolean;
 }
 
 /**
  * Whole-number input with Mantine's up / down controls. Decimals can be typed,
  * so the field can say it rounded them instead of silently dropping the point.
  */
-export function NumberStepper({ id, value, onChange, min, max, step = 1 }: NumberStepperProps) {
+export function NumberStepper({
+  id,
+  value,
+  onChange,
+  min,
+  max,
+  step = 1,
+  disabled,
+}: NumberStepperProps) {
   const snap = (next: number) => {
     const clamped = Math.min(max, Math.max(min, Math.round(next)));
     const snapped = min + Math.ceil((clamped - min) / step) * step;
@@ -40,6 +49,7 @@ export function NumberStepper({ id, value, onChange, min, max, step = 1 }: Numbe
       min={min}
       max={max}
       step={step}
+      disabled={disabled}
       allowNegative={false}
       clampBehavior="none"
       {...feedbackProps}

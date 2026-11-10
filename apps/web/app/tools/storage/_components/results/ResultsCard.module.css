@@ -29,31 +29,6 @@
   width: 56px;
 }
 
-/* Summary list: label and value on one row, detail underneath, as in PoE budget's checks. */
-
-.summaryList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.summaryLabel {
-  font-size: var(--mantine-font-size-sm);
-  font-weight: 600;
-}
-
-.summaryValue {
-  font-size: var(--mantine-font-size-sm);
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.summaryDetail {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-xs);
-}
-
 .drivesDetail {
   color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-sm);
