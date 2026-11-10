@@ -5,13 +5,12 @@ import classes from './Breakdown.module.css';
 /** One published set of pixel density levels, for reference beside the calculated density. */
 export function DensityGuidance() {
   return (
-    <div>
+    <div className={classes.guidance}>
       <Text component="h3" className={classes.sectionTitle}>
         Pixel density guidance
       </Text>
       <Text className={classes.intro}>
-        Higher pixel density gives more image detail at the target. Design with the calculated PPF /
-        PPM; the levels below are one published reference point, not a guarantee.
+        Higher pixel density gives more image detail at the target.
       </Text>
       <Table className={classes.table} verticalSpacing={6} horizontalSpacing="xs">
         <Table.Thead>

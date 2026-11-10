@@ -1,4 +1,4 @@
-/* Lens comparison, angles and pixel density guidance, below the drawings. */
+/* Lens comparison and pixel density guidance, under the results card. */
 
 .sectionTitle {
   margin: 0 0 var(--mantine-spacing-xs);
@@ -18,8 +18,10 @@
   font-size: var(--mantine-font-size-xs);
 }
 
-.optics {
-  font-size: var(--mantine-font-size-sm);
+/* Pixel density guidance, below a rule after the lens comparison. */
+.guidance {
+  padding-top: var(--mantine-spacing-sm);
+  border-top: 1px solid var(--mantine-color-default-border);
 }
 
 .table {

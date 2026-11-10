@@ -16,3 +16,9 @@
   flex-shrink: 0;
   margin-top: 2px;
 }
+
+/* The angles and sensor row, below a rule like the other cards' section dividers. */
+.optics {
+  padding-top: var(--mantine-spacing-sm);
+  border-top: 1px solid var(--mantine-color-default-border);
+}

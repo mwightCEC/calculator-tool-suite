@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { LensFovResult } from '@cctv/calc-core';
-import { Switch, Text } from '@mantine/core';
+import { Switch } from '@mantine/core';
 import { formatLength } from '../../_lib/lens-fov-labels';
 import type { LensFovCalculatorState } from '../../_state/lens-fov-calculator-state';
 import { CameraView } from './CameraView';
@@ -27,6 +27,15 @@ export function LensVisuals({ state, result }: LensVisualsProps) {
       <VisualCard
         title="Camera view"
         description={`The target plane at ${distance}, drawn to scale at the camera's aspect ratio. An illustration for scale, not a simulated image.`}
+        action={
+          <Switch
+            size="sm"
+            checked={showPixelGrid}
+            onChange={(event) => setShowPixelGrid(event.currentTarget.checked)}
+            label="Show pixel grid"
+            className={classes.titleSwitch}
+          />
+        }
       >
         <CameraView
           result={result}
@@ -34,28 +43,15 @@ export function LensVisuals({ state, result }: LensVisualsProps) {
           focalLengthMm={state.focalLengthMm}
           showPixelGrid={showPixelGrid}
         />
-        <Switch
-          checked={showPixelGrid}
-          onChange={(event) => setShowPixelGrid(event.currentTarget.checked)}
-          label="Show pixel grid"
-          description={`Blocks of image pixels and a 1 ${unit} square on the target plane. Shows how pixels map onto the scene, not how sharp it will look.`}
-        />
       </VisualCard>
 
-      <VisualCard
-        title="Coverage"
-        description="Seen from above, to scale. Shading shows how far each pixel density level reaches with this lens."
-      >
+      <VisualCard title="Coverage">
         <CoverageDiagram
           result={result}
           unit={unit}
           distancePrefix={state.solveFor === 'distance' ? 'Farthest' : undefined}
         />
         <DensityLevelLegend />
-        <Text className={classes.note}>
-          The distances assume a distortion-free lens aimed straight ahead; mounting height and tilt
-          aren&apos;t modelled.
-        </Text>
       </VisualCard>
 
       <VisualCard

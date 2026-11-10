@@ -94,6 +94,17 @@
   letter-spacing: -0.01em;
 }
 
+/* Beside a control in the title row: the title takes the free width. */
+.title[data-with-action] {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Camera view's pixel grid switch, at the end of its title row. */
+.titleSwitch {
+  flex-shrink: 0;
+}
+
 .description {
   color: var(--app-text-secondary);
 }

@@ -29,7 +29,7 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   `_components/`, `_lib/` (labels, result and print-summary text) and `_state/` (reducer,
   schema, share-link format).
 - Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`,
-  `CameraGroupCard`, `Disclosure`, `ResultsCard` (results card shell, headline tile, metric row),
+  `CameraGroupCard`, `Disclosure`, `ResultsCard` (results card shell, headline tile, `SummaryRows`),
   `MobileResultBar`, `CopyLinkButton`, `FaqLink`, `PrintLayout` for Export, `UnitInput`, `UnitSelect`
   (ft / m, AWG / mm² picker inside an input), `SegmentBar`,
   `SettingsPanel` (tinted icon panel for settings below the groups)).
@@ -39,22 +39,24 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   Every calculator uses the approved-prototype layout: the camera / device configuration card
   first, with the tool's settings in their own cards above it (PoE budget's Power source and
   Voltage drop's Power supply are `SettingsPanel`s in a bordered card), a 7:5 inputs / results split, and the
-  shared results card (title and any status badge with Copy link and Export (file-export
-  icon, `ResultsActions`) in the title row, headline tile, metric row, then collapsible
-  breakdown sections and a "How this is calculated" link to the FAQ page). Storage,
-  Bandwidth, PoE budget and Voltage drop have no badge and use `SummaryRows` (label and its detail on the left, value and any value detail
-  right-aligned; Bandwidth's Remote viewing row reads "Off" while it is switched off)
-  in place of the metric row. Storage differs: its Retention
+  shared results card (title with Copy link and Export (file-export icon, `ResultsActions`)
+  in the title row, no status badge, headline tile, `SummaryRows` (label and its detail on the
+  left, value and any value detail right-aligned; Bandwidth's Remote viewing row reads "Off"
+  while it is switched off), then collapsible breakdown sections and a "How this is
+  calculated" link to the FAQ page). Storage differs: its Retention
   goal (or Storage configuration) sits under the mode choice cards in the same card, Drive
   configuration (storage-needed mode only) is its own collapsible card above the camera
   configuration card, its summary rows replace Recording metrics too, and the drives sit in
   a "Drives and RAID" section. Lens / FOV has one camera, so its configuration card
-  has no groups. Its left column holds three collapsible visual cards (Camera view, Coverage,
-  Clarity sample) and, below them, a "Lens and pixel density" card (lens comparison, angles,
-  and the IEC levels as pixel density guidance) in place of a results-card breakdown; the
-  results card sits above the configuration card on the right, and that column stays in view
-  so the drawings change as the inputs do. On smaller screens the configuration comes first,
-  then the results, then the drawings.
+  has no groups. Its left column holds the Distance and target card (a `SettingsPanel` in a
+  bordered card), the Camera configuration card, then three collapsible visual cards (Camera
+  view, with the Show pixel grid switch in its title row (`VisualCard` `action`); Coverage;
+  Clarity sample). The right column holds the results card (its summary rows, then an
+  "Angles and sensor" row below a divider) and, under it, a "Lens and pixel
+  density" card (lens comparison, then the IEC levels as pixel density guidance) in
+  place of a results-card breakdown; the column stays in view and scrolls on its own when
+  taller than the window. On smaller screens the inputs come first, then the results and lens
+  card, then the drawings.
 - Shared logic: `apps/web/lib/` (`camera-groups/` group list and colours, `share/` link codec
   and URL sync hook, `saved-state.ts`, `format.ts`, camera and bitrate labels).
 - Number inputs go through `apps/web/hooks/use-number-draft.ts`: values commit as typed, blur

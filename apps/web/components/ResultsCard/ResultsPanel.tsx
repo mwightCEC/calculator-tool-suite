@@ -14,7 +14,7 @@ interface ResultsPanelProps {
   children: ReactNode;
 }
 
-/** A calculator's results card: title and badge, then the headline tile, figures and sections. */
+/** A calculator's results card: title and badge, then the headline tile, summary rows and sections. */
 export function ResultsPanel({ id, title, badge, actions, children }: ResultsPanelProps) {
   const titleId = `${id}-title`;
   return (
@@ -91,29 +91,13 @@ export interface MetricTile {
   label: string;
   value: string;
   detail?: string | null;
-  /** SummaryRows only: a line under the value, e.g. its likely range. */
+  /** A line under the value, e.g. its likely range. */
   valueDetail?: string | null;
-}
-
-/** Key figures in a row divided by rules, stacked when the card is narrow. */
-export function MetricRow({ tiles }: { tiles: MetricTile[] }) {
-  return (
-    <dl className={classes.tiles}>
-      {tiles.map((tile) => (
-        <div key={tile.label} className={classes.tile}>
-          <dt className={classes.tileLabel}>{tile.label}</dt>
-          <dd className={classes.tileValue}>{tile.value}</dd>
-          {tile.detail && <dd className={classes.tileDetail}>{tile.detail}</dd>}
-        </div>
-      ))}
-    </dl>
-  );
 }
 
 /**
  * Key figures as a list, laid out like PoE budget's checks: the label with its detail
- * underneath on the left, the value (and any detail of its own) right-aligned
- * (Storage and Bandwidth).
+ * underneath on the left, the value (and any detail of its own) right-aligned.
  */
 export function SummaryRows({ rows }: { rows: MetricTile[] }) {
   return (

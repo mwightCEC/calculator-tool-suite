@@ -8,11 +8,11 @@ import {
 } from '../_state/lens-fov-calculator-state';
 import {
   buildMetricTiles,
+  buildOpticsRow,
   describeCamera,
   describeHeadline,
   describeLensComparison,
   describeNote,
-  describeOptics,
   describeTarget,
   lensComparisonRows,
 } from './result-summary';
@@ -127,11 +127,13 @@ describe('describeLensComparison', () => {
   });
 });
 
-describe('describeOptics', () => {
-  it('lists the angles and active sensor area', () => {
-    expect(describeOptics(defaultResult)).toBe(
-      '90.3° × 59° (98.2° diagonal) · 5.63 × 3.17 mm active area'
-    );
+describe('buildOpticsRow', () => {
+  it('gives the angles as the value and the active sensor area as the detail', () => {
+    expect(buildOpticsRow(defaultResult)).toEqual({
+      label: 'Angles and sensor',
+      value: '90.3° × 59° (98.2° diagonal)',
+      detail: '5.63 × 3.17 mm active area',
+    });
   });
 });
 
