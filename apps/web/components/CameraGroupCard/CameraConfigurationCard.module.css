@@ -19,6 +19,7 @@
   color: var(--app-text-secondary);
 }
 
+/* A subtext line under the description, e.g. Voltage drop's "One cable per device…". */
 .assumption {
-  margin-top: var(--mantine-spacing-xs);
+  color: var(--app-text-secondary);
 }

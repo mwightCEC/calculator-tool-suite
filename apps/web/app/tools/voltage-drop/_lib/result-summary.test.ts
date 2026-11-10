@@ -8,13 +8,11 @@ import {
 } from '../_state/voltage-drop-calculator-state';
 import {
   buildMetricTiles,
-  describeDevices,
   describeLimit,
   describeProblem,
   describeRemaining,
   describeRunDrop,
   describeRunLimits,
-  describeStatus,
   describeSupplyLoad,
   describeWorstDeviceVolts,
   describeWorstDrop,
@@ -234,32 +232,6 @@ describe('supply figures when a run cannot power its device', () => {
     expect(overloadedResult.problems[0]).toEqual({ kind: 'over-budget' });
     expect(visibleProblems(overloadedResult)).toEqual([{ kind: 'cannot-power', groupId: 'g2' }]);
     expect(visibleProblems(defaultResult)).toBe(defaultResult.problems);
-  });
-});
-
-describe('describeStatus', () => {
-  const statusAfter = (...actions: VoltageDropCalculatorAction[]) =>
-    describeStatus(calculateVoltageDrop(stateAfter(...actions)));
-
-  it('passes when every run and the supply are within their limits', () => {
-    expect(describeStatus(defaultResult)).toEqual({ status: 'ok', label: 'Within limits' });
-  });
-
-  it('shows a failing run first, then the supply', () => {
-    expect(
-      statusAfter(LONG_RUN, { type: 'update-group', id: 'g1', changes: { deviceCount: 12 } })
-    ).toEqual({ status: 'over-limit', label: 'Over limit' });
-    expect(statusAfter({ type: 'update-group', id: 'g1', changes: { deviceCount: 9 } })).toEqual({
-      status: 'into-reserve',
-      label: 'Into reserve',
-    });
-  });
-});
-
-describe('describeDevices', () => {
-  it('counts devices and groups', () => {
-    expect(describeDevices(defaults)).toBe('4 devices in 1 group');
-    expect(describeDevices(stateAfter({ type: 'add-group' }))).toBe('8 devices in 2 groups');
   });
 });
 

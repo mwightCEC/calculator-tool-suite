@@ -30,7 +30,9 @@ export function VoltageDropHowCalculated() {
       </List.Item>
       <List.Item>
         The <b>smallest wire</b> and <b>longest run</b> are the thinnest listed size and the longest
-        length that keep the drop within the limit.
+        length that keep the drop within the limit. Staying within the drop limit doesn&apos;t
+        confirm a device will run: check the voltage at the device against the minimum input voltage
+        on its datasheet.
       </List.Item>
       <List.Item>
         The <b>supply load</b> adds up every device&apos;s current. Within the rating less the

@@ -1,25 +1,5 @@
 /* Voltage drop-only results styles; the card, headline tile and metric row are in components/ResultsCard. */
 
-.statusBadge {
-  flex-shrink: 0;
-  text-transform: none;
-}
-
-/* Status text in the theme's AA-contrast status colours. */
-.statusBadge[data-status='ok'] {
-  color: var(--app-status-ok);
-}
-
-.statusBadge[data-status='into-reserve'] {
-  color: var(--app-status-warn);
-}
-
-.statusBadge[data-status='over-budget'],
-.statusBadge[data-status='over-limit'],
-.statusBadge[data-status='cannot-power'] {
-  color: var(--app-status-danger);
-}
-
 .sectionTitle {
   margin: 0 0 var(--mantine-spacing-xs);
   font-size: var(--mantine-font-size-sm);
