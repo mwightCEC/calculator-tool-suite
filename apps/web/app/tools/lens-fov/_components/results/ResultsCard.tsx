@@ -7,11 +7,12 @@ import { FaqLink } from '../../../../../components/FaqLink/FaqLink';
 import { ResultsActions } from '../../../../../components/ResultsCard/ResultsActions';
 import {
   HeadlineTile,
-  MetricRow,
   ResultsPanel,
+  SummaryRows,
 } from '../../../../../components/ResultsCard/ResultsPanel';
 import {
   buildMetricTiles,
+  buildOpticsRow,
   describeCamera,
   describeHeadline,
   describeNote,
@@ -67,7 +68,11 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Stack>
       )}
 
-      <MetricRow tiles={buildMetricTiles(state, result)} />
+      <SummaryRows rows={buildMetricTiles(state, result)} />
+
+      <div className={classes.optics}>
+        <SummaryRows rows={[buildOpticsRow(result)]} />
+      </div>
 
       <FaqLink toolId="lens-fov" label="How this is calculated" />
     </ResultsPanel>

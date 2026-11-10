@@ -37,7 +37,7 @@ export function CameraFields({ state, actions }: CameraFieldsProps) {
   return (
     <FieldLayoutProvider value="stacked">
       <div className={classes.fields}>
-        <div className={classes.fieldGrid} data-columns="4">
+        <div className={classes.fieldGrid} data-columns="3">
           <FieldRow label="Resolution" controlId="lens-resolution">
             <Select
               id="lens-resolution"

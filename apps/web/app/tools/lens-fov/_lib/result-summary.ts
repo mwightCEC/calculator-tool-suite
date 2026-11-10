@@ -120,14 +120,19 @@ export function describeLensComparison(
     : `Farthest distance for ${describeTarget(state)} with this camera and sensor.`;
 }
 
-/** Angles and the sensor area used: "90.3° × 58.1° (98.4° diagonal) · 5.63 × 3.17 mm active area" */
-export function describeOptics(result: LensFovResult): string {
+/**
+ * The results card's angles row: "90.3° × 58.1° (98.4° diagonal)", with the sensor area
+ * used, "5.63 × 3.17 mm active area", under the label.
+ */
+export function buildOpticsRow(result: LensFovResult): MetricTile {
   const { sensor } = result;
-  return (
-    `${formatDegrees(result.horizontalFovDeg)} × ${formatDegrees(result.verticalFovDeg)} ` +
-    `(${formatDegrees(result.diagonalFovDeg)} diagonal) · ` +
-    `${formatNumber(sensor.widthMm, 2)} × ${formatNumber(sensor.heightMm, 2)} mm active area`
-  );
+  return {
+    label: 'Angles and sensor',
+    value:
+      `${formatDegrees(result.horizontalFovDeg)} × ${formatDegrees(result.verticalFovDeg)} ` +
+      `(${formatDegrees(result.diagonalFovDeg)} diagonal)`,
+    detail: `${formatNumber(sensor.widthMm, 2)} × ${formatNumber(sensor.heightMm, 2)} mm active area`,
+  };
 }
 
 export function describeNote(

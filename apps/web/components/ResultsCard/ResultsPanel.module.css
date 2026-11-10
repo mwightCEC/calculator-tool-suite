@@ -60,61 +60,6 @@
   }
 }
 
-/* Metric row: stacked rows when narrow, three columns divided by rules when wide enough. */
-
-.tiles {
-  display: grid;
-  margin: 0;
-}
-
-.tile {
-  display: flex;
-  flex-direction: column;
-  padding: var(--mantine-spacing-xs) 0;
-}
-
-.tile + .tile {
-  border-top: 1px solid var(--mantine-color-default-border);
-}
-
-/* Value above its label, as in the prototype; the markup keeps dt before dd. */
-.tileValue {
-  order: -1;
-  margin: 0;
-  font-size: var(--mantine-font-size-md);
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.tileLabel {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-xs);
-}
-
-.tileDetail {
-  margin: 0;
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-xs);
-}
-
-@container results (min-width: 21rem) {
-  .tiles {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--mantine-spacing-sm);
-  }
-
-  .tile {
-    padding: 0;
-  }
-
-  .tile + .tile {
-    padding-inline-start: var(--mantine-spacing-sm);
-    border-top: none;
-    border-inline-start: 1px solid var(--mantine-color-default-border);
-  }
-}
-
 /* Preliminary bitrate note, under the headline tile */
 
 .preliminary {
