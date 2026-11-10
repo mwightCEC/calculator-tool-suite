@@ -1,7 +1,8 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { CALCULATION_MODES, type CalculationMode } from '@cctv/calc-core';
-import { Paper, Radio, SimpleGrid, Text } from '@mantine/core';
+import { Paper, Radio, SimpleGrid, Stack, Text } from '@mantine/core';
 import { parseOption } from '../../../../lib/camera-labels';
 import { CALCULATION_MODE_CARDS } from '../_lib/storage-labels';
 import classes from './CalculationModeCards.module.css';
@@ -9,12 +10,14 @@ import classes from './CalculationModeCards.module.css';
 interface CalculationModeCardsProps {
   value: CalculationMode;
   onChange: (mode: CalculationMode) => void;
+  /** The chosen mode's goal, under the choice cards (Retention goal or Storage configuration). */
+  children?: ReactNode;
 }
 
-/** Storage needed or retention time, as two choice cards. */
-export function CalculationModeCards({ value, onChange }: CalculationModeCardsProps) {
+/** Storage needed or retention time, as two choice cards, then that mode's goal. */
+export function CalculationModeCards({ value, onChange, children }: CalculationModeCardsProps) {
   return (
-    <Paper withBorder radius="lg" p="sm">
+    <Paper component={Stack} gap="sm" withBorder radius="lg" p="sm">
       <Radio.Group
         value={value}
         onChange={(selected) => {
@@ -36,6 +39,7 @@ export function CalculationModeCards({ value, onChange }: CalculationModeCardsPr
           ))}
         </SimpleGrid>
       </Radio.Group>
+      {children}
     </Paper>
   );
 }

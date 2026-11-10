@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { IconMenu2 } from '@tabler/icons-react';
 import { ActionIcon, Group, Text, Title } from '@mantine/core';
-import { findToolByPath, SUITE_HEADING } from '../../tools/tool-registry';
+import { findHeadingByPath } from '../../tools/tool-registry';
 import { ColorSchemeToggle } from './ColorSchemeToggle';
 import { HelpButton } from './HelpButton';
 import classes from './AppHeader.module.css';
@@ -15,11 +15,11 @@ interface AppHeaderProps {
 }
 
 /**
- * Logo, then the page heading: the open tool's title and subtitle, or the suite's.
+ * Logo, then the page heading: the open tool's or the FAQ page's title and subtitle, or the suite's.
  * The heading is the page's h1. Narrow screens put it on a second row, without the subtitle.
  */
 export function AppHeader({ onOpenMobileNav }: AppHeaderProps) {
-  const heading = findToolByPath(usePathname()) ?? SUITE_HEADING;
+  const heading = findHeadingByPath(usePathname());
 
   return (
     <div className={classes.bar}>

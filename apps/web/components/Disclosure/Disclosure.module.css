@@ -1,4 +1,4 @@
-.root {
+.root[data-divider] {
   padding-top: var(--mantine-spacing-sm);
   border-top: 1px solid var(--mantine-color-default-border);
 }

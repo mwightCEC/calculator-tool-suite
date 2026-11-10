@@ -1,0 +1,5 @@
+/* Clear configuration: the app's danger red, which keeps AA contrast in both colour schemes
+   (Mantine's default red item text is too light on white). The disabled state keeps Mantine's dimming. */
+.danger:not([data-disabled]) {
+  color: var(--app-status-danger);
+}

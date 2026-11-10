@@ -26,3 +26,21 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* Bitrate: always open below a divider, like the Disclosure sections it replaced. */
+.bitrateSection {
+  padding-top: var(--mantine-spacing-sm);
+  border-top: 1px solid var(--mantine-color-default-border);
+  container-type: inline-size;
+}
+
+/* Scene complexity in the bitrate section: half the width, lining up with the two-column rows above. */
+.sceneField {
+  width: 100%;
+}
+
+@container (min-width: 22rem) {
+  .sceneField {
+    width: calc((100% - var(--mantine-spacing-sm)) / 2);
+  }
+}

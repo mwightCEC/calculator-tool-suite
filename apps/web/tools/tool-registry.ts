@@ -29,6 +29,21 @@ export const SUITE_HEADING = {
   subtitle: 'Calculators for CCTV installers and system designers.',
 } as const;
 
+/** The FAQ page: how each calculator works, linked from the results cards. */
+export const FAQ_PAGE = {
+  route: '/faq',
+  title: 'FAQ',
+  subtitle: 'How the calculators work out their results, and what they assume.',
+} as const;
+
+/** Header bar heading for a path: the open tool's, the FAQ page's, or the suite's. */
+export function findHeadingByPath(pathname: string): { title: string; subtitle: string } {
+  if (pathname.startsWith(FAQ_PAGE.route)) {
+    return FAQ_PAGE;
+  }
+  return findToolByPath(pathname) ?? SUITE_HEADING;
+}
+
 /** The tool whose pages include this path, if any. */
 export function findToolByPath(pathname: string): ToolDefinition | undefined {
   return TOOLS.find((tool) => pathname.startsWith(tool.route));

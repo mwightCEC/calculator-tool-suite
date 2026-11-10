@@ -1,0 +1,15 @@
+/* Sits where a Disclosure would: below a divider, at the same height as its toggle. */
+
+.root {
+  padding-top: var(--mantine-spacing-sm);
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  min-height: 32px;
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 700;
+}

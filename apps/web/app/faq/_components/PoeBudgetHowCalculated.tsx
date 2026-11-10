@@ -5,7 +5,7 @@ import {
   poeClassSpec,
 } from '@cctv/calc-core';
 import { List } from '@mantine/core';
-import { PORT_STANDARD_SHORT_LABELS } from '../_lib/poe-labels';
+import { PORT_STANDARD_SHORT_LABELS } from '../../tools/poe-budget/_lib/poe-labels';
 
 const class3 = poeClassSpec(3);
 const class4 = poeClassSpec(4);
@@ -16,7 +16,7 @@ const MIN_VOLTS = PORT_STANDARDS.map(
 ).join(', ');
 
 /** Plain-language explanation of the method and its limits. */
-export function HowCalculated() {
+export function PoeBudgetHowCalculated() {
   return (
     <List size="sm" spacing="xs">
       <List.Item>
@@ -55,8 +55,8 @@ export function HowCalculated() {
       </List.Item>
       <List.Item>
         The <b>checks</b> are separate: power budget, PoE ports, port standard and cable length. The
-        card&apos;s badge shows the worst of them, so a budget with room can still need a different
-        switch or shorter runs.
+        results card&apos;s badge shows the worst of them, so a budget with room can still need a
+        different switch or shorter runs.
       </List.Item>
     </List>
   );

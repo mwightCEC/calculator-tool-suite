@@ -9,11 +9,13 @@ interface ResultsPanelProps {
   title: string;
   /** Shown beside the title, e.g. EstimateBadge or a status badge. */
   badge?: ReactNode;
+  /** Buttons at the end of the title row, e.g. Copy link and Export; they wrap below when narrow. */
+  actions?: ReactNode;
   children: ReactNode;
 }
 
 /** A calculator's results card: title and badge, then the headline tile, figures and sections. */
-export function ResultsPanel({ id, title, badge, children }: ResultsPanelProps) {
+export function ResultsPanel({ id, title, badge, actions, children }: ResultsPanelProps) {
   const titleId = `${id}-title`;
   return (
     <Paper
@@ -25,11 +27,16 @@ export function ResultsPanel({ id, title, badge, children }: ResultsPanelProps) 
       radius="lg"
       className={classes.card}
     >
-      <Group justify="space-between" align="center" wrap="nowrap" gap="sm">
+      <Group justify="space-between" align="center" wrap={actions ? 'wrap' : 'nowrap'} gap="sm">
         <Title order={2} id={titleId} className={classes.title}>
           {title}
         </Title>
         {badge}
+        {actions && (
+          <Group gap="xs" wrap="nowrap">
+            {actions}
+          </Group>
+        )}
       </Group>
       {children}
     </Paper>
@@ -75,7 +82,7 @@ export function PreliminaryBitrateNote() {
 interface HeadlineTileProps {
   value: string;
   label: string;
-  /** e.g. "likely 12–23 Mbps"; omitted when the value is exact. */
+  /** e.g. "~12–23 Mbps"; omitted when the value is exact. */
   range?: string | null;
   /** Small text under the range, e.g. what the figure includes. */
   footnote?: ReactNode;

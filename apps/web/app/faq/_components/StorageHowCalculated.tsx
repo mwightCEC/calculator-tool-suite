@@ -2,7 +2,7 @@ import { isBitrateModelValidated } from '@cctv/calc-core';
 import { List, Text } from '@mantine/core';
 
 /** Plain-language explanation of the method and its limits. */
-export function HowCalculated() {
+export function StorageHowCalculated() {
   return (
     <div>
       <List size="sm" spacing="xs">

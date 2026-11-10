@@ -29,49 +29,29 @@
   width: 56px;
 }
 
-/* Recording metrics: always a 2 × 2 grid, so values have room to breathe. */
+/* Summary list: label and value on one row, detail underneath, as in PoE budget's checks. */
 
-.statGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--mantine-spacing-xs);
+.summaryList {
   margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.statBox {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
-  border: 1px solid var(--mantine-color-default-border);
-  border-radius: var(--mantine-radius-md);
-  background-color: var(--mantine-color-body);
+.summaryLabel {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
 }
 
-.statIcon {
-  order: -2;
-  color: var(--mantine-color-brand-6);
-}
-
-/* Value above its label, as in the prototype; the markup keeps dt before dd. */
-.statValue {
-  order: -1;
-  margin: 0;
-  font-size: var(--mantine-font-size-lg);
+.summaryValue {
+  font-size: var(--mantine-font-size-sm);
   font-variant-numeric: tabular-nums;
   font-weight: 700;
   white-space: nowrap;
 }
 
-.statDetail {
-  margin: 0;
+.summaryDetail {
   color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-xs);
-}
-
-.statLabel {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-sm);
 }
 
 .drivesDetail {
@@ -91,13 +71,8 @@
   font-size: var(--mantine-font-size-sm);
 }
 
-/* Warning and notes */
+/* Warning */
 
 .warning {
   color: var(--app-status-warn);
-}
-
-.unitsNote {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-xs);
 }

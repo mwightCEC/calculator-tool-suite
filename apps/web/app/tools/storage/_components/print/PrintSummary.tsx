@@ -119,12 +119,16 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
         ))}
       </dl>
 
-      <h2 className={classes.heading}>Notes</h2>
-      <ul className={classes.notes}>
-        {summary.notes.map((note) => (
-          <li key={note}>{note}</li>
-        ))}
-      </ul>
+      {summary.notes.length > 0 && (
+        <>
+          <h2 className={classes.heading}>Notes</h2>
+          <ul className={classes.notes}>
+            {summary.notes.map((note) => (
+              <li key={note}>{note}</li>
+            ))}
+          </ul>
+        </>
+      )}
     </PrintLayout>
   );
 }

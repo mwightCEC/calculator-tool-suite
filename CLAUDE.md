@@ -30,16 +30,22 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   schema, share-link format).
 - Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`,
   `CameraGroupCard`, `Disclosure`, `ResultsCard` (results card shell, headline tile, metric row),
-  `MobileResultBar`, `CopyLinkButton`, `PrintLayout` for Export, `UnitInput`, `UnitSelect`
+  `MobileResultBar`, `CopyLinkButton`, `FaqLink`, `PrintLayout` for Export, `UnitInput`, `UnitSelect`
   (ft / m, AWG / mm² picker inside an input), `SegmentBar`,
   `SettingsPanel` (tinted icon panel for settings below the groups)).
-  The group toolbar's Reset groups button (internally "clear") goes back to the one default
-  group, with Undo.
+  The "⋯" menu beside the configuration title (`CameraGroupMenu`) holds Expand / Collapse all
+  and, in red, "Clear camera configuration" (rotate icon; internally "clear"), which goes back to
+  the one default group, with Undo.
   Every calculator uses the approved-prototype layout: the camera / device configuration card
   first, with the tool's settings inside it below the groups (PoE budget's Switch / NVR and
   Voltage drop's Power supply are `SettingsPanel`s), a 7:5 inputs / results split, and the
   shared results card (title and badge, headline tile, metric row, then collapsible breakdown
-  and "How this is calculated" sections). Lens / FOV has one camera, so its configuration card
+  sections and a "How this is calculated" link to the FAQ page). Storage differs: its Retention
+  goal (or Storage configuration) sits under the mode choice cards in the same card, Drive
+  configuration (storage-needed mode only) is its own collapsible card above the camera
+  configuration card, and its results card has no badge, Copy link and Export
+  (file-export icon) in the title row, a bullet list in place of the metric row and Recording
+  metrics, and the drives in a "Drives and RAID" section. Lens / FOV has one camera, so its configuration card
   has no groups. Its left column holds three collapsible visual cards (Camera view, Coverage,
   Clarity sample) and, below them, a "Lens and pixel density" card (lens comparison, angles,
   and the IEC levels as pixel density guidance) in place of a results-card breakdown; the
@@ -54,7 +60,11 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
 - Notifications open below the header (`app/layout.module.css`). Mantine gives a
   `<Notifications>` class to all six position containers, so scope any offset by
   `[data-position]`: a stray `top` on the bottom ones stretches them over the page and blocks clicks.
-- Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts`.
+- Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts` (also `FAQ_PAGE`,
+  the sidebar's Help item and its header heading).
+- FAQ page (`app/faq/`): each calculator's "How it's calculated" text, one section per tool
+  (`_components/<Tool>HowCalculated.tsx`), anchored by tool id; results cards link to
+  `/faq#<tool id>` with `FaqLink`.
 - Theme: `apps/web/theme/` (palettes, `--app-*` CSS variables, Mantine overrides).
 
 ## Commands (repo root)
@@ -111,7 +121,8 @@ config or routing changes.
 - Storage and Bandwidth groups take their bitrate as Estimated (the model range) or Manual
   (one entered per-camera value, used as is). VBR and CBR were merged into Manual: their
   share-link indexes (1, 2) and Storage's v1 source names both open as Manual. The choice sits
-  in each group's "Bitrate: estimated or manual" section (`CameraStreamGrid`).
+  in each group's always-open "Bitrate (Estimated – ~2 Mbps)" section (`CameraStreamGrid`);
+  Scene complexity sits there, and only while Estimated is chosen.
 - Bandwidth is a general network bandwidth calculator (no recorder / recording wording). It
   headlines the typical bandwidth estimate (all camera streams plus overhead), labelled
   "Typical camera traffic" (never "peak": the inputs are averages). Remote viewing has an

@@ -35,7 +35,7 @@ describe('buildPrintSummary', () => {
     expect(summary.modeLabel).toBe('Storage needed');
     expect(summary.sourceLabel).toBe('Estimated');
     expect(summary.sizedForHigh).toBe(true);
-    expect(summary.headline.likelyRange).toMatch(/^likely .+ TB$/);
+    expect(summary.headline.likelyRange).toMatch(/^~.+ TB$/);
     expect(summary.keyFigures.map((figure) => figure.label)).toEqual([
       'Total bitrate',
       'Daily write',
@@ -105,7 +105,7 @@ describe('buildPrintSummary', () => {
   it('describes days-from-capacity retention as the worst case', () => {
     const summary = summarize(stateAfter({ type: 'set-mode', mode: 'days-from-capacity' }));
     const retention = summary.keyFigures.find((figure) => figure.label === 'Estimated retention');
-    expect(retention?.value).toMatch(/^\d+ days worst case \(likely \d+–\d+\)$/);
+    expect(retention?.value).toMatch(/^\d+ days worst case \(~\d+–\d+\)$/);
     expect(summary.settings[0]).toEqual({ label: 'Drives', value: '4' });
     expect(summary.sizedForHigh).toBe(false);
   });
@@ -128,9 +128,8 @@ describe('buildPrintSummary', () => {
   it('adds estimate notes only when bitrates are estimated', () => {
     const estimated = summarize(createInitialStorageCalculatorState()).notes;
     const known = summarize(KNOWN_ONLY).notes;
-    expect(known).toHaveLength(1);
-    expect(known[0]).toMatch(/decimal TB/);
-    expect(estimated.length).toBe(isBitrateModelValidated ? 2 : 3);
+    expect(known).toEqual([]);
+    expect(estimated.length).toBe(isBitrateModelValidated ? 1 : 2);
     expect(estimated.join(' ')).toMatch(/planning estimates/);
   });
 

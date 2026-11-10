@@ -5,6 +5,7 @@ import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
 import { Badge, Button, Group, Stack, Text } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
 import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
+import { FaqLink } from '../../../../../components/FaqLink/FaqLink';
 import {
   HeadlineTile,
   MetricRow,
@@ -23,7 +24,6 @@ import {
 } from '../../_lib/result-summary';
 import type { PoeCalculatorState } from '../../_state/poe-calculator-state';
 import { buildShareUrl } from '../../_state/share-link';
-import { HowCalculated } from '../HowCalculated';
 import { CHECK_BADGE_COLORS, ChecksList } from './ChecksList';
 import { GroupBreakdown } from './GroupBreakdown';
 import classes from './ResultsCard.module.css';
@@ -100,9 +100,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Stack>
       </Disclosure>
 
-      <Disclosure title="How this is calculated">
-        <HowCalculated />
-      </Disclosure>
+      <FaqLink toolId="poe-budget" label="How this is calculated" />
 
       {usesWatts && (
         <Text className={classes.note}>

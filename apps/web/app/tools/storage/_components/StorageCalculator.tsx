@@ -11,7 +11,7 @@ import { CalculationModeCards } from './CalculationModeCards';
 import { StorageCameraGroupCard } from './camera-group/StorageCameraGroupCard';
 import { PrintSummary } from './print/PrintSummary';
 import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
-import { StorageSettingsSection } from './StorageSettingsSection';
+import { DriveConfigurationCard, StorageGoalPanel } from './StorageSettings';
 import classes from './StorageCalculator.module.css';
 
 /** Two columns on large screens: inputs on the left, sticky results on the right. */
@@ -27,7 +27,17 @@ export function StorageCalculator() {
     <>
       <div className={classes.layout}>
         <Stack gap="md" className={classes.inputs}>
-          <CalculationModeCards value={state.mode} onChange={actions.setMode} />
+          <CalculationModeCards value={state.mode} onChange={actions.setMode}>
+            <StorageGoalPanel
+              mode={state.mode}
+              storage={state.storage}
+              onChange={actions.updateStorage}
+            />
+          </CalculationModeCards>
+
+          {state.mode === 'storage-needed' && (
+            <DriveConfigurationCard storage={state.storage} onChange={actions.updateStorage} />
+          )}
 
           <CameraConfigurationCard
             groupCount={groupCount}
@@ -53,12 +63,6 @@ export function StorageCalculator() {
                 )
               );
             })}
-
-            <StorageSettingsSection
-              mode={state.mode}
-              storage={state.storage}
-              onChange={actions.updateStorage}
-            />
           </CameraConfigurationCard>
         </Stack>
 

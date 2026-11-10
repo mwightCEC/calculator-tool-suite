@@ -7,7 +7,7 @@ import {
 } from '@cctv/calc-core';
 import type { MetricTile } from '../../../../components/ResultsCard/ResultsPanel';
 import {
-  formatLikelyRange,
+  formatApproxRange,
   formatMbps,
   formatNumber,
   formatRangeBounds,
@@ -22,16 +22,16 @@ import {
 
 export interface ResultFigure {
   value: string;
-  /** e.g. "likely 26–55 Mbps"; null when the value is exact. */
+  /** The likely range, e.g. "~26–55 Mbps"; null when the value is exact. */
   likelyRange: string | null;
 }
 
-/** The bandwidth estimate, the headline: "~38 Mbps", "likely 26–55 Mbps". */
+/** The bandwidth estimate, the headline: "~38 Mbps", "~26–55 Mbps". */
 export function describeBandwidth(result: BandwidthResult): ResultFigure {
   const approx = result.isEstimated ? '~' : '';
   return {
     value: `${approx}${formatMbps(result.bandwidthMbps.typical)}`,
-    likelyRange: formatLikelyRange(result.bandwidthMbps, 'Mbps'),
+    likelyRange: formatApproxRange(result.bandwidthMbps, 'Mbps'),
   };
 }
 
@@ -40,7 +40,7 @@ export function describeRemoteViewing(viewing: RemoteViewingUsage): ResultFigure
   const approx = isPointRange(viewing.totalMbps) ? '' : '~';
   return {
     value: `${approx}${formatMbps(viewing.totalMbps.typical)}`,
-    likelyRange: formatLikelyRange(viewing.totalMbps, 'Mbps'),
+    likelyRange: formatApproxRange(viewing.totalMbps, 'Mbps'),
   };
 }
 

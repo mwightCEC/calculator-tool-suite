@@ -1,5 +1,13 @@
 /* Drive configuration fields; the Retention goal and Storage configuration panels are SettingsPanel. */
 
+/* The Drive configuration card above the camera groups, spaced like the camera configuration card. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+}
+
 .description {
   color: var(--app-text-secondary);
 }

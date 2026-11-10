@@ -8,7 +8,7 @@ import { List, Text } from '@mantine/core';
 const percent = (fraction: number) => `${Math.round(fraction * 100)}%`;
 
 /** Plain-language explanation of the method and its limits. */
-export function HowCalculated() {
+export function BandwidthHowCalculated() {
   return (
     <div>
       <List size="sm" spacing="xs">
