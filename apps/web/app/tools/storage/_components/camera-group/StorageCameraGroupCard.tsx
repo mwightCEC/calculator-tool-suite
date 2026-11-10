@@ -25,7 +25,7 @@ function describeTotals({ group, usage }: Pick<StorageGroupProps, 'group' | 'usa
   };
 }
 
-/** The shared camera field grid with Storage's recording fields beside Scene complexity. */
+/** The shared camera field grid with Storage's recording fields under the stream settings. */
 function StorageGroupFields({ group, usage, actions }: StorageGroupProps) {
   const update = (changes: CameraGroupChanges) => actions.updateGroup(group.id, changes);
   return (
@@ -35,8 +35,12 @@ function StorageGroupFields({ group, usage, actions }: StorageGroupProps) {
       onChange={update}
       onBitrateSourceChange={(source) => actions.setBitrateSource(group.id, source)}
       sceneComplexityHelpNote="This is separate from how many hours are recorded."
-      beforeSceneComplexity={<RecordingModeField group={group} onChange={update} />}
-      afterSceneComplexity={<RecordingDetailField group={group} onChange={update} />}
+      detailFields={
+        <>
+          <RecordingModeField group={group} onChange={update} />
+          <RecordingDetailField group={group} onChange={update} />
+        </>
+      }
     />
   );
 }

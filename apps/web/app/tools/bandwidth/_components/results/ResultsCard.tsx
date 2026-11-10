@@ -5,6 +5,7 @@ import { IconAlertTriangle, IconPrinter, IconWorldUpload } from '@tabler/icons-r
 import { Button, Group, Text, ThemeIcon } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
 import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
+import { FaqLink } from '../../../../../components/FaqLink/FaqLink';
 import {
   EstimateBadge,
   HeadlineTile,
@@ -24,7 +25,6 @@ import {
 } from '../../_lib/result-summary';
 import type { BandwidthCalculatorState } from '../../_state/bandwidth-calculator-state';
 import { buildShareUrl } from '../../_state/share-link';
-import { HowCalculated } from '../HowCalculated';
 import { LinkChecks } from './LinkChecks';
 import classes from './ResultsCard.module.css';
 
@@ -110,9 +110,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         />
       </Disclosure>
 
-      <Disclosure title="How estimates are calculated">
-        <HowCalculated />
-      </Disclosure>
+      <FaqLink toolId="bandwidth" label="How estimates are calculated" />
 
       {result.isEstimated && (
         <Text className={classes.note}>

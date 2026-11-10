@@ -29,7 +29,7 @@ export function notifyGroupRemoved(group: { id: string; name: string }, onUndo: 
   notifyWithUndo(`group-removed-${group.id}`, `Deleted “${group.name}”`, onUndo);
 }
 
-/** Reset groups is immediate too, with Undo to bring the previous groups back. */
+/** Clearing the configuration is immediate too, with Undo to bring the previous groups back. */
 export function notifyGroupsCleared(noun: 'camera' | 'device', onUndo: () => void) {
-  notifyWithUndo('groups-cleared', `Reset the ${noun} groups to the default`, onUndo);
+  notifyWithUndo('groups-cleared', `Cleared the ${noun} configuration`, onUndo);
 }

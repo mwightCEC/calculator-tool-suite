@@ -111,17 +111,20 @@
   gap: var(--mantine-spacing-xs) var(--mantine-spacing-md);
 }
 
-.bitrateTitle {
+.bitrateHeading {
   font-size: var(--mantine-font-size-sm);
+}
+
+.bitrateTitle {
   font-weight: 600;
+}
+
+.bitrateHint {
+  color: var(--app-text-secondary);
 }
 
 .secondaryText {
   color: var(--app-text-secondary);
-}
-
-.emphasis {
-  color: var(--mantine-color-text);
 }
 
 .configured {

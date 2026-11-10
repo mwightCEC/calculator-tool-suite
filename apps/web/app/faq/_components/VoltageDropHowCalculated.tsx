@@ -1,8 +1,8 @@
 import { COPPER_RESISTIVITY } from '@cctv/calc-core';
 import { List } from '@mantine/core';
 
-/** Plain-language explanation of the method and its limits, in the results card. */
-export function HowCalculated() {
+/** Plain-language explanation of the method and its limits, on the FAQ page. */
+export function VoltageDropHowCalculated() {
   return (
     <List size="sm" spacing="xs">
       <List.Item>

@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import {
   BITRATE_INPUT_MAX_MBPS,
   BITRATE_INPUT_MIN_MBPS,
@@ -12,11 +13,7 @@ import {
 import { NumberInput, SegmentedControl, Text } from '@mantine/core';
 import { useNumberDraft } from '../../hooks/use-number-draft';
 import { describeEstimateWorking } from '../../lib/bitrate-text';
-import {
-  BITRATE_SOURCE_OPTIONS,
-  parseOption,
-  SCENE_COMPLEXITY_LABELS,
-} from '../../lib/camera-labels';
+import { BITRATE_SOURCE_OPTIONS, parseOption } from '../../lib/camera-labels';
 import classes from './CameraGroupCard.module.css';
 
 const roundToTenth = (mbps: number) =>
@@ -29,15 +26,24 @@ interface BitrateFieldProps {
   perCameraMbps: ValueRange;
   onSourceChange: (source: BitrateSource) => void;
   onMbpsChange: (mbps: number) => void;
+  /** Heading beside the toggle; it also names the toggle. */
+  title?: string;
+  /** Muted text after the title, e.g. "(Estimated – ~2 Mbps)". */
+  hint?: string;
+  /** Fields that only feed the estimate (e.g. Scene complexity), shown above its working. */
+  estimateFields?: ReactNode;
 }
 
-/** "Bitrate per camera": an Estimated / Manual toggle, then the estimate's working or an Mbps input. */
+/** A bitrate heading with an Estimated / Manual toggle, then the estimate's working or an Mbps input. */
 export function BitrateField({
   idPrefix,
   group,
   perCameraMbps,
   onSourceChange,
   onMbpsChange,
+  title = 'Bitrate per camera',
+  hint,
+  estimateFields,
 }: BitrateFieldProps) {
   const titleId = `${idPrefix}-bitrate-title`;
   const { bitrate } = group;
@@ -45,8 +51,11 @@ export function BitrateField({
   return (
     <div className={classes.bitrate}>
       <div className={classes.bitrateHeader}>
-        <Text id={titleId} className={classes.bitrateTitle}>
-          Bitrate per camera
+        <Text className={classes.bitrateHeading}>
+          <span id={titleId} className={classes.bitrateTitle}>
+            {title}
+          </span>
+          {hint && <span className={classes.bitrateHint}> {hint}</span>}
         </Text>
         <SegmentedControl
           size="sm"
@@ -62,7 +71,10 @@ export function BitrateField({
         />
       </div>
       {bitrate.source === 'estimate' ? (
-        <EstimateWorkingText group={group} perCameraMbps={perCameraMbps} />
+        <>
+          {estimateFields}
+          <EstimateWorkingText group={group} perCameraMbps={perCameraMbps} />
+        </>
       ) : (
         <ConfiguredBitrate
           id={`${idPrefix}-bitrate-mbps`}
@@ -79,13 +91,10 @@ function EstimateWorkingText({
   perCameraMbps,
 }: Pick<BitrateFieldProps, 'group' | 'perCameraMbps'>) {
   const working = describeEstimateWorking(estimateBitrateBreakdown(group), perCameraMbps);
-  const scene = SCENE_COMPLEXITY_LABELS[group.sceneComplexity].toLowerCase();
 
   return (
     <Text size="sm" className={classes.secondaryText}>
-      {working.stream} typical for this resolution, frame rate and codec × {working.multiplier} (
-      {scene} scene) = <b className={classes.emphasis}>{working.typical}</b>, {working.likely}. Use
-      Manual when the camera&apos;s real bitrate is known.
+      {working.typical} typical for this resolution
     </Text>
   );
 }

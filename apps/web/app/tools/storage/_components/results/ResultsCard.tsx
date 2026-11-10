@@ -1,12 +1,12 @@
 'use client';
 
 import { isBitrateModelValidated, type StorageCalculationResult } from '@cctv/calc-core';
-import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
+import { IconAlertTriangle, IconFileExport } from '@tabler/icons-react';
 import { Button, Group, Text } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
 import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
+import { FaqLink } from '../../../../../components/FaqLink/FaqLink';
 import {
-  EstimateBadge,
   HeadlineTile,
   PreliminaryBitrateNote,
   ResultsPanel,
@@ -14,11 +14,9 @@ import {
 import { describeHeadline, describeWarning } from '../../_lib/result-summary';
 import { buildShareUrl } from '../../_state/share-link';
 import type { StorageCalculatorState } from '../../_state/storage-calculator-state';
-import { HowCalculated } from '../HowCalculated';
 import { CapacityBar } from './CapacityBar';
 import { DrivesSummary } from './DrivesSummary';
-import { MetricTiles } from './MetricTiles';
-import { RecordingMetrics } from './RecordingMetrics';
+import { SummaryList } from './SummaryList';
 import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'storage-results';
@@ -30,8 +28,8 @@ interface ResultsCardProps {
 }
 
 const RESULTS_TITLES = {
-  'storage-needed': 'Storage estimate',
-  'days-from-capacity': 'Retention estimate',
+  'storage-needed': 'Estimated total capacity',
+  'days-from-capacity': 'Estimated total retention',
 } as const;
 
 export function ResultsCard({ result, state }: ResultsCardProps) {
@@ -42,7 +40,22 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
     <ResultsPanel
       id={RESULTS_CARD_ID}
       title={RESULTS_TITLES[result.mode]}
-      badge={<EstimateBadge isEstimated={result.isEstimated} />}
+      actions={
+        <>
+          <CopyLinkButton
+            size="compact-sm"
+            getShareUrl={() => buildShareUrl(state, window.location.href)}
+          />
+          {/* Opens the print dialog with the printable summary (PrintSummary); "Save as PDF" gives a file. */}
+          <Button
+            size="compact-sm"
+            leftSection={<IconFileExport size={16} />}
+            onClick={() => window.print()}
+          >
+            Export
+          </Button>
+        </>
+      }
     >
       <HeadlineTile
         value={headline.value}
@@ -60,7 +73,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Group>
       )}
 
-      <MetricTiles result={result} reservePercent={state.storage.reservePercent} />
+      <SummaryList result={result} state={state} />
 
       <Disclosure title="Capacity breakdown">
         <CapacityBar
@@ -70,28 +83,11 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         />
       </Disclosure>
 
-      <DrivesSummary result={result} />
-
-      <Disclosure title="Recording metrics">
-        <RecordingMetrics result={result} state={state} />
+      <Disclosure title="Drives and RAID">
+        <DrivesSummary result={result} />
       </Disclosure>
 
-      <Disclosure title="How estimates are calculated">
-        <HowCalculated />
-      </Disclosure>
-
-      <Text className={classes.unitsNote}>
-        Capacities are decimal TB (10¹² bytes), as printed on drives. Recorders and operating
-        systems may show less because they use binary units.
-      </Text>
-
-      <Group gap="xs" grow>
-        <CopyLinkButton getShareUrl={() => buildShareUrl(state, window.location.href)} />
-        {/* Opens the print dialog with the printable summary (PrintSummary); "Save as PDF" gives a file. */}
-        <Button leftSection={<IconPrinter size={16} />} onClick={() => window.print()}>
-          Export
-        </Button>
-      </Group>
+      <FaqLink toolId="storage" label="How estimates are calculated" />
     </ResultsPanel>
   );
 }

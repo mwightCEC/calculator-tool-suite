@@ -48,7 +48,7 @@ export function formatRangeBounds(range: ValueRange, digits?: number): string {
   return `${formatFixed(range.low, fractionDigits)}–${formatFixed(range.high, fractionDigits)}`;
 }
 
-/** "likely 30–48 TB", or null when the range has collapsed to one value. */
-export function formatLikelyRange(range: ValueRange, unit: string, digits?: number): string | null {
-  return isPointRange(range) ? null : `likely ${formatRangeBounds(range, digits)} ${unit}`;
+/** "~30–48 TB", or null when the range has collapsed to one value. */
+export function formatApproxRange(range: ValueRange, unit: string, digits?: number): string | null {
+  return isPointRange(range) ? null : `~${formatRangeBounds(range, digits)} ${unit}`;
 }

@@ -5,6 +5,7 @@ import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
 import { Badge, Button, Group, Stack, Text } from '@mantine/core';
 import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
 import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
+import { FaqLink } from '../../../../../components/FaqLink/FaqLink';
 import {
   HeadlineTile,
   MetricRow,
@@ -28,7 +29,6 @@ import {
 import { formatSupplyAmps } from '../../_lib/supply-units';
 import { buildShareUrl } from '../../_state/share-link';
 import type { VoltageDropCalculatorState } from '../../_state/voltage-drop-calculator-state';
-import { HowCalculated } from '../HowCalculated';
 import { RunBreakdown } from './RunBreakdown';
 import classes from './ResultsCard.module.css';
 
@@ -127,9 +127,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Stack>
       </Disclosure>
 
-      <Disclosure title="How this is calculated">
-        <HowCalculated />
-      </Disclosure>
+      <FaqLink toolId="voltage-drop" label="How this is calculated" />
 
       {usesWatts && (
         <Text className={classes.note}>

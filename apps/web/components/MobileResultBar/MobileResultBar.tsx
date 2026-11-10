@@ -6,7 +6,7 @@ import classes from './MobileResultBar.module.css';
 interface MobileResultBarProps {
   label: string;
   value: string;
-  /** Shown after the value, e.g. "likely 30–48 TB"; null for none. */
+  /** Shown after the value, e.g. "~30–48 TB"; null for none. */
   detail: string | null;
   /** Id of the results card that "Details" scrolls to and focuses. */
   resultsId: string;

@@ -96,7 +96,7 @@ function retentionFigure(result: StorageCalculationResult): LabelledValue {
     label: 'Estimated retention',
     value: isPointRange(days)
       ? worstCase
-      : `${worstCase} worst case (likely ${formatRangeBounds(days, 0)})`,
+      : `${worstCase} worst case (~${formatRangeBounds(days, 0)})`,
   };
 }
 
@@ -180,9 +180,7 @@ function settingsRows(state: StorageCalculatorState, result: StorageCalculationR
 }
 
 function notes(result: StorageCalculationResult): string[] {
-  const list = [
-    'Capacities are decimal TB (10¹² bytes), as printed on drives. Recorders and operating systems may show less because they use binary units.',
-  ];
+  const list: string[] = [];
   const { note } = describeDriveArray(result);
   if (note) {
     list.push(note);

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { IconCheck, IconLink } from '@tabler/icons-react';
-import { Button, Text } from '@mantine/core';
+import { Button, Text, type ButtonProps } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import classes from './CopyLinkButton.module.css';
 
@@ -11,10 +11,12 @@ const COPIED_FEEDBACK_MS = 2000;
 interface CopyLinkButtonProps {
   /** Share link for the current state, built on click (see the calculator's share-link module). */
   getShareUrl: () => string;
+  /** Mantine button size, e.g. "compact-sm" in a results card's title row. */
+  size?: ButtonProps['size'];
 }
 
 /** Copies a link that reproduces the current calculation. */
-export function CopyLinkButton({ getShareUrl }: CopyLinkButtonProps) {
+export function CopyLinkButton({ getShareUrl, size }: CopyLinkButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const copyLink = async () => {
@@ -42,6 +44,7 @@ export function CopyLinkButton({ getShareUrl }: CopyLinkButtonProps) {
   return (
     <Button
       variant="outline"
+      size={size}
       leftSection={copied ? <IconCheck size={16} /> : <IconLink size={16} />}
       onClick={copyLink}
       aria-live="polite"

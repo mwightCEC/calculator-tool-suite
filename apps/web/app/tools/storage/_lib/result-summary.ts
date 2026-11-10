@@ -1,11 +1,24 @@
-import { isPointRange, type StorageCalculationResult } from '@cctv/calc-core';
-import { formatDays, formatLikelyRange, formatRangeBounds, formatTb } from '../../../../lib/format';
+import {
+  GB_PER_TB,
+  isPointRange,
+  scaleRange,
+  type StorageCalculationResult,
+} from '@cctv/calc-core';
+import {
+  formatDays,
+  formatGb,
+  formatApproxRange,
+  formatMbps,
+  formatNumber,
+  formatTb,
+} from '../../../../lib/format';
+import type { StorageCalculatorState } from '../_state/storage-calculator-state';
 import { RAID_LABELS } from './storage-labels';
 
 export interface ResultHeadline {
   label: string;
   value: string;
-  /** e.g. "likely 30–48 TB"; null when every group uses a known bitrate. */
+  /** The likely range, e.g. "~30–48 TB"; null when every group uses a known bitrate. */
   likelyRange: string | null;
   /** What the headline figure is, where that isn't obvious; null otherwise. */
   note: string | null;
@@ -20,7 +33,7 @@ export function describeHeadline(result: StorageCalculationResult): ResultHeadli
     return {
       label: 'Storage required',
       value: formatTb(result.requiredCapacityTb.typical),
-      likelyRange: formatLikelyRange(result.requiredCapacityTb, 'TB'),
+      likelyRange: formatApproxRange(result.requiredCapacityTb, 'TB'),
       note: null,
     };
   }
@@ -28,10 +41,8 @@ export function describeHeadline(result: StorageCalculationResult): ResultHeadli
   return {
     label: 'Estimated retention',
     value: formatDays(days.low),
-    likelyRange: isPointRange(days) ? null : `likely ${formatRangeBounds(days, 0)} days`,
-    note: isPointRange(days)
-      ? 'In complete days, rounded down.'
-      : 'The low end of the range, in complete days: the shortest retention to expect.',
+    likelyRange: formatApproxRange(days, 'days', 0),
+    note: isPointRange(days) ? 'In complete days, rounded down.' : null,
   };
 }
 
@@ -55,4 +66,62 @@ export function describeWarning(result: StorageCalculationResult): string | null
     return 'Less than one day of footage fits on these drives';
   }
   return null;
+}
+
+export interface SummaryItem {
+  label: string;
+  value: string;
+  /** Subtext: what the value covers, or its likely range ("~11–21 Mbps"); null for none. */
+  detail: string | null;
+}
+
+const plural = (count: number, word: string) =>
+  `${formatNumber(count, 0)} ${count === 1 ? word : `${word}s`}`;
+
+/**
+ * The results card's bullet list: what the drives hold (recording, usable and raw
+ * capacity), then what the cameras record (bitrate, footage per day, cameras).
+ */
+export function buildSummaryItems(
+  result: StorageCalculationResult,
+  state: StorageCalculatorState
+): SummaryItem[] {
+  const { drives, breakdown } = result;
+  const approx = result.isEstimated ? '~' : '';
+  const raid = drives.raidLevel === 'none' ? 'no RAID' : RAID_LABELS[drives.raidLevel];
+  const cameras = state.cameraGroups.reduce((sum, group) => sum + group.cameraCount, 0);
+  // Shown in decimal GB, as on the camera group cards.
+  const dailyGb = scaleRange(result.dailyWriteTb, GB_PER_TB);
+  return [
+    {
+      label: 'Recording capacity',
+      value: formatTb(drives.usableCapacityTb - breakdown.reserveTb),
+      detail: `after ${state.storage.reservePercent}% reserve`,
+    },
+    {
+      label: 'Usable capacity',
+      value: formatTb(drives.usableCapacityTb),
+      detail: `${raid}, ${plural(drives.driveCount, 'drive')}`,
+    },
+    {
+      label: 'Raw capacity',
+      value: formatTb(drives.rawCapacityTb),
+      detail: `${formatNumber(drives.driveCount, 0)} × ${drives.driveSizeTb} TB`,
+    },
+    {
+      label: 'Total bitrate',
+      value: `${approx}${formatMbps(result.totalBitrateMbps.typical)}`,
+      detail: formatApproxRange(result.totalBitrateMbps, 'Mbps'),
+    },
+    {
+      label: 'Daily recording',
+      value: `${approx}${formatGb(dailyGb.typical)}/day`,
+      detail: formatApproxRange(dailyGb, 'GB/day'),
+    },
+    {
+      label: 'Cameras',
+      value: formatNumber(cameras, 0),
+      detail: `in ${plural(state.cameraGroups.length, 'group')}`,
+    },
+  ];
 }

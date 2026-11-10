@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Group, Paper, Text, Title } from '@mantine/core';
 import { MAX_CAMERA_GROUPS } from '../../lib/camera-groups/group-list';
-import { CameraGroupToolbar } from './CameraGroupToolbar';
+import { CameraGroupMenu } from './CameraGroupMenu';
 import type { useGroupExpansion } from './use-group-expansion';
 import classes from './CameraConfigurationCard.module.css';
 
@@ -26,8 +26,8 @@ interface CameraConfigurationCardProps {
 }
 
 /**
- * The section that holds a calculator's camera groups: heading with the Collapse all /
- * Reset groups icon buttons and Add camera group, then the cards.
+ * The section that holds a calculator's camera groups: heading with the "⋯" menu
+ * (Expand / Collapse all, Clear configuration) and Add camera group, then the cards.
  */
 export function CameraConfigurationCard({
   noun = 'camera',
@@ -52,11 +52,23 @@ export function CameraConfigurationCard({
     >
       <Group justify="space-between" align="flex-start" gap="sm">
         <div className={classes.heading}>
-          <Title order={2} id="camera-configuration-title" className={classes.title}>
-            {title}
-          </Title>
+          <Group gap={4} wrap="nowrap">
+            <Title order={2} id="camera-configuration-title" className={classes.title}>
+              {title}
+            </Title>
+            <CameraGroupMenu
+              noun={noun}
+              allCollapsed={expansion.allCollapsed}
+              onToggleAll={expansion.toggleAll}
+              canClear={canClear}
+              onClear={() => {
+                onClear();
+                expansion.expandAll();
+              }}
+            />
+          </Group>
           <Text size="sm" className={classes.description}>
-            Add one or more {noun} groups. Each group can have different settings.
+            A {noun} group shares the same settings.
           </Text>
           {assumption && (
             <Text size="sm" className={classes.assumption}>
@@ -64,31 +76,19 @@ export function CameraConfigurationCard({
             </Text>
           )}
         </div>
-        <Group gap="xs" wrap="nowrap">
-          <CameraGroupToolbar
-            noun={noun}
-            allCollapsed={expansion.allCollapsed}
-            onToggleAll={expansion.toggleAll}
-            canClear={canClear}
-            onClear={() => {
-              onClear();
-              expansion.expandAll();
-            }}
-          />
-          <Button
-            variant="outline"
-            radius="xl"
-            leftSection={<IconPlus size={16} />}
-            onClick={() => {
-              // The new group opens at the top with the others collapsed below it.
-              expansion.collapseAll();
-              onAddGroup();
-            }}
-            disabled={atGroupLimit}
-          >
-            {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} ${noun} groups` : `Add ${noun} group`}
-          </Button>
-        </Group>
+        <Button
+          variant="outline"
+          radius="xl"
+          leftSection={<IconPlus size={16} />}
+          onClick={() => {
+            // The new group opens at the top with the others collapsed below it.
+            expansion.collapseAll();
+            onAddGroup();
+          }}
+          disabled={atGroupLimit}
+        >
+          {atGroupLimit ? `Up to ${MAX_CAMERA_GROUPS} ${noun} groups` : `Add ${noun} group`}
+        </Button>
       </Group>
 
       {children}

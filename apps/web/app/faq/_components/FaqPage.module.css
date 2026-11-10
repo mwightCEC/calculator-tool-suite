@@ -1,0 +1,38 @@
+/* FAQ page: one card per calculator's method, readable line length. */
+
+.page {
+  max-width: 52rem;
+}
+
+.intro {
+  color: var(--app-text-secondary);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+  /* Clear the sticky header when a results card's link jumps to /faq#<tool id>. */
+  scroll-margin-top: calc(var(--app-shell-header-height) + var(--mantine-spacing-md));
+}
+
+.title {
+  font-size: var(--mantine-font-size-lg);
+  letter-spacing: -0.01em;
+}
+
+.toolLink {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 700;
+}
+
+/* A closing caveat under a method's list (Lens / FOV). */
+.note {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-sm);
+}

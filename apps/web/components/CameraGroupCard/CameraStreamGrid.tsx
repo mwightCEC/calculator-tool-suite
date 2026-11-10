@@ -3,7 +3,6 @@
 import type { ReactNode } from 'react';
 import type { BitrateSource, ValueRange } from '@cctv/calc-core';
 import { describeBitrateHint } from '../../lib/bitrate-text';
-import { Disclosure } from '../Disclosure/Disclosure';
 import { FieldLayoutProvider } from '../FieldRow/FieldRow';
 import { BitrateField } from './BitrateField';
 import {
@@ -26,17 +25,15 @@ interface CameraStreamGridProps {
   onBitrateSourceChange: (source: BitrateSource) => void;
   /** Sentence added to the scene complexity help. */
   sceneComplexityHelpNote?: string;
-  /** Calculator fields placed before Scene complexity in the second row. */
-  beforeSceneComplexity?: ReactNode;
-  /** Calculator fields placed after Scene complexity in the second row. */
-  afterSceneComplexity?: ReactNode;
+  /** Calculator fields in a second row under the stream settings (e.g. Storage's recording). */
+  detailFields?: ReactNode;
 }
 
 /**
  * A camera group's fields in a grid with labels above: cameras and main-stream
- * settings, then Scene complexity (the only info icon) and any calculator
- * fields, with the bitrate in its own section, named so Manual is easy to
- * find. The section starts open when a manual bitrate is set.
+ * settings, any calculator fields, then an always-open Bitrate section with the
+ * Estimated / Manual toggle. Scene complexity only feeds the estimate, so it sits
+ * in that section while Estimated is chosen.
  */
 export function CameraStreamGrid({
   group,
@@ -44,8 +41,7 @@ export function CameraStreamGrid({
   onChange,
   onBitrateSourceChange,
   sceneComplexityHelpNote,
-  beforeSceneComplexity,
-  afterSceneComplexity,
+  detailFields,
 }: CameraStreamGridProps) {
   return (
     <FieldLayoutProvider value="stacked">
@@ -56,30 +52,29 @@ export function CameraStreamGrid({
           <FrameRateField group={group} onChange={onChange} withHelp={false} />
           <CodecField group={group} onChange={onChange} withHelp={false} />
         </div>
-        <div className={classes.detailRow}>
-          {beforeSceneComplexity}
-          <SceneComplexityField
-            group={group}
-            onChange={onChange}
-            helpNote={sceneComplexityHelpNote}
-            control="select"
-          />
-          {afterSceneComplexity}
-        </div>
+        {detailFields && <div className={classes.detailRow}>{detailFields}</div>}
       </div>
-      <Disclosure
-        title="Bitrate: estimated or manual"
-        hint={`(${describeBitrateHint(group.bitrate, perCameraMbps)})`}
-        defaultOpened={group.bitrate.source === 'manual'}
-      >
+      <section className={classes.bitrateSection} aria-labelledby={`${group.id}-bitrate-title`}>
         <BitrateField
           idPrefix={group.id}
           group={group}
           perCameraMbps={perCameraMbps}
           onSourceChange={onBitrateSourceChange}
           onMbpsChange={(mbps) => applyEnteredBitrate(group, onChange, mbps)}
+          title="Bitrate"
+          hint={`(${describeBitrateHint(group.bitrate, perCameraMbps)})`}
+          estimateFields={
+            <div className={classes.sceneField}>
+              <SceneComplexityField
+                group={group}
+                onChange={onChange}
+                helpNote={sceneComplexityHelpNote}
+                control="select"
+              />
+            </div>
+          }
         />
-      </Disclosure>
+      </section>
     </FieldLayoutProvider>
   );
 }

@@ -1,8 +1,8 @@
 import { List, Text } from '@mantine/core';
-import classes from './results/ResultsCard.module.css';
+import classes from './FaqPage.module.css';
 
-/** Plain-language explanation of the method, the pixel density levels and the limits, in the results card. */
-export function HowCalculated() {
+/** Plain-language explanation of the method, the pixel density levels and the limits, on the FAQ page. */
+export function LensFovHowCalculated() {
   return (
     <>
       <List size="sm" spacing="xs">

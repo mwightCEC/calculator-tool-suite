@@ -47,7 +47,7 @@ describe('describeBandwidth', () => {
   it('marks estimates with "~" and gives the likely range', () => {
     const figure = describeBandwidth(calculateBandwidth(stateAfter()));
     expect(figure.value).toMatch(/^~[\d.]+ Mbps$/);
-    expect(figure.likelyRange).toMatch(/^likely [\d.]+–[\d.]+ Mbps$/);
+    expect(figure.likelyRange).toMatch(/^~[\d.]+–[\d.]+ Mbps$/);
   });
 });
 
