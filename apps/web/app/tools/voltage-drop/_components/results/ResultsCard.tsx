@@ -2,26 +2,22 @@
 
 import type { VoltageDropResult } from '@cctv/calc-core';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { Badge, Group, Stack, Text } from '@mantine/core';
+import { Group, Stack, Text } from '@mantine/core';
 import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
 import { FaqLink } from '../../../../../components/FaqLink/FaqLink';
 import { ResultsActions } from '../../../../../components/ResultsCard/ResultsActions';
 import {
   HeadlineTile,
-  MetricRow,
   ResultsPanel,
+  SummaryRows,
 } from '../../../../../components/ResultsCard/ResultsPanel';
 import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
 import {
   buildMetricTiles,
-  describeDevices,
   describeLimit,
   describeProblem,
-  describeStatus,
   describeWorstDrop,
-  DEVICE_VOLTS_NOTE,
   isSupplyLoadKnown,
-  type ResultStatus,
   SUPPLY_LOAD_UNAVAILABLE_NOTE,
   supplySegments,
   visibleProblems,
@@ -34,14 +30,6 @@ import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'voltage-drop-results';
 
-const STATUS_BADGE_COLORS: Record<ResultStatus['status'], string> = {
-  ok: 'green',
-  'into-reserve': 'amber',
-  'over-budget': 'red',
-  'over-limit': 'red',
-  'cannot-power': 'red',
-};
-
 interface ResultsCardProps {
   result: VoltageDropResult;
   /** The inputs behind the result: group names, colours, supply, limit and units. */
@@ -50,7 +38,6 @@ interface ResultsCardProps {
 
 export function ResultsCard({ result, state }: ResultsCardProps) {
   const drop = describeWorstDrop(state, result);
-  const status = describeStatus(result);
   const usesWatts = state.deviceGroups.some((group) => group.load.input === 'watts');
   const problems = visibleProblems(result);
 
@@ -59,26 +46,13 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
       id={RESULTS_CARD_ID}
       title="Voltage drop"
       actions={<ResultsActions getShareUrl={() => buildShareUrl(state, window.location.href)} />}
-      badge={
-        <Badge
-          variant="light"
-          color={STATUS_BADGE_COLORS[status.status]}
-          radius="sm"
-          className={classes.statusBadge}
-          data-status={status.status}
-        >
-          {status.label}
-        </Badge>
-      }
     >
       <HeadlineTile
         value={drop.value}
         label="Worst voltage drop"
         range={drop.detail}
-        footnote={`${describeDevices(state)} · ${describeLimit(state)}`}
+        footnote={describeLimit(state)}
       />
-
-      {isSupplyLoadKnown(result) && <Text className={classes.note}>{DEVICE_VOLTS_NOTE}</Text>}
 
       {problems.length > 0 && (
         <Stack component="ul" gap="xs" className={classes.list} role="status">
@@ -104,7 +78,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Stack>
       )}
 
-      <MetricRow tiles={buildMetricTiles(state, result)} />
+      <SummaryRows rows={buildMetricTiles(state, result)} />
 
       <Disclosure title="Run and supply breakdown">
         <Stack gap="md">

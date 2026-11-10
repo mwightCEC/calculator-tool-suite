@@ -80,7 +80,7 @@ export function describeWorstDeviceVolts(result: VoltageDropResult): string | nu
   return deviceVolts === null ? null : `${formatVolts(deviceVolts)} at the device`;
 }
 
-/** Under the headline while every run can power its device: the drop limit isn't the device's own limit. */
+/** In Export (and the FAQ): the drop limit isn't the device's own limit. */
 export const DEVICE_VOLTS_NOTE =
   "Within the drop limit doesn't confirm a device will run: check the voltage at the device against the minimum input voltage on its datasheet.";
 
@@ -168,36 +168,6 @@ export function describeRemaining(
   }
   const remaining = formatSupplyAmps(state.powerSupply, Math.abs(result.remainingAmps));
   return result.remainingAmps >= 0 ? `${remaining} left` : `${remaining} over the usable rating`;
-}
-
-export interface ResultStatus {
-  /** The deciding check's status, for the badge colour. */
-  status: RunStatus | BudgetStatus;
-  label: string;
-}
-
-/**
- * The card's badge: the worst run when one fails, then the supply when it is
- * into its reserve or over, otherwise "Within limits".
- */
-export function describeStatus(result: VoltageDropResult): ResultStatus {
-  const run = worstRun(result).status;
-  if (run !== 'ok') {
-    return { status: run, label: RUN_STATUS_LABELS[run] };
-  }
-  if (result.supplyStatus !== 'ok') {
-    return { status: result.supplyStatus, label: SUPPLY_STATUS_LABELS[result.supplyStatus] };
-  }
-  return { status: 'ok', label: 'Within limits' };
-}
-
-const plural = (count: number, noun: string) =>
-  `${formatNumber(count, 0)} ${count === 1 ? noun : `${noun}s`}`;
-
-/** "4 devices in 1 group", under the headline. */
-export function describeDevices(state: VoltageDropCalculatorState): string {
-  const devices = state.deviceGroups.reduce((total, group) => total + group.deviceCount, 0);
-  return `${plural(devices, 'device')} in ${plural(state.deviceGroups.length, 'group')}`;
 }
 
 /** "48 W output" for DC; "2 A drawn" for AC, whose load is already shown in VA. */

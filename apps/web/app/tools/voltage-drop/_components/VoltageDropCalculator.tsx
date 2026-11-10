@@ -28,6 +28,13 @@ export function VoltageDropCalculator() {
       <RestoredSessionBanner session={session} />
       <div className={classes.layout}>
         <Stack gap="md" className={classes.inputs}>
+          <SupplySection
+            powerSupply={state.powerSupply}
+            dropLimitPercent={state.dropLimitPercent}
+            onChange={actions.updateSupply}
+            onDropLimitChange={actions.setDropLimit}
+          />
+
           <CameraConfigurationCard
             noun="device"
             groupCount={groupCount}
@@ -36,13 +43,7 @@ export function VoltageDropCalculator() {
             onAddGroup={actions.addGroup}
             canClear={hasCustomGroups}
             onClear={actions.clearGroups}
-            assumption={
-              <>
-                <b>Each device has its own cable from the supply.</b> Devices sharing one cable,
-                daisy-chained along it, aren&apos;t covered. Wire is copper at 20 °C; warm cable and
-                copper-clad aluminium (CCA) drop more.
-              </>
-            }
+            assumption="One cable per device, copper at 20 °C"
           >
             {state.deviceGroups.map((group) => {
               const usage = usageByGroupId.get(group.id);
@@ -63,13 +64,6 @@ export function VoltageDropCalculator() {
                 )
               );
             })}
-
-            <SupplySection
-              powerSupply={state.powerSupply}
-              dropLimitPercent={state.dropLimitPercent}
-              onChange={actions.updateSupply}
-              onDropLimitChange={actions.setDropLimit}
-            />
           </CameraConfigurationCard>
         </Stack>
 

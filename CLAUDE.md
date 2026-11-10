@@ -37,12 +37,12 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   and, in red, "Clear camera configuration" (rotate icon; internally "clear"), which goes back to
   the one default group, with Undo.
   Every calculator uses the approved-prototype layout: the camera / device configuration card
-  first, with the tool's settings inside it below the groups (Voltage drop's Power supply is a
-  `SettingsPanel`; PoE budget's Power source is its own card above Device configuration), a 7:5 inputs / results split, and the
+  first, with the tool's settings in their own cards above it (PoE budget's Power source and
+  Voltage drop's Power supply are `SettingsPanel`s in a bordered card), a 7:5 inputs / results split, and the
   shared results card (title and any status badge with Copy link and Export (file-export
   icon, `ResultsActions`) in the title row, headline tile, metric row, then collapsible
   breakdown sections and a "How this is calculated" link to the FAQ page). Storage,
-  Bandwidth and PoE budget have no badge and use `SummaryRows` (label and its detail on the left, value and any value detail
+  Bandwidth, PoE budget and Voltage drop have no badge and use `SummaryRows` (label and its detail on the left, value and any value detail
   right-aligned; Bandwidth's Remote viewing row reads "Off" while it is switched off)
   in place of the metric row. Storage differs: its Retention
   goal (or Storage configuration) sits under the mode choice cards in the same card, Drive
@@ -152,8 +152,9 @@ config or routing changes.
   24 V AC treated as resistive, or a custom voltage), copper at 20 °C only. AWG resistance comes
   from copper's resistivity over the gauge's area; mm² sizes use the IEC 60228 class 5 (flexible)
   maximum resistance (`IEC_60228_CLASS_5_OHMS_PER_KM` in `wire-gauges.ts`). The page states
-  these assumptions in plain words above the groups and under the Supply field (no "home run"
-  jargon). Loads by amps are constant current; by watts, constant power (current rises as the
+  these assumptions briefly under the Device configuration title ("One cable per device, copper
+  at 20 °C", no "home run" jargon) and under the Supply field. The Power supply card's fields
+  run Supply, Drop limit, then (custom only) output type and voltage, rated current or VA, reserve. Loads by amps are constant current; by watts, constant power (current rises as the
   voltage falls). Each run gets its drop, the smallest passing wire and the longest passing
   run, shown under the group's run length as well as in the breakdown; the supply load uses
   the same OK / into-reserve / over statuses as PoE budget (calc-core `src/voltage-drop/`).
@@ -162,7 +163,7 @@ config or routing changes.
   its VA (`updateSupply`). A run that can't power its device has no steady current,
   so the web layer shows supply load, remaining and output as "Unavailable" and hides the
   supply checks (`_lib/result-summary.ts`). Passing the drop limit isn't a device-voltage
-  check; the results say to compare with the device's minimum input voltage.
+  check; Export and the FAQ say to compare with the device's minimum input voltage.
 - Lens / FOV models one camera with a distortion-free (rectilinear) lens aimed straight at a
   flat target; height and tilt aren't modelled. Sensor types are stored by their diagonal and
   fitted to the image's shape; custom sensors are cropped, never stretched. It solves for
