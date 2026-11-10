@@ -2,29 +2,28 @@
 
 import type { PoeResult } from '@cctv/calc-core';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { Badge, Group, Stack, Text } from '@mantine/core';
+import { Group, Stack, Text } from '@mantine/core';
 import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
 import { FaqLink } from '../../../../../components/FaqLink/FaqLink';
 import { ResultsActions } from '../../../../../components/ResultsCard/ResultsActions';
 import {
   HeadlineTile,
-  MetricRow,
   ResultsPanel,
+  SummaryRows,
 } from '../../../../../components/ResultsCard/ResultsPanel';
 import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
 import { formatWatts } from '../../../../../lib/format';
-import { buildChecks, describeOverallStatus } from '../../_lib/checks';
+import { buildChecks } from '../../_lib/checks';
 import {
   budgetSegments,
   buildMetricTiles,
   describeBudget,
-  describeDevices,
   describeProblem,
   describeUsage,
 } from '../../_lib/result-summary';
 import type { PoeCalculatorState } from '../../_state/poe-calculator-state';
 import { buildShareUrl } from '../../_state/share-link';
-import { CHECK_BADGE_COLORS, ChecksList } from './ChecksList';
+import { ChecksList } from './ChecksList';
 import { GroupBreakdown } from './GroupBreakdown';
 import classes from './ResultsCard.module.css';
 
@@ -38,32 +37,18 @@ interface ResultsCardProps {
 
 export function ResultsCard({ result, state }: ResultsCardProps) {
   const usage = describeUsage(result);
-  const usesWatts = state.deviceGroups.some((group) => group.power.input === 'watts');
   const checks = buildChecks(state, result);
-  const overall = describeOverallStatus(checks);
 
   return (
     <ResultsPanel
       id={RESULTS_CARD_ID}
-      title="PoE budget"
+      title="PoE budget used"
       actions={<ResultsActions getShareUrl={() => buildShareUrl(state, window.location.href)} />}
-      badge={
-        <Badge
-          variant="light"
-          color={CHECK_BADGE_COLORS[overall.level]}
-          radius="sm"
-          className={classes.statusBadge}
-          data-level={overall.level}
-        >
-          {overall.label}
-        </Badge>
-      }
     >
       <HeadlineTile
         value={usage.value}
-        label="PoE budget used"
-        range={usage.detail}
-        footnote={`${describeDevices(state, result)} · ${describeBudget(state, result)}`}
+        label={usage.detail}
+        footnote={describeBudget(state, result)}
       />
 
       {result.problems.length > 0 && (
@@ -90,7 +75,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Stack>
       )}
 
-      <MetricRow tiles={buildMetricTiles(state, result)} />
+      <SummaryRows rows={buildMetricTiles(state, result)} />
 
       <ChecksList checks={checks} />
 
@@ -102,13 +87,6 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
       </Disclosure>
 
       <FaqLink toolId="poe-budget" label="How this is calculated" />
-
-      {usesWatts && (
-        <Text className={classes.note}>
-          Watts include an estimated cable loss. A switch that reserves power by PoE class may set
-          aside more than the devices draw.
-        </Text>
-      )}
     </ResultsPanel>
   );
 }

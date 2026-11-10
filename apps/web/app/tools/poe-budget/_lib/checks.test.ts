@@ -150,11 +150,11 @@ describe('describeOverallStatus', () => {
 
 describe('describeMobileDetail', () => {
   it('adds the badge only when a check is not OK', () => {
-    expect(describeMobileDetail('of 96 W usable', { level: 'ok', label: 'All checks pass' })).toBe(
-      'of 96 W usable'
-    );
-    expect(describeMobileDetail('of 96 W usable', { level: 'fail', label: 'Cable too long' })).toBe(
-      'of 96 W usable · Cable too long'
-    );
+    expect(
+      describeMobileDetail('of 96 W available', { level: 'ok', label: 'All checks pass' })
+    ).toBe('of 96 W available');
+    expect(
+      describeMobileDetail('of 96 W available', { level: 'fail', label: 'Cable too long' })
+    ).toBe('of 96 W available · Cable too long');
   });
 });

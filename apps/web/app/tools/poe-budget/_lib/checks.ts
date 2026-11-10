@@ -35,7 +35,7 @@ function budgetCheck(result: PoeResult): PoeCheck {
     level: levels[result.budgetStatus],
     status,
     headline: status,
-    detail: `${formatWatts(result.totalWatts)} of ${formatWatts(result.usableWatts)} usable`,
+    detail: `${formatWatts(result.totalWatts)} of ${formatWatts(result.usableWatts)} available`,
   };
 }
 
@@ -126,7 +126,7 @@ export function describeOverallStatus(checks: PoeCheck[]): OverallStatus {
   };
 }
 
-/** The mobile bar's detail, naming the badge when a check isn't OK: "of 96 W usable · Cable too long". */
+/** The mobile bar's detail, naming the badge when a check isn't OK: "of 96 W available · Cable too long". */
 export function describeMobileDetail(detail: string, overall: OverallStatus): string {
   return overall.level === 'ok' ? detail : `${detail} · ${overall.label}`;
 }

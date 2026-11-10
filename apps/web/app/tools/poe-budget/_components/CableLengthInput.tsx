@@ -95,7 +95,11 @@ export function CableLengthInput({
       allowNegative={false}
       clampBehavior="none"
       error={describeOverMaximum(draft, limits)}
-      description={draft === '' ? 'Blank: 100 m (328 ft) assumed' : correction}
+      description={
+        draft === ''
+          ? `Leave blank to assume ${unit === 'ft' ? '328 ft (100 m)' : '100 m (328 ft)'}`
+          : correction
+      }
       inputWrapperOrder={NOTE_BELOW_FIELD}
       descriptionProps={{ role: 'status' }}
       hideControls

@@ -37,12 +37,12 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   and, in red, "Clear camera configuration" (rotate icon; internally "clear"), which goes back to
   the one default group, with Undo.
   Every calculator uses the approved-prototype layout: the camera / device configuration card
-  first, with the tool's settings inside it below the groups (PoE budget's Switch / NVR and
-  Voltage drop's Power supply are `SettingsPanel`s), a 7:5 inputs / results split, and the
+  first, with the tool's settings inside it below the groups (Voltage drop's Power supply is a
+  `SettingsPanel`; PoE budget's Power source is its own card above Device configuration), a 7:5 inputs / results split, and the
   shared results card (title and any status badge with Copy link and Export (file-export
   icon, `ResultsActions`) in the title row, headline tile, metric row, then collapsible
-  breakdown sections and a "How this is calculated" link to the FAQ page). Storage and
-  Bandwidth have no badge and use `SummaryRows` (label and its detail on the left, value and any value detail
+  breakdown sections and a "How this is calculated" link to the FAQ page). Storage,
+  Bandwidth and PoE budget have no badge and use `SummaryRows` (label and its detail on the left, value and any value detail
   right-aligned; Bandwidth's Remote viewing row reads "Off" while it is switched off)
   in place of the metric row. Storage differs: its Retention
   goal (or Storage configuration) sits under the mode choice cards in the same card, Drive
@@ -145,8 +145,9 @@ config or routing changes.
   standard's minimum voltage (44 / 50 / 50 / 52 V), the method behind the class allocations
   (25.5 W at 100 m → 30 W); a run with no solution is flagged "can't power" in the cable check. Budget status: OK within budget less the reserve, then into reserve,
   then over budget; also port count, port standard and the 100 m run limit (calc-core `src/poe/`).
-  The results card lists the four as separate checks (`_lib/checks.ts`); the card badge, mobile
-  bar and Export show the worst one, so "Within budget" never hides a port or cable failure.
+  The results card ("PoE budget used", headlined "of 96 W available": the budget less its
+  reserve) lists the four as separate checks (`_lib/checks.ts`); the mobile bar and Export show
+  the worst one, so "Within budget" never hides a port or cable failure.
 - Voltage drop checks home runs (one cable per device) from one low-voltage supply (12 / 24 V DC,
   24 V AC treated as resistive, or a custom voltage), copper at 20 °C only. AWG resistance comes
   from copper's resistivity over the gauge's area; mm² sizes use the IEC 60228 class 5 (flexible)

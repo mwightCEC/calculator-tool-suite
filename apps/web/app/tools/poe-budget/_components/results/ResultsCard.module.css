@@ -72,3 +72,9 @@
   flex-shrink: 0;
   margin-top: 2px;
 }
+
+/* A rule above Checks, like the one above Power breakdown (Disclosure). */
+.checks {
+  padding-top: var(--mantine-spacing-sm);
+  border-top: 1px solid var(--mantine-color-default-border);
+}

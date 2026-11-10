@@ -10,9 +10,9 @@ import { buildChecks, describeMobileDetail, describeOverallStatus } from '../_li
 import { describeUsage } from '../_lib/result-summary';
 import { usePoeCalculator } from '../_state/use-poe-calculator';
 import { PoeDeviceGroupCard } from './PoeDeviceGroupCard';
+import { PowerSourceSection } from './PowerSourceSection';
 import { PrintSummary } from './PrintSummary';
 import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
-import { SwitchSection } from './SwitchSection';
 import classes from './PoeCalculator.module.css';
 
 /** Two columns on large screens: inputs on the left, sticky results on the right. */
@@ -30,6 +30,8 @@ export function PoeCalculator() {
       <RestoredSessionBanner session={session} />
       <div className={classes.layout}>
         <Stack gap="md" className={classes.inputs}>
+          <PowerSourceSection powerSource={state.powerSource} onChange={actions.updateSwitch} />
+
           <CameraConfigurationCard
             noun="device"
             groupCount={groupCount}
@@ -57,8 +59,6 @@ export function PoeCalculator() {
                 )
               );
             })}
-
-            <SwitchSection powerSource={state.powerSource} onChange={actions.updateSwitch} />
           </CameraConfigurationCard>
         </Stack>
 
