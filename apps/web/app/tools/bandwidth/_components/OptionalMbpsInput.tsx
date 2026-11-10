@@ -15,13 +15,14 @@ interface OptionalMbpsInputProps {
   /** Null when the field is empty (the check is off). */
   value: number | null;
   onChange: (mbps: number | null) => void;
+  disabled?: boolean;
 }
 
 /**
  * A link capacity in Mbps that may be left empty. Valid numbers commit as they
  * are typed; clearing the field turns the check off.
  */
-export function OptionalMbpsInput({ id, value, onChange }: OptionalMbpsInputProps) {
+export function OptionalMbpsInput({ id, value, onChange, disabled }: OptionalMbpsInputProps) {
   const [draft, setDraft] = useState<number | string>(value ?? '');
   const [lastValue, setLastValue] = useState(value);
 
@@ -55,6 +56,7 @@ export function OptionalMbpsInput({ id, value, onChange }: OptionalMbpsInputProp
       onChange={handleChange}
       onBlur={handleBlur}
       placeholder="Off"
+      disabled={disabled}
       min={MIN_MBPS}
       max={MAX_LINK_CAPACITY_MBPS}
       decimalScale={1}

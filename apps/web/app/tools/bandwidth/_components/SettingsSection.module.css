@@ -1,4 +1,12 @@
-/* Tinted panel inside the Remote viewing and Network sections, as in Storage's Drive configuration. */
+/* The Remote viewing card above the camera groups, spaced like the camera configuration card. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-lg);
+}
+
+/* Tinted panel inside the Remote viewing card, as in Storage's Drive configuration. */
 
 .panel {
   display: flex;
@@ -24,4 +32,9 @@
 
 .secondaryText {
   color: var(--app-text-secondary);
+}
+
+/* The overhead percentage beside its panel title. */
+.overheadSelect {
+  width: 7rem;
 }

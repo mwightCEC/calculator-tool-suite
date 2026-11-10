@@ -1,11 +1,11 @@
 'use client';
 
 import type { PoeResult } from '@cctv/calc-core';
-import { IconAlertTriangle, IconPrinter } from '@tabler/icons-react';
-import { Badge, Button, Group, Stack, Text } from '@mantine/core';
-import { CopyLinkButton } from '../../../../../components/CopyLinkButton/CopyLinkButton';
+import { IconAlertTriangle } from '@tabler/icons-react';
+import { Badge, Group, Stack, Text } from '@mantine/core';
 import { Disclosure } from '../../../../../components/Disclosure/Disclosure';
 import { FaqLink } from '../../../../../components/FaqLink/FaqLink';
+import { ResultsActions } from '../../../../../components/ResultsCard/ResultsActions';
 import {
   HeadlineTile,
   MetricRow,
@@ -46,6 +46,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
     <ResultsPanel
       id={RESULTS_CARD_ID}
       title="PoE budget"
+      actions={<ResultsActions getShareUrl={() => buildShareUrl(state, window.location.href)} />}
       badge={
         <Badge
           variant="light"
@@ -108,14 +109,6 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
           aside more than the devices draw.
         </Text>
       )}
-
-      <Group gap="xs" grow>
-        <CopyLinkButton getShareUrl={() => buildShareUrl(state, window.location.href)} />
-        {/* Opens the print dialog with the printable summary (PrintSummary); "Save as PDF" gives a file. */}
-        <Button leftSection={<IconPrinter size={16} />} onClick={() => window.print()}>
-          Export
-        </Button>
-      </Group>
     </ResultsPanel>
   );
 }

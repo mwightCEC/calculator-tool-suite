@@ -4,6 +4,7 @@ import { Stack } from '@mantine/core';
 import { CameraConfigurationCard } from '../../../../components/CameraGroupCard/CameraConfigurationCard';
 import { useGroupExpansion } from '../../../../components/CameraGroupCard/use-group-expansion';
 import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
+import { RestoredSessionBanner } from '../../../../components/RestoredSessionBanner/RestoredSessionBanner';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
 import { buildChecks, describeMobileDetail, describeOverallStatus } from '../_lib/checks';
 import { describeUsage } from '../_lib/result-summary';
@@ -16,7 +17,7 @@ import classes from './PoeCalculator.module.css';
 
 /** Two columns on large screens: inputs on the left, sticky results on the right. */
 export function PoeCalculator() {
-  const { state, result, hasCustomGroups, actions } = usePoeCalculator();
+  const { state, result, hasCustomGroups, actions, session } = usePoeCalculator();
   const expansion = useGroupExpansion(state.deviceGroups.map((group) => group.id));
   const groupCount = state.deviceGroups.length;
   const atGroupLimit = groupCount >= MAX_CAMERA_GROUPS;
@@ -26,11 +27,13 @@ export function PoeCalculator() {
 
   return (
     <>
+      <RestoredSessionBanner session={session} />
       <div className={classes.layout}>
         <Stack gap="md" className={classes.inputs}>
           <CameraConfigurationCard
             noun="device"
             groupCount={groupCount}
+            itemCount={result.totalDevices}
             expansion={expansion}
             onAddGroup={actions.addGroup}
             canClear={hasCustomGroups}

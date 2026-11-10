@@ -8,7 +8,7 @@ import {
   type RemoteViewing,
   type ValueRange,
 } from '@cctv/calc-core';
-import { Select, Switch, Text } from '@mantine/core';
+import { Paper, Select, Switch, Text } from '@mantine/core';
 import { EnteredBitrateInput } from '../../../../components/CameraGroupCard/BitrateField';
 import { Disclosure } from '../../../../components/Disclosure/Disclosure';
 import { FieldLayoutProvider, FieldRow } from '../../../../components/FieldRow/FieldRow';
@@ -21,10 +21,10 @@ import classes from './SettingsSection.module.css';
 
 const formatCameras = (count: number) => `${count} ${count === 1 ? 'camera' : 'cameras'}`;
 
-/** "~3.1 Mbps per camera, the average across all camera groups. …", pointing to Custom bitrate. */
+/** "~3.1 Mbps per camera": the average across all camera groups. */
 function describeCameraAverage(averagePerCameraMbps: ValueRange): string {
   const approx = isPointRange(averagePerCameraMbps) ? '' : '~';
-  return `${approx}${formatMbps(averagePerCameraMbps.typical)} per camera, the average across all camera groups. If viewers mostly watch higher-bitrate cameras, use Custom bitrate.`;
+  return `${approx}${formatMbps(averagePerCameraMbps.typical)} per camera`;
 }
 
 interface RemoteViewingSectionProps {
@@ -37,8 +37,9 @@ interface RemoteViewingSectionProps {
 }
 
 /**
- * Collapsible Remote viewing section with an on/off switch; when on, the viewers,
- * their bitrate and the site upload check. Collapsing it only hides the fields.
+ * Collapsible Remote viewing card, above the camera groups, with an on/off switch, the
+ * viewers, their bitrate and the site upload check. The fields stay in view when the
+ * switch is off, disabled. Collapsing the card only hides the fields.
  */
 export function RemoteViewingSection({
   remoteViewing,
@@ -51,28 +52,25 @@ export function RemoteViewingSection({
   const isCapped = viewedCamerasPerViewer < camerasPerViewer;
 
   return (
-    <Disclosure title="Remote viewing" hint="(optional)">
-      <div className={classes.panel}>
-        <Switch
-          checked={enabled}
-          onChange={(event) => onChange({ enabled: event.currentTarget.checked })}
-          label="Include remote viewing"
-          description="People watching cameras from outside the site, through an app or web client."
-        />
-        {enabled && (
+    <Paper withBorder radius="lg" className={classes.card}>
+      <Disclosure title="Remote viewing" hint="(optional)" divider={false}>
+        <div className={classes.panel}>
+          <Switch
+            checked={enabled}
+            onChange={(event) => onChange({ enabled: event.currentTarget.checked })}
+            label="Include remote viewing"
+            description="People watching cameras from outside the site, through an app or web client."
+          />
           <FieldLayoutProvider value="stacked">
             <div className={classes.grid}>
-              <FieldRow
-                label="Viewers"
-                controlId="bandwidth-viewers"
-                note="Watching at the same time"
-              >
+              <FieldRow label="Viewers" controlId="bandwidth-viewers">
                 <NumberStepper
                   id="bandwidth-viewers"
                   value={viewers}
                   onChange={(value) => onChange({ viewers: value })}
                   min={1}
                   max={MAX_REMOTE_VIEWERS}
+                  disabled={!enabled}
                 />
               </FieldRow>
 
@@ -82,7 +80,7 @@ export function RemoteViewingSection({
                 note={
                   isCapped
                     ? `Capped at ${formatCameras(viewedCamerasPerViewer)}, the system total`
-                    : 'For example 4 in a 2 × 2 grid'
+                    : undefined
                 }
               >
                 <NumberStepper
@@ -91,6 +89,7 @@ export function RemoteViewingSection({
                   onChange={(value) => onChange({ camerasPerViewer: value })}
                   min={1}
                   max={MAX_CAMERAS_PER_VIEWER}
+                  disabled={!enabled}
                 />
               </FieldRow>
 
@@ -110,6 +109,7 @@ export function RemoteViewingSection({
                     }
                   }}
                   allowDeselect={false}
+                  disabled={!enabled}
                 />
                 {bitrateSource === 'camera' ? (
                   <Text size="sm" className={classes.secondaryText}>
@@ -121,6 +121,7 @@ export function RemoteViewingSection({
                     label="Custom bitrate per camera (Mbps)"
                     value={customMbps}
                     onChange={(mbps) => onChange({ customMbps: mbps })}
+                    disabled={!enabled}
                   />
                 )}
               </FieldRow>
@@ -128,18 +129,19 @@ export function RemoteViewingSection({
               <FieldRow
                 label="Site upload"
                 controlId="bandwidth-site-upload"
-                note="The site's internet upload speed. Leave empty to skip this check."
+                note="Leave empty to skip this check."
               >
                 <OptionalMbpsInput
                   id="bandwidth-site-upload"
                   value={siteUploadMbps}
                   onChange={(mbps) => onChange({ siteUploadMbps: mbps })}
+                  disabled={!enabled}
                 />
               </FieldRow>
             </div>
           </FieldLayoutProvider>
-        )}
-      </div>
-    </Disclosure>
+        </div>
+      </Disclosure>
+    </Paper>
   );
 }

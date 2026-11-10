@@ -185,6 +185,7 @@ describe('buildMetricTiles', () => {
       { label: 'Camera streams', value: '40 Mbps', detail: null },
       { label: 'Overhead', value: '4 Mbps', detail: '10% allowance' },
       { label: 'Per camera', value: '4 Mbps', detail: 'average, before overhead' },
+      { label: 'Remote viewing', value: 'Off', detail: null, valueDetail: null },
     ]);
   });
 
@@ -192,6 +193,26 @@ describe('buildMetricTiles', () => {
     const state = stateAfter();
     const [streams] = buildMetricTiles(state, calculateBandwidth(state));
     expect(streams?.value).toMatch(/^~/);
-    expect(streams?.detail).toMatch(/Mbps$/);
+    expect(streams?.detail).toMatch(/^~[\d.]+–[\d.]+ Mbps$/);
+  });
+
+  it('fills in the remote viewing row while remote viewing is on', () => {
+    const on = stateAfter(...KNOWN_4_MBPS, {
+      type: 'update-remote-viewing',
+      changes: { enabled: true, viewers: 2, camerasPerViewer: 3 },
+    });
+    expect(buildMetricTiles(on, calculateBandwidth(on)).at(-1)).toEqual({
+      label: 'Remote viewing',
+      value: '26.4 Mbps',
+      detail: '2 viewers × 3 cameras · Average camera bitrate',
+      valueDetail: null,
+    });
+  });
+
+  it('gives an estimated remote viewing row its likely range under the value', () => {
+    const state = stateAfter({ type: 'update-remote-viewing', changes: { enabled: true } });
+    const viewing = buildMetricTiles(state, calculateBandwidth(state)).at(-1);
+    expect(viewing?.value).toMatch(/^~/);
+    expect(viewing?.valueDetail).toMatch(/^~[\d.]+–[\d.]+ Mbps$/);
   });
 });

@@ -39,13 +39,16 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   Every calculator uses the approved-prototype layout: the camera / device configuration card
   first, with the tool's settings inside it below the groups (PoE budget's Switch / NVR and
   Voltage drop's Power supply are `SettingsPanel`s), a 7:5 inputs / results split, and the
-  shared results card (title and badge, headline tile, metric row, then collapsible breakdown
-  sections and a "How this is calculated" link to the FAQ page). Storage differs: its Retention
+  shared results card (title and any status badge with Copy link and Export (file-export
+  icon, `ResultsActions`) in the title row, headline tile, metric row, then collapsible
+  breakdown sections and a "How this is calculated" link to the FAQ page). Storage and
+  Bandwidth have no badge and use `SummaryRows` (label and its detail on the left, value and any value detail
+  right-aligned; Bandwidth's Remote viewing row reads "Off" while it is switched off)
+  in place of the metric row. Storage differs: its Retention
   goal (or Storage configuration) sits under the mode choice cards in the same card, Drive
   configuration (storage-needed mode only) is its own collapsible card above the camera
-  configuration card, and its results card has no badge, Copy link and Export
-  (file-export icon) in the title row, a bullet list in place of the metric row and Recording
-  metrics, and the drives in a "Drives and RAID" section. Lens / FOV has one camera, so its configuration card
+  configuration card, its summary rows replace Recording metrics too, and the drives sit in
+  a "Drives and RAID" section. Lens / FOV has one camera, so its configuration card
   has no groups. Its left column holds three collapsible visual cards (Camera view, Coverage,
   Clarity sample) and, below them, a "Lens and pixel density" card (lens comparison, angles,
   and the IEC levels as pixel density guidance) in place of a results-card breakdown; the
@@ -61,7 +64,10 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   `<Notifications>` class to all six position containers, so scope any offset by
   `[data-position]`: a stray `top` on the bottom ones stretches them over the page and blocks clicks.
 - Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts` (also `FAQ_PAGE`,
-  the sidebar's Help item and its header heading).
+  the help menu's FAQ item and its header heading). The header's help button (`HelpButton`) is a
+  menu: FAQ, a divider, then "Clear all calculators" in red, which forgets every tool's saved
+  state and resets the open tool, with Undo (`lib/share/clear-all-calculators.ts`, through window
+  events). The sidebar lists only All tools and the calculators.
 - FAQ page (`app/faq/`): each calculator's "How it's calculated" text, one section per tool
   (`_components/<Tool>HowCalculated.tsx`), anchored by tool id; results cards link to
   `/faq#<tool id>` with `FaqLink`.
@@ -112,7 +118,7 @@ config or routing changes.
 - Bitrate estimates are ranges from `packages/calc-core/src/data/bitrate-model.json`, which
   holds **unvalidated placeholder** coefficients. Keep the user-facing "estimate /
   placeholder" wording honest: while the model is unvalidated, estimated Storage and Bandwidth
-  results show `PreliminaryBitrateNote` under the headline. Updating the numbers needs no code
+  results show `PreliminaryBitrateNote` right under the results card title, above the headline. Updating the numbers needs no code
   changes (see the README in that folder).
 - Storage-needed mode sizes drives for the high estimate (and says which drive size it used);
   days-from-capacity headlines the worst-case (low) days, in complete days, and says so.
@@ -125,8 +131,11 @@ config or routing changes.
   Scene complexity sits there, and only while Estimated is chosen.
 - Bandwidth is a general network bandwidth calculator (no recorder / recording wording). It
   headlines the typical bandwidth estimate (all camera streams plus overhead), labelled
-  "Typical camera traffic" (never "peak": the inputs are averages). Remote viewing has an
-  on/off switch; when on, it is viewers × cameras each × the "Average camera bitrate" across
+  "Typical camera traffic" (never "peak": the inputs are averages). Above the camera
+  configuration card sit an always-open Overhead allowance card (it affects every total), then
+  a collapsible Remote viewing card. The uplink speed is chosen in the results card under
+  Network checks (`LinkChecks`). Remote viewing has an on/off switch (its fields stay visible but disabled while off);
+  when on, it is viewers × cameras each × the "Average camera bitrate" across
   groups or a custom per-camera bitrate, with the site upload check. Network checks use the
   high estimate: OK up to 70%, caution up to 90%, then calc-core's `over-capacity`, which the
   UI shows as "Above 90%" (a planning limit) and as "Exceeds link" only over 100%.
@@ -180,7 +189,12 @@ config or routing changes.
   4 hours after the last save (`SAVED_STATE_MAX_AGE_MS`); expired, future-dated or untimed
   (pre-expiry) entries are removed on load and the tool starts fresh. Share links never
   expire. A link in the URL wins over saved state; the default state clears it
-  (`lib/share/saved-state.ts`).
+  (`lib/share/saved-state.ts`). When a tool opens with its saved inputs (from saved state, or from a link
+  holding the same inputs: the address bar always carries one, so a reload opens as a link;
+  `opensSavedState`),
+  `RestoredSessionBanner` sits above the layout: "Restored your last session (12 min ago)." with
+  Start over (the whole tool back to its defaults, with Undo) and a close button
+  (`useUrlStateSync` returns the `RestoredSession`; keys come from `savedStateKey(tool id)`).
 - No calculator has a Simple / Advanced input mode any more; every group and setting is always
   available. Old links that carry the mode open with it ignored.
 - PoE budget and Voltage drop use `CameraConfigurationCard` with `noun="device"` ("Device
@@ -194,8 +208,8 @@ config or routing changes.
   layout (`CameraConfigurationCard`, `CameraStreamGrid`, `Disclosure`): new groups are added
   at the top and the others collapse, fields keep an info icon only where it explains
   something (Scene complexity, RAID level, reserve, uplink, overhead, viewing bitrate), and
-  optional sections (Storage's Drive configuration; Bandwidth's Remote viewing and Network
-  check and overhead) collapse without changing the calculation.
+  optional cards (Storage's Drive configuration; Bandwidth's Remote viewing) collapse
+  without changing the calculation.
 
 - Check my system (`app/check/`, not in the tool registry): the company website's cart opens
   `/check#cart=<base64url JSON>` (the "Cart link spec: Check my system" doc). The cart is in the

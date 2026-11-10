@@ -2,15 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconHelpCircle,
-  IconLayoutGrid,
-  type Icon,
-} from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight, IconLayoutGrid, type Icon } from '@tabler/icons-react';
 import { Badge, Divider, NavLink, Text, Tooltip, UnstyledButton } from '@mantine/core';
-import { FAQ_PAGE, TOOLS } from '../../tools/tool-registry';
+import { TOOLS } from '../../tools/tool-registry';
 import classes from './SidebarNav.module.css';
 
 interface SidebarNavProps {
@@ -77,21 +71,6 @@ export function SidebarNav({ collapsed, onNavigate, onToggleCollapsed }: Sidebar
           onNavigate={onNavigate}
         />
       ))}
-
-      {collapsed ? (
-        <Divider className={classes.sectionDivider} />
-      ) : (
-        <Text className={classes.sectionLabel}>Help</Text>
-      )}
-
-      <SidebarItem
-        label={FAQ_PAGE.title}
-        icon={IconHelpCircle}
-        href={FAQ_PAGE.route}
-        active={pathname.startsWith(FAQ_PAGE.route)}
-        collapsed={collapsed}
-        onNavigate={onNavigate}
-      />
     </nav>
   );
 }

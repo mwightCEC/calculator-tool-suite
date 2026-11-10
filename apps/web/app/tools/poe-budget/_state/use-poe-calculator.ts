@@ -11,6 +11,7 @@ import {
   notifyGroupRemoved,
   notifyGroupsCleared,
 } from '../../../../components/CameraGroupCard/undo-notifications';
+import { savedStateKey } from '../../../../lib/share/clear-all-calculators';
 import { useUrlStateSync } from '../../../../lib/share/use-url-state-sync';
 import {
   createInitialPoeCalculatorState,
@@ -20,10 +21,10 @@ import {
 } from './poe-calculator-state';
 import { encodeState, poeShareCodec } from './share-link';
 
-/** The default calculation keeps a clean URL with no share parameters. */
-const DEFAULT_STATE_ENCODED = encodeState(createInitialPoeCalculatorState());
+/** The default inputs: Start over and Clear all calculators return here, with a clean URL. */
+const DEFAULT_STATE = createInitialPoeCalculatorState();
 /** Where this calculator's last state is kept in the browser. */
-const SAVED_STATE_KEY = 'cctv-tool-suite:poe-budget-calculator';
+const SAVED_STATE_KEY = savedStateKey('poe-budget');
 const DEFAULT_GROUPS = createInitialPoeCalculatorState().deviceGroups;
 
 /**
@@ -42,7 +43,7 @@ export function usePoeCalculator() {
     (restored: PoeCalculatorState) => dispatch({ type: 'load-state', state: restored }),
     []
   );
-  useUrlStateSync(state, loadState, poeShareCodec, DEFAULT_STATE_ENCODED, SAVED_STATE_KEY);
+  const session = useUrlStateSync(state, loadState, poeShareCodec, DEFAULT_STATE, SAVED_STATE_KEY);
 
   const removeGroup = (id: string) => {
     const index = state.deviceGroups.findIndex((group) => group.id === id);
@@ -81,7 +82,7 @@ export function usePoeCalculator() {
       dispatch({ type: 'set-cable-length-unit', unit }),
   };
 
-  return { state, result, hasCustomGroups, actions };
+  return { state, result, hasCustomGroups, actions, session };
 }
 
 export type PoeCalculatorActions = ReturnType<typeof usePoeCalculator>['actions'];

@@ -4,6 +4,7 @@ import { Stack } from '@mantine/core';
 import { CameraConfigurationCard } from '../../../../components/CameraGroupCard/CameraConfigurationCard';
 import { useGroupExpansion } from '../../../../components/CameraGroupCard/use-group-expansion';
 import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
+import { RestoredSessionBanner } from '../../../../components/RestoredSessionBanner/RestoredSessionBanner';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
 import { describeHeadline } from '../_lib/result-summary';
 import { useStorageCalculator } from '../_state/use-storage-calculator';
@@ -16,7 +17,7 @@ import classes from './StorageCalculator.module.css';
 
 /** Two columns on large screens: inputs on the left, sticky results on the right. */
 export function StorageCalculator() {
-  const { state, result, hasCustomGroups, actions } = useStorageCalculator();
+  const { state, result, hasCustomGroups, actions, session } = useStorageCalculator();
   const expansion = useGroupExpansion(state.cameraGroups.map((group) => group.id));
   const groupCount = state.cameraGroups.length;
   const atGroupLimit = groupCount >= MAX_CAMERA_GROUPS;
@@ -25,6 +26,7 @@ export function StorageCalculator() {
 
   return (
     <>
+      <RestoredSessionBanner session={session} />
       <div className={classes.layout}>
         <Stack gap="md" className={classes.inputs}>
           <CalculationModeCards value={state.mode} onChange={actions.setMode}>
@@ -41,6 +43,7 @@ export function StorageCalculator() {
 
           <CameraConfigurationCard
             groupCount={groupCount}
+            itemCount={state.cameraGroups.reduce((sum, group) => sum + group.cameraCount, 0)}
             expansion={expansion}
             onAddGroup={actions.addGroup}
             canClear={hasCustomGroups}

@@ -49,14 +49,14 @@ function parseEntry(saved: string): SavedEntry | null {
 }
 
 /**
- * The saved share parameters, or null when nothing is saved or storage can't be
- * read. Expired or unrecognised entries are removed.
+ * The saved share parameters and when they were saved, or null when nothing is saved or
+ * storage can't be read. Expired or unrecognised entries are removed.
  */
-export function readSavedParams(
+export function readSavedEntry(
   storage: SavedStateStorage | null,
   key: string,
   now = Date.now()
-): URLSearchParams | null {
+): { params: URLSearchParams; savedAt: number } | null {
   try {
     const saved = storage?.getItem(key);
     if (!saved) {
@@ -69,10 +69,19 @@ export function readSavedParams(
       storage?.removeItem(key);
       return null;
     }
-    return new URLSearchParams(entry.params);
+    return { params: new URLSearchParams(entry.params), savedAt: entry.savedAt };
   } catch {
     return null;
   }
+}
+
+/** The saved share parameters alone (see readSavedEntry). */
+export function readSavedParams(
+  storage: SavedStateStorage | null,
+  key: string,
+  now = Date.now()
+): URLSearchParams | null {
+  return readSavedEntry(storage, key, now)?.params ?? null;
 }
 
 /** Saves the share parameters with the time, or forgets the saved state when given null. */
@@ -120,4 +129,27 @@ export function resolveStartingState<State>(
   return saved?.status === 'loaded'
     ? { source: 'saved', state: saved.state }
     : { source: 'default' };
+}
+
+/**
+ * Whether the calculator opens with the inputs saved from the last visit, for the
+ * restored-session banner: from saved state, or from a link holding those same inputs. The
+ * address bar always carries the current inputs as a link, so a reload, a reopened tab or
+ * a history entry opens as a link; a link from someone else won't match the saved inputs.
+ */
+export function opensSavedState<State>(
+  codec: Pick<ShareCodec<State>, 'decodeShareParams' | 'encodeState'>,
+  start: StartingState<State>,
+  savedParams: URLSearchParams | null
+): boolean {
+  if (start.source === 'saved') {
+    return true;
+  }
+  if (start.source !== 'link' || !savedParams) {
+    return false;
+  }
+  const saved = codec.decodeShareParams(savedParams);
+  return (
+    saved.status === 'loaded' && codec.encodeState(saved.state) === codec.encodeState(start.state)
+  );
 }

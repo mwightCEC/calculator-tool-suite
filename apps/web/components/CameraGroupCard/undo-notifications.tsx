@@ -4,7 +4,7 @@ import { notifications } from '@mantine/notifications';
 const UNDO_TIMEOUT_MS = 6000;
 
 /** Shows `message` with an Undo button for a few seconds. */
-function notifyWithUndo(id: string, message: string, onUndo: () => void) {
+export function notifyWithUndo(id: string, message: string, onUndo: () => void) {
   const notificationId = `${id}-${Date.now()}`;
   const undo = () => {
     onUndo();

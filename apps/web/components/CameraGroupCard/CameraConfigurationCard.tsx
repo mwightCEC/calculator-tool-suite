@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Group, Paper, Text, Title } from '@mantine/core';
 import { MAX_CAMERA_GROUPS } from '../../lib/camera-groups/group-list';
+import { formatNumber } from '../../lib/format';
 import { CameraGroupMenu } from './CameraGroupMenu';
 import type { useGroupExpansion } from './use-group-expansion';
 import classes from './CameraConfigurationCard.module.css';
@@ -12,6 +13,8 @@ interface CameraConfigurationCardProps {
   /** What the groups hold: "camera" (the default) or "device" (PoE loads aren't all cameras). */
   noun?: 'camera' | 'device';
   groupCount: number;
+  /** Cameras (or devices) across every group, for the "32 cameras in 4 groups" line. */
+  itemCount: number;
   /** The page's group expansion, so adding and clearing can collapse or expand the cards. */
   expansion: ReturnType<typeof useGroupExpansion>;
   /** Adds a group at the top of the list. */
@@ -25,6 +28,11 @@ interface CameraConfigurationCardProps {
   children: ReactNode;
 }
 
+/** "1 camera", "32 cameras". */
+function plural(count: number, noun: string): string {
+  return `${formatNumber(count, 0)} ${count === 1 ? noun : `${noun}s`}`;
+}
+
 /**
  * The section that holds a calculator's camera groups: heading with the "⋯" menu
  * (Expand / Collapse all, Clear configuration) and Add camera group, then the cards.
@@ -32,6 +40,7 @@ interface CameraConfigurationCardProps {
 export function CameraConfigurationCard({
   noun = 'camera',
   groupCount,
+  itemCount,
   expansion,
   onAddGroup,
   canClear,
@@ -68,7 +77,7 @@ export function CameraConfigurationCard({
             />
           </Group>
           <Text size="sm" className={classes.description}>
-            A {noun} group shares the same settings.
+            {plural(itemCount, noun)} in {plural(groupCount, 'group')}
           </Text>
           {assumption && (
             <Text size="sm" className={classes.assumption}>

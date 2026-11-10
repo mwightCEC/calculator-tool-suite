@@ -1,0 +1,24 @@
+.banner {
+  margin-bottom: var(--mantine-spacing-md);
+}
+
+/* Icon, message and close button centred on one line (Mantine aligns them to the top). */
+.wrapper {
+  align-items: center;
+}
+
+.icon {
+  margin-top: 0;
+}
+
+/* Room between Start over and the close button. */
+.close {
+  margin-inline-start: var(--mantine-spacing-md);
+}
+
+/* The banner is about the page, not the printed summary. */
+@media print {
+  .banner {
+    display: none;
+  }
+}

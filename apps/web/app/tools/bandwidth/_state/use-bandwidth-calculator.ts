@@ -12,6 +12,7 @@ import {
   notifyGroupRemoved,
   notifyGroupsCleared,
 } from '../../../../components/CameraGroupCard/undo-notifications';
+import { savedStateKey } from '../../../../lib/share/clear-all-calculators';
 import { useUrlStateSync } from '../../../../lib/share/use-url-state-sync';
 import {
   bandwidthCalculatorReducer,
@@ -21,10 +22,10 @@ import {
 } from './bandwidth-calculator-state';
 import { bandwidthShareCodec, encodeState } from './share-link';
 
-/** The default calculation keeps a clean URL with no share parameters. */
-const DEFAULT_STATE_ENCODED = encodeState(createInitialBandwidthCalculatorState());
+/** The default inputs: Start over and Clear all calculators return here, with a clean URL. */
+const DEFAULT_STATE = createInitialBandwidthCalculatorState();
 /** Where this calculator's last state is kept in the browser. */
-const SAVED_STATE_KEY = 'cctv-tool-suite:bandwidth-calculator';
+const SAVED_STATE_KEY = savedStateKey('bandwidth');
 const DEFAULT_GROUPS = createInitialBandwidthCalculatorState().cameraGroups;
 
 /**
@@ -43,7 +44,13 @@ export function useBandwidthCalculator() {
     (restored: BandwidthCalculatorState) => dispatch({ type: 'load-state', state: restored }),
     []
   );
-  useUrlStateSync(state, loadState, bandwidthShareCodec, DEFAULT_STATE_ENCODED, SAVED_STATE_KEY);
+  const session = useUrlStateSync(
+    state,
+    loadState,
+    bandwidthShareCodec,
+    DEFAULT_STATE,
+    SAVED_STATE_KEY
+  );
 
   const removeGroup = (id: string) => {
     const index = state.cameraGroups.findIndex((group) => group.id === id);
@@ -85,7 +92,7 @@ export function useBandwidthCalculator() {
       dispatch({ type: 'set-overhead', overheadPercent }),
   };
 
-  return { state, result, hasCustomGroups, actions };
+  return { state, result, hasCustomGroups, actions, session };
 }
 
 export type BandwidthCalculatorActions = ReturnType<typeof useBandwidthCalculator>['actions'];
