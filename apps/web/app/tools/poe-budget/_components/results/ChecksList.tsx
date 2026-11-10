@@ -11,7 +11,7 @@ export const CHECK_BADGE_COLORS: Record<CheckLevel, string> = {
 /** One row per check, each with its own badge, so every check's result is visible at once. */
 export function ChecksList({ checks }: { checks: PoeCheck[] }) {
   return (
-    <section aria-labelledby="poe-checks-title">
+    <section aria-labelledby="poe-checks-title" className={classes.checks}>
       <Text component="h3" id="poe-checks-title" className={classes.sectionTitle}>
         Checks
       </Text>

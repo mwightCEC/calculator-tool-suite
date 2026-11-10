@@ -24,19 +24,19 @@ export interface ResultFigure {
   detail: string;
 }
 
-/** The headline: "24.7 W", "of 96 W usable". */
+/** The headline: "24.7 W", "of 96 W available" (the budget less its reserve). */
 export function describeUsage(result: PoeResult): ResultFigure {
   return {
     value: formatWatts(result.totalWatts),
-    detail: `of ${formatWatts(result.usableWatts)} usable`,
+    detail: `of ${formatWatts(result.usableWatts)} available`,
   };
 }
 
-/** "71.3 W left", or how far over the usable budget the load is. */
+/** "71.3 W left", or how far over the available budget the load is. */
 export function describeRemaining(result: PoeResult): string {
   return result.remainingWatts >= 0
     ? `${formatWatts(result.remainingWatts)} left`
-    : `${formatWatts(-result.remainingWatts)} over the usable budget`;
+    : `${formatWatts(-result.remainingWatts)} over the available budget`;
 }
 
 /** "120 W budget less a 20% reserve (24 W)", or just the budget with no reserve. */
@@ -83,11 +83,6 @@ export function buildMetricTiles(state: PoeCalculatorState, result: PoeResult): 
       detail: result.enoughPorts ? 'PoE ports used' : 'not enough PoE ports',
     },
   ];
-}
-
-/** "4 devices in 1 group", under the headline. */
-export function describeDevices(state: PoeCalculatorState, result: PoeResult): string {
-  return `${plural(result.totalDevices, 'device')} in ${plural(state.deviceGroups.length, 'group')}`;
 }
 
 export function groupLabel(state: PoeCalculatorState, groupId: string): string {

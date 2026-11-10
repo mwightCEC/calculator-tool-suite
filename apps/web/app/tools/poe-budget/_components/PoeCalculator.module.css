@@ -18,7 +18,7 @@
   }
 }
 
-/* Device group and Switch / NVR fields: columns follow the card's width, not the viewport. */
+/* Device group and Power source fields: columns follow the card's width, not the viewport. */
 .deviceFields {
   display: flex;
   flex-direction: column;
