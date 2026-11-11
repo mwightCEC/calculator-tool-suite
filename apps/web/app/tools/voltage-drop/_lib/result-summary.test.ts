@@ -14,8 +14,8 @@ import {
   describeRunDrop,
   describeRunLimits,
   describeSupplyLoad,
-  describeWorstDeviceVolts,
-  describeWorstDrop,
+  describeWorstDropPercent,
+  describeWorstRun,
   formatRunLength,
   isSupplyLoadKnown,
   supplySegments,
@@ -49,11 +49,11 @@ const CANNOT_POWER: VoltageDropCalculatorAction[] = [
 
 describe('headline text', () => {
   it('describes the defaults', () => {
-    expect(describeWorstDrop(defaults, defaultResult)).toEqual({
-      value: '5.3%',
-      detail: '0.64 V drop · 11.36 V at the device',
+    expect(describeWorstRun(defaults, defaultResult)).toEqual({
+      value: '11.36 V',
+      detail: '5.3% worst voltage drop (0.64 V)',
     });
-    expect(describeWorstDeviceVolts(defaultResult)).toBe('11.36 V at the device');
+    expect(describeWorstDropPercent(defaultResult)).toBe('5.3% worst drop');
     expect(describeLimit(defaults)).toBe('12 V DC supply, 10% drop limit');
   });
 
@@ -61,9 +61,9 @@ describe('headline text', () => {
     const state = stateAfter({ type: 'add-group' }, LONG_RUN);
     const result = calculateVoltageDrop(state);
     expect(worstRun(result).groupId).toBe('g1');
-    expect(describeWorstDrop(state, result)).toEqual({
-      value: '13.3%',
-      detail: 'Device group 1: 1.6 V drop · 10.4 V at the device',
+    expect(describeWorstRun(state, result)).toEqual({
+      value: '10.4 V',
+      detail: 'Device group 1: 13.3% worst voltage drop (1.6 V)',
     });
   });
 
@@ -71,11 +71,11 @@ describe('headline text', () => {
     const state = stateAfter(LONG_RUN, { type: 'add-group' }, ...CANNOT_POWER);
     const result = calculateVoltageDrop(state);
     expect(worstRun(result).groupId).toBe('g2');
-    expect(describeWorstDrop(state, result)).toEqual({
+    expect(describeWorstRun(state, result)).toEqual({
       value: "Can't power",
       detail: "Device group 2: the run can't deliver the device's power",
     });
-    expect(describeWorstDeviceVolts(result)).toBeNull();
+    expect(describeWorstDropPercent(result)).toBeNull();
   });
 
   it('keeps the worse of two runs whichever comes first', () => {

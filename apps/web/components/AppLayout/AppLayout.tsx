@@ -8,8 +8,8 @@ import { MobileNavDrawer } from './MobileNavDrawer';
 import { SidebarNav } from './SidebarNav';
 import classes from './AppLayout.module.css';
 
-/** Taller on wide screens, where the heading includes the subtitle; see AppHeader. */
-const HEADER_HEIGHT = { base: 96, sm: 104 };
+/** Close to the 60px Clinton support site bar; phones fit a second row for the title (see AppHeader). */
+const HEADER_HEIGHT = { base: 80, sm: 64 };
 const NAVBAR_WIDTH_EXPANDED = 240;
 const NAVBAR_WIDTH_COLLAPSED = 64;
 /** Matches theme.breakpoints.sm, where the sidebar switches to a mobile drawer. */

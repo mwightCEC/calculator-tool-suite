@@ -19,7 +19,7 @@ function summarize(state: VoltageDropCalculatorState) {
 describe('buildPrintSummary', () => {
   it('summarises the defaults', () => {
     const summary = summarize(createInitialVoltageDropCalculatorState());
-    expect(summary.drop.value).toMatch(/%$/);
+    expect(summary.drop.value).toBe('11.36 V');
     expect(summary.statusLabel).toBe('Within limit');
     expect(summary.keyFigures).toEqual([
       { label: 'Supply load', value: '2 A of 4 A usable (within rating)' },
