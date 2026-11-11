@@ -49,7 +49,7 @@ export function RecordingDetailField({ group, onChange }: RecordingFieldsProps) 
       {group.recordingMode === 'motion' && (
         <FieldRow
           label="Motion time"
-          note="Include pre- and post-event recording. Motion clips often record at a higher bitrate than the daily average, so allow extra."
+          note="Motion clips often record at a higher bitrate than the daily average"
           controlId={`${id}-motion`}
         >
           <Group gap="md" wrap="nowrap">

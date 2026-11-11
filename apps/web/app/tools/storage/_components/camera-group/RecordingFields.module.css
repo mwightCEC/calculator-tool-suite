@@ -1,5 +1,7 @@
+/* The slider fills its field, leaving room for the "% of day" value. */
 .slider {
-  width: 180px;
+  flex: 1;
+  min-width: 0;
 }
 
 .sliderValue {
@@ -8,10 +10,4 @@
 
 .hoursInput {
   width: 90px;
-}
-
-@media (max-width: $mantine-breakpoint-xs) {
-  .slider {
-    width: 140px;
-  }
 }
