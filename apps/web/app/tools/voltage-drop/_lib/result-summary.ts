@@ -58,8 +58,14 @@ function groupLabel(state: VoltageDropCalculatorState, groupId: string): string 
   return state.deviceGroups.find((group) => group.id === groupId)?.name ?? groupId;
 }
 
-/** The headline: "5.3%", "0.64 V drop · 11.36 V at the device", naming the group when there are several. */
-export function describeWorstDrop(
+/** Label for the headline: the worst run's voltage at its device. */
+export const HEADLINE_LABEL = 'Voltage at the device';
+
+/**
+ * The headline: "11.36 V", "5.3% worst voltage drop (0.64 V)", naming the group when there
+ * are several. Every run shares one supply, so the worst drop is also the lowest device voltage.
+ */
+export function describeWorstRun(
   state: VoltageDropCalculatorState,
   result: VoltageDropResult
 ): ResultFigure {
@@ -69,15 +75,15 @@ export function describeWorstDrop(
     return { value: "Can't power", detail: `${prefix}the run can't deliver the device's power` };
   }
   return {
-    value: formatPercent(run.dropFraction),
-    detail: `${prefix}${formatVolts(run.dropVolts)} drop · ${formatVolts(run.deviceVolts)} at the device`,
+    value: formatVolts(run.deviceVolts),
+    detail: `${prefix}${formatPercent(run.dropFraction)} worst voltage drop (${formatVolts(run.dropVolts)})`,
   };
 }
 
-/** Short detail for the mobile bar: "11.36 V at the device", or null when the run can't power it. */
-export function describeWorstDeviceVolts(result: VoltageDropResult): string | null {
-  const { deviceVolts } = worstRun(result);
-  return deviceVolts === null ? null : `${formatVolts(deviceVolts)} at the device`;
+/** Short detail for the mobile bar: "5.3% worst drop", or null when the run can't power it. */
+export function describeWorstDropPercent(result: VoltageDropResult): string | null {
+  const { dropFraction } = worstRun(result);
+  return dropFraction === null ? null : `${formatPercent(dropFraction)} worst drop`;
 }
 
 /** In Export (and the FAQ): the drop limit isn't the device's own limit. */

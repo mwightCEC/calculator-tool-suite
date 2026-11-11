@@ -16,7 +16,8 @@ import {
   buildMetricTiles,
   describeLimit,
   describeProblem,
-  describeWorstDrop,
+  describeWorstRun,
+  HEADLINE_LABEL,
   isSupplyLoadKnown,
   SUPPLY_LOAD_UNAVAILABLE_NOTE,
   supplySegments,
@@ -37,7 +38,7 @@ interface ResultsCardProps {
 }
 
 export function ResultsCard({ result, state }: ResultsCardProps) {
-  const drop = describeWorstDrop(state, result);
+  const drop = describeWorstRun(state, result);
   const usesWatts = state.deviceGroups.some((group) => group.load.input === 'watts');
   const problems = visibleProblems(result);
 
@@ -49,7 +50,7 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
     >
       <HeadlineTile
         value={drop.value}
-        label="Worst voltage drop"
+        label={HEADLINE_LABEL}
         range={drop.detail}
         footnote={describeLimit(state)}
       />

@@ -7,6 +7,7 @@ import {
   printClasses as classes,
 } from '../../../../components/PrintLayout/PrintLayout';
 import { buildPrintSummary } from '../_lib/print-summary';
+import { HEADLINE_LABEL } from '../_lib/result-summary';
 import { buildShareUrl } from '../_state/share-link';
 import type { VoltageDropCalculatorState } from '../_state/voltage-drop-calculator-state';
 
@@ -28,7 +29,7 @@ export function PrintSummary({ state, result }: PrintSummaryProps) {
     >
       <section className={classes.result}>
         <p className={classes.resultLabel}>
-          Worst voltage drop <span className={classes.source}>{summary.statusLabel}</span>
+          {HEADLINE_LABEL} <span className={classes.source}>{summary.statusLabel}</span>
         </p>
         <p className={classes.resultValue}>{summary.drop.value}</p>
         <p className={classes.resultRange}>{summary.drop.detail}</p>

@@ -7,7 +7,7 @@ import {
   describeRemaining,
   describeRunDrop,
   describeSupplyLoad,
-  describeWorstDrop,
+  describeWorstRun,
   DEVICE_VOLTS_NOTE,
   formatRunLength,
   isSupplyLoadKnown,
@@ -109,7 +109,7 @@ export function buildPrintSummary(
   // An AC transformer's output is in VA, like its rating.
   const output = kind === 'ac' ? formatVoltAmps(result.totalWatts) : formatWatts(result.totalWatts);
   return {
-    drop: describeWorstDrop(state, result),
+    drop: describeWorstRun(state, result),
     statusLabel: RUN_STATUS_LABELS[worstRun(result).status],
     keyFigures: [
       {

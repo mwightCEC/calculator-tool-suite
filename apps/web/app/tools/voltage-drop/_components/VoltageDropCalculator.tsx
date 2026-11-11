@@ -6,7 +6,7 @@ import { useGroupExpansion } from '../../../../components/CameraGroupCard/use-gr
 import { MobileResultBar } from '../../../../components/MobileResultBar/MobileResultBar';
 import { RestoredSessionBanner } from '../../../../components/RestoredSessionBanner/RestoredSessionBanner';
 import { MAX_CAMERA_GROUPS } from '../../../../lib/camera-groups/group-list';
-import { describeWorstDeviceVolts, describeWorstDrop } from '../_lib/result-summary';
+import { describeWorstDropPercent, describeWorstRun, HEADLINE_LABEL } from '../_lib/result-summary';
 import { useVoltageDropCalculator } from '../_state/use-voltage-drop-calculator';
 import { PrintSummary } from './PrintSummary';
 import { RESULTS_CARD_ID, ResultsCard } from './results/ResultsCard';
@@ -21,7 +21,7 @@ export function VoltageDropCalculator() {
   const groupCount = state.deviceGroups.length;
   const atGroupLimit = groupCount >= MAX_CAMERA_GROUPS;
   const usageByGroupId = new Map(result.groups.map((usage) => [usage.groupId, usage]));
-  const drop = describeWorstDrop(state, result);
+  const drop = describeWorstRun(state, result);
 
   return (
     <>
@@ -72,9 +72,9 @@ export function VoltageDropCalculator() {
         </div>
 
         <MobileResultBar
-          label="Worst voltage drop"
+          label={HEADLINE_LABEL}
           value={drop.value}
-          detail={describeWorstDeviceVolts(result)}
+          detail={describeWorstDropPercent(result)}
           resultsId={RESULTS_CARD_ID}
         />
       </div>
