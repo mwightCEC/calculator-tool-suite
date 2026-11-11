@@ -34,7 +34,6 @@ function StorageGroupFields({ group, usage, actions }: StorageGroupProps) {
       perCameraMbps={usage.bitratePerCameraMbps}
       onChange={update}
       onBitrateSourceChange={(source) => actions.setBitrateSource(group.id, source)}
-      sceneComplexityHelpNote="This is separate from how many hours are recorded."
       detailFields={
         <>
           <RecordingModeField group={group} onChange={update} />

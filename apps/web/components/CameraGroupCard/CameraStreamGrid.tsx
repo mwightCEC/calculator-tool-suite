@@ -23,8 +23,6 @@ interface CameraStreamGridProps {
   perCameraMbps: ValueRange;
   onChange: (changes: CameraStreamChanges) => void;
   onBitrateSourceChange: (source: BitrateSource) => void;
-  /** Sentence added to the scene complexity help. */
-  sceneComplexityHelpNote?: string;
   /** Calculator fields in a second row under the stream settings (e.g. Storage's recording). */
   detailFields?: ReactNode;
 }
@@ -40,7 +38,6 @@ export function CameraStreamGrid({
   perCameraMbps,
   onChange,
   onBitrateSourceChange,
-  sceneComplexityHelpNote,
   detailFields,
 }: CameraStreamGridProps) {
   return (
@@ -65,12 +62,7 @@ export function CameraStreamGrid({
           hint={`(${describeBitrateHint(group.bitrate, perCameraMbps)})`}
           estimateFields={
             <div className={classes.sceneField}>
-              <SceneComplexityField
-                group={group}
-                onChange={onChange}
-                helpNote={sceneComplexityHelpNote}
-                control="select"
-              />
+              <SceneComplexityField group={group} onChange={onChange} control="select" />
             </div>
           }
         />

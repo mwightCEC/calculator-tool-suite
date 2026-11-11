@@ -211,7 +211,9 @@ config or routing changes.
   it open with it ignored (`share-format-v2.ts`). Both use the shared camera configuration
   layout (`CameraConfigurationCard`, `CameraStreamGrid`, `Disclosure`): new groups are added
   at the top and the others collapse, fields keep an info icon only where it explains
-  something (Scene complexity, RAID level, reserve, uplink, overhead, viewing bitrate), and
+  something (Scene complexity, uplink, overhead, viewing bitrate). PoE budget's Power source
+  and device fields, Voltage drop's Power supply and device fields, and Lens / FOV's Camera
+  configuration fields have no info icons, and
   optional cards (Storage's Drive configuration; Bandwidth's Remote viewing) collapse
   without changing the calculation.
 

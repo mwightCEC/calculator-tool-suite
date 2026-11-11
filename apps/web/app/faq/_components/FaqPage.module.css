@@ -4,6 +4,11 @@
   max-width: 52rem;
 }
 
+.pageTitle {
+  font-size: var(--mantine-font-size-xl);
+  letter-spacing: -0.01em;
+}
+
 .intro {
   color: var(--app-text-secondary);
 }

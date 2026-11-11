@@ -34,13 +34,6 @@ import type {
 } from '../_state/voltage-drop-calculator-state';
 import classes from './VoltageDropCalculator.module.css';
 
-const LOAD_HELP =
-  'Amps: the current on the datasheet. Watts: the maximum power, with IR and any heater on; the current then rises as the voltage at the device falls.';
-const GAUGE_HELP =
-  'Conductor size of the power pair, in copper at 20 °C. Thicker wire (a lower AWG number) drops less voltage. The system applies to every group.';
-const LENGTH_HELP =
-  'Longest run in this group, from the supply to the device. The drop counts both conductors, out and back. The unit applies to every group.';
-
 interface LoadFieldsProps {
   group: VoltageDropGroupState;
   usage: VoltageDropGroupUsage;
@@ -85,7 +78,7 @@ export function LoadFields({
             />
           </FieldRow>
 
-          <FieldRow label="Load given as" help={LOAD_HELP} controlId={`${id}-load-input`}>
+          <FieldRow label="Load given as" controlId={`${id}-load-input`}>
             <Select
               id={`${id}-load-input`}
               data={LOAD_INPUT_OPTIONS}
@@ -127,7 +120,7 @@ export function LoadFields({
             </FieldRow>
           )}
 
-          <FieldRow label="Wire size" help={GAUGE_HELP} controlId={`${id}-gauge`}>
+          <FieldRow label="Wire size" controlId={`${id}-gauge`}>
             <Select
               id={`${id}-gauge`}
               data={gaugeSelectData(wireSystem)}
@@ -155,7 +148,6 @@ export function LoadFields({
 
           <FieldRow
             label="Run length"
-            help={LENGTH_HELP}
             className={classes.runLength}
             controlId={`${id}-length`}
             note={

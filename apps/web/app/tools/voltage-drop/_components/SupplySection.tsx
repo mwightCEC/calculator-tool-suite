@@ -59,11 +59,7 @@ export function SupplySection({
       >
         <div className={classes.fields}>
           <div className={classes.fieldGrid}>
-            <FieldRow
-              label="Supply"
-              help="Output of the power supply or transformer. 24 V AC is treated like DC at its RMS voltage, using the wire's resistance only."
-              controlId="supply-preset"
-            >
+            <FieldRow label="Supply" controlId="supply-preset">
               <Select
                 id="supply-preset"
                 data={SUPPLY_OPTIONS}
@@ -90,11 +86,7 @@ export function SupplySection({
               />
             </FieldRow>
 
-            <FieldRow
-              label="Drop limit"
-              help="Largest voltage drop allowed on a run, as a share of the supply voltage. Check the device's input range: many 12 V DC cameras accept ±10%."
-              controlId="drop-limit"
-            >
+            <FieldRow label="Drop limit" controlId="drop-limit">
               <Select
                 id="drop-limit"
                 data={DROP_LIMIT_OPTIONS}
@@ -128,11 +120,7 @@ export function SupplySection({
                   />
                 </FieldRow>
 
-                <FieldRow
-                  label="Output voltage"
-                  help="The supply's output with its adjustment set, e.g. 13.8 V. For AC, the RMS voltage."
-                  controlId="supply-volts"
-                >
+                <FieldRow label="Output voltage" controlId="supply-volts">
                   <UnitInput
                     id="supply-volts"
                     value={powerSupply.volts}
@@ -147,11 +135,7 @@ export function SupplySection({
             )}
 
             {powerSupply.kind === 'ac' ? (
-              <FieldRow
-                label="Rated power"
-                help="Most power the transformer can deliver across all outputs, in VA from its label or datasheet. The current it allows is VA ÷ voltage: 100 VA at 24 V is about 4.2 A."
-                controlId="supply-va"
-              >
+              <FieldRow label="Rated power" controlId="supply-va">
                 <UnitInput
                   id="supply-va"
                   value={Math.round(powerSupply.ratedAmps * powerSupply.volts * 10) / 10}
@@ -163,11 +147,7 @@ export function SupplySection({
                 />
               </FieldRow>
             ) : (
-              <FieldRow
-                label="Rated current"
-                help="Most current the supply can deliver across all outputs, from its label or datasheet."
-                controlId="supply-amps"
-              >
+              <FieldRow label="Rated current" controlId="supply-amps">
                 <UnitInput
                   id="supply-amps"
                   value={powerSupply.ratedAmps}
@@ -180,11 +160,7 @@ export function SupplySection({
               </FieldRow>
             )}
 
-            <FieldRow
-              label="Supply reserve"
-              help="Share of the supply's rating kept free as headroom for start-up surges, heaters in cold weather and devices added later."
-              controlId="supply-reserve"
-            >
+            <FieldRow label="Supply reserve" controlId="supply-reserve">
               <Select
                 id="supply-reserve"
                 data={RESERVE_OPTIONS}
