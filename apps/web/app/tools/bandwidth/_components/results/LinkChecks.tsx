@@ -71,7 +71,7 @@ export function LinkChecks({ checks, uplinkMbps, onUplinkChange }: LinkChecksPro
       </Text>
       <FieldRow
         label="Uplink speed"
-        help="Speed of the network link that carries all the camera traffic, such as a switch uplink. Checked against the high end of the bandwidth estimate."
+        help="Speed of the network link that carries all the camera traffic. Checked against the high end of the bandwidth estimate."
         controlId="bandwidth-uplink"
         className={classes.uplinkRow}
       >

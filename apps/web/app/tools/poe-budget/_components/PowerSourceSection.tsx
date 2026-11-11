@@ -37,11 +37,7 @@ export function PowerSourceSection({ powerSource, onChange }: PowerSourceSection
       >
         <div className={classes.deviceFields}>
           <div className={classes.deviceGrid}>
-            <FieldRow
-              label="PoE budget"
-              help="Total PoE power the switch or NVR can supply across all ports, from its datasheet. Often lower than the per-port maximum times the port count."
-              controlId="poe-budget-watts"
-            >
+            <FieldRow label="PoE budget" controlId="poe-budget-watts">
               <UnitInput
                 id="poe-budget-watts"
                 value={powerSource.budgetWatts}
@@ -53,11 +49,7 @@ export function PowerSourceSection({ powerSource, onChange }: PowerSourceSection
               />
             </FieldRow>
 
-            <FieldRow
-              label="PoE ports"
-              help="Number of ports that supply PoE. Uplink and non-PoE ports don't count."
-              controlId="poe-ports"
-            >
+            <FieldRow label="PoE ports" controlId="poe-ports">
               <NumberStepper
                 id="poe-ports"
                 value={powerSource.ports}
@@ -67,11 +59,7 @@ export function PowerSourceSection({ powerSource, onChange }: PowerSourceSection
               />
             </FieldRow>
 
-            <FieldRow
-              label="Port standard"
-              help="The highest PoE standard the ports support, which sets the most power one port can deliver."
-              controlId="poe-port-standard"
-            >
+            <FieldRow label="Port standard" controlId="poe-port-standard">
               <Select
                 id="poe-port-standard"
                 data={PORT_STANDARD_SELECT_DATA}
@@ -87,11 +75,7 @@ export function PowerSourceSection({ powerSource, onChange }: PowerSourceSection
               />
             </FieldRow>
 
-            <FieldRow
-              label="Budget reserve"
-              help="Share of the budget kept free as headroom for start-up surges, heaters in cold weather and devices added later."
-              controlId="poe-reserve"
-            >
+            <FieldRow label="Budget reserve" controlId="poe-reserve">
               <Select
                 id="poe-reserve"
                 data={RESERVE_OPTIONS}

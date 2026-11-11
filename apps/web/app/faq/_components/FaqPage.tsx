@@ -28,10 +28,14 @@ const METHOD_SECTIONS: Record<string, ComponentType> = {
 export function FaqPage() {
   return (
     <Stack gap="lg" className={classes.page}>
-      <Text className={classes.intro}>
-        How each calculator works out its results, and the assumptions behind them. Results are
-        planning estimates: confirm them against the manufacturers&apos; specifications.
-      </Text>
+      <div>
+        <Title order={2} className={classes.pageTitle}>
+          How estimates are calculated
+        </Title>
+        <Text className={classes.intro}>
+          Results are planning estimates: check them against manufacturer specifications.
+        </Text>
+      </div>
 
       {TOOLS.map((tool) => {
         const Method = METHOD_SECTIONS[tool.id];
@@ -54,8 +58,8 @@ export function FaqPage() {
               <ThemeIcon variant="light" size={36} radius="md">
                 <ToolIcon size={20} stroke={1.75} />
               </ThemeIcon>
-              <Title order={2} id={titleId} className={classes.title}>
-                {tool.name}: how it&apos;s calculated
+              <Title order={3} id={titleId} className={classes.title}>
+                {tool.name}
               </Title>
             </Group>
             <Method />

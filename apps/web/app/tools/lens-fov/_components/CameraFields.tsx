@@ -54,11 +54,7 @@ export function CameraFields({ state, actions }: CameraFieldsProps) {
             />
           </FieldRow>
 
-          <FieldRow
-            label="Sensor"
-            help='The image sensor type from the datasheet, such as 1/2.8". Choose Custom to enter the active area in mm.'
-            controlId="lens-sensor"
-          >
+          <FieldRow label="Sensor" controlId="lens-sensor">
             <Select
               id="lens-sensor"
               data={SENSOR_OPTIONS}
@@ -74,11 +70,7 @@ export function CameraFields({ state, actions }: CameraFieldsProps) {
             />
           </FieldRow>
 
-          <FieldRow
-            label="Lens"
-            help="Focal length from the datasheet. For a varifocal lens, check each end of its range."
-            controlId="lens-focal"
-          >
+          <FieldRow label="Lens" controlId="lens-focal">
             <Select
               id="lens-focal"
               data={LENS_OPTIONS}
@@ -142,11 +134,7 @@ export function CameraFields({ state, actions }: CameraFieldsProps) {
 
           {sensor.kind === 'custom' && (
             <>
-              <FieldRow
-                label="Sensor width"
-                help="Width of the sensor's active area. A shape that doesn't match the image is cropped to it, never stretched."
-                controlId="lens-sensor-width"
-              >
+              <FieldRow label="Sensor width" controlId="lens-sensor-width">
                 <UnitInput
                   id="lens-sensor-width"
                   value={sensor.widthMm}

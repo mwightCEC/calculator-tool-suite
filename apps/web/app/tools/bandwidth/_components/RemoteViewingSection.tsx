@@ -95,7 +95,7 @@ export function RemoteViewingSection({
 
               <FieldRow
                 label="Bitrate"
-                help="Per-camera bitrate sent to each viewer. Average camera bitrate uses the average of your camera groups. Choose Custom bitrate when viewers watch a sub-stream for grid views, or mostly watch higher-bitrate cameras."
+                help="Per-camera bitrate sent to each viewer. Average camera bitrate uses the average of your camera groups. Choose Custom bitrate for a sub-stream or higher-bitrate cameras."
                 controlId="bandwidth-viewing-bitrate"
               >
                 <Select

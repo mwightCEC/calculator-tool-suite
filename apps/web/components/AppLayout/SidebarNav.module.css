@@ -9,13 +9,15 @@
   padding: var(--mantine-spacing-xs);
 }
 
-/* Collapse / expand: a round tab straddling the sidebar's right edge, level with All tools. */
+/* Collapse / expand: a round tab straddling the sidebar's right edge, level with All tools.
+   Desktop only: below sm the sidebar is slid off-screen (the drawer replaces it), and the
+   tab, 12px outside its edge, would still peek in at the left. */
 .toggleTab {
+  display: none;
   position: absolute;
   top: calc(var(--mantine-spacing-xs) + 8px);
   right: -12px;
   z-index: 1;
-  display: flex;
   align-items: center;
   justify-content: center;
   width: 24px;
@@ -25,6 +27,12 @@
   background-color: var(--mantine-color-body);
   color: var(--app-sidebar-text);
   box-shadow: var(--mantine-shadow-xs);
+}
+
+@media (min-width: $mantine-breakpoint-sm) {
+  .toggleTab {
+    display: flex;
+  }
 }
 
 @media (hover: hover) {

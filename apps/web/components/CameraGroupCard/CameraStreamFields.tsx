@@ -26,7 +26,7 @@ import { BitrateField } from './BitrateField';
 import classes from './CameraGroupCard.module.css';
 
 const SCENE_COMPLEXITY_HELP =
-  'How much detail and movement the scene has, which affects how well it compresses. Busy scenes such as traffic, foliage or crowds need more bitrate.';
+  'How much detail and movement the scene has. Busy scenes such as traffic, foliage or crowds need more bitrate.';
 
 /** The camera group fields every calculator shares. */
 export interface CameraStreamGroup extends BitrateGroupFields {
@@ -42,8 +42,6 @@ interface CameraStreamFieldsProps {
   perCameraMbps: ValueRange;
   onChange: (changes: CameraStreamChanges) => void;
   onBitrateSourceChange: (source: BitrateSource) => void;
-  /** Sentence added to the scene complexity help, e.g. to set it apart from a calculator's own fields. */
-  sceneComplexityHelpNote?: string;
   /** Calculator-specific rows, placed between scene complexity and bitrate. */
   children?: ReactNode;
 }
@@ -158,8 +156,6 @@ export function FrameRateField({ group, onChange, withHelp = true }: StreamField
 }
 
 interface SceneComplexityFieldProps extends StreamFieldProps {
-  /** Sentence added to the help, e.g. to set it apart from a calculator's own fields. */
-  helpNote?: string;
   /** Option buttons (default) or a dropdown, for fields arranged in a grid. */
   control?: 'buttons' | 'select';
 }
@@ -167,7 +163,6 @@ interface SceneComplexityFieldProps extends StreamFieldProps {
 export function SceneComplexityField({
   group,
   onChange,
-  helpNote,
   control = 'buttons',
 }: SceneComplexityFieldProps) {
   const controlId = `${group.id}-complexity`;
@@ -176,7 +171,7 @@ export function SceneComplexityField({
   return (
     <FieldRow
       label="Scene complexity"
-      help={[SCENE_COMPLEXITY_HELP, helpNote].filter(Boolean).join(' ')}
+      help={SCENE_COMPLEXITY_HELP}
       controlId={controlId}
       // The dropdown is disabled instead, so it isn't dimmed twice.
       dimmed={!usesEstimate && control === 'buttons'}
@@ -215,7 +210,6 @@ export function CameraStreamFields({
   perCameraMbps,
   onChange,
   onBitrateSourceChange,
-  sceneComplexityHelpNote,
   children,
 }: CameraStreamFieldsProps) {
   return (
@@ -224,7 +218,7 @@ export function CameraStreamFields({
       <ResolutionField group={group} onChange={onChange} />
       <CodecField group={group} onChange={onChange} />
       <FrameRateField group={group} onChange={onChange} />
-      <SceneComplexityField group={group} onChange={onChange} helpNote={sceneComplexityHelpNote} />
+      <SceneComplexityField group={group} onChange={onChange} />
 
       {children}
 

@@ -1,5 +1,5 @@
-import { isBitrateModelValidated } from '@cctv/calc-core';
-import { List, Text } from '@mantine/core';
+import { List } from '@mantine/core';
+import { BitrateRangeItem, PreliminaryBitrateText } from './BitrateEstimateNotes';
 
 /** Plain-language explanation of the method and its limits. */
 export function StorageHowCalculated() {
@@ -8,34 +8,19 @@ export function StorageHowCalculated() {
       <List size="sm" spacing="xs">
         <List.Item>
           Each group writes <i>bitrate × cameras × recorded hours</i> per day. Storage needed is
-          daily footage × retention days, divided by (1 − reserve) so the reserve stays free.
+          daily footage × retention days, plus the reserve.
+        </List.Item>
+        <BitrateRangeItem />
+        <List.Item>
+          Drives are sized for the high end of the range. RAID parity or mirroring and the reserve
+          come out of raw capacity first.
         </List.Item>
         <List.Item>
-          Real camera bitrate varies a lot with the scene (foliage, traffic, crowds, rain), night/IR
-          noise, camera model and settings. Estimates are therefore shown as a likely range, and the
-          recommended drives are sized for the high end, because running out of storage is worse
-          than having spare.
-        </List.Item>
-        <List.Item>
-          For the most reliable results choose <b>Manual</b> and enter the cameras&apos; real
-          bitrate: a VBR average measured on an existing system, or the CBR (constant or maximum)
-          bitrate configured on the cameras.
-        </List.Item>
-        <List.Item>
-          RAID parity or mirroring and the reserve are taken out of raw capacity before footage is
-          counted.
-        </List.Item>
-        <List.Item>
-          Capacities use decimal TB (10¹² bytes) as printed on drives. Recorders and operating
-          systems often display binary units, so the same drive can appear about 9% smaller.
+          Capacities are decimal TB, as on drive labels; recorders often show binary units, about 9%
+          smaller.
         </List.Item>
       </List>
-      {!isBitrateModelValidated && (
-        <Text size="sm" mt="sm" c="dimmed">
-          The bitrate estimates currently use preliminary placeholder values that have not been
-          validated against measured cameras.
-        </Text>
-      )}
+      <PreliminaryBitrateText />
     </div>
   );
 }

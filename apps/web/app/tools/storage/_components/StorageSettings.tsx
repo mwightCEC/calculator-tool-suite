@@ -26,9 +26,6 @@ import {
 } from '../_lib/storage-labels';
 import classes from './StorageSettings.module.css';
 
-const RAID_HELP =
-  'Redundancy across drives. RAID 1 and 10 mirror (half the raw capacity is usable); RAID 5 uses one drive and RAID 6 two drives of capacity for parity.';
-
 /** What the RAID level needs, e.g. "Needs 4 or more drives, in pairs"; null for no RAID. */
 function driveRuleNote(level: RaidLevel): string | null {
   if (level === 'none') {
@@ -159,12 +156,7 @@ function DriveSizeField({ storage, onChange }: SettingsProps) {
 
 function RaidField({ storage, onChange }: SettingsProps) {
   return (
-    <FieldRow
-      label="RAID level"
-      help={RAID_HELP}
-      note={driveRuleNote(storage.raidLevel)}
-      controlId="storage-raid"
-    >
+    <FieldRow label="RAID level" note={driveRuleNote(storage.raidLevel)} controlId="storage-raid">
       <Select
         id="storage-raid"
         data={RAID_SELECT_DATA}
@@ -184,11 +176,7 @@ function RaidField({ storage, onChange }: SettingsProps) {
 
 function ReserveField({ storage, onChange }: SettingsProps) {
   return (
-    <FieldRow
-      label="Recording reserve"
-      help="Usable capacity kept free as headroom, for example for recorder overhead or growth."
-      controlId="storage-reserve"
-    >
+    <FieldRow label="Recording reserve" controlId="storage-reserve">
       <Select
         id="storage-reserve"
         data={RESERVE_SELECT_DATA}
