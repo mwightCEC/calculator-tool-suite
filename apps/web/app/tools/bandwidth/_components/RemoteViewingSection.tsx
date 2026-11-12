@@ -37,7 +37,7 @@ interface RemoteViewingSectionProps {
 }
 
 /**
- * Collapsible Remote viewing card, above the camera groups, with an on/off switch, the
+ * Collapsible Optional configuration card (Remote viewing), above the camera groups, with an on/off switch, the
  * viewers, their bitrate and the site upload check. The fields stay in view when the
  * switch is off, disabled. Collapsing the card only hides the fields.
  */
@@ -53,7 +53,7 @@ export function RemoteViewingSection({
 
   return (
     <Paper withBorder radius="lg" className={classes.card}>
-      <Disclosure title="Remote viewing" hint="(optional)" divider={false}>
+      <Disclosure title="Optional configuration" hint="(Remote viewing)" divider={false}>
         <div className={classes.panel}>
           <Switch
             checked={enabled}

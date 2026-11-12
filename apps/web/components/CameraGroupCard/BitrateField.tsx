@@ -107,8 +107,7 @@ function ConfiguredBitrate({ id, value, onChange }: Omit<EnteredBitrateInputProp
         {label}
       </label>
       <Text size="sm" className={classes.secondaryText}>
-        The bitrate set on the camera or recorder. Used as entered; scene complexity no longer
-        applies.
+        The bitrate set on the camera or recorder. Used as entered.
       </Text>
       <EnteredBitrateInput id={id} label={label} value={value} onChange={onChange} />
     </div>

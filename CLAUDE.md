@@ -45,10 +45,11 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   left, value and any value detail right-aligned; Bandwidth's Remote viewing row reads "Off"
   while it is switched off), then collapsible breakdown sections and a "How this is
   calculated" link to the FAQ page). Storage differs: its Retention
-  goal (or Storage configuration) sits under the mode choice cards in the same card, Drive
-  configuration (storage-needed mode only) is its own collapsible card above the camera
-  configuration card, its summary rows replace Recording metrics too, and the drives sit in
-  a "Drives and RAID" section. Lens / FOV has one camera, so its configuration card
+  goal and Drive size panels (or Storage configuration) sit under the mode choice cards in the
+  same card, Optional configuration (RAID level and reserve; storage-needed mode only) is its
+  own collapsible card above the camera configuration card, its summary rows replace Recording
+  metrics too (bitrate, daily recording and cameras, then the three capacity rows below a
+  divider), and the drives sit in a "Drives and RAID" section. Lens / FOV has one camera, so its configuration card
   has no groups. Its left column holds the Distance and target card (a `SettingsPanel` in a
   bordered card), the Camera configuration card, then three collapsible visual cards (Camera
   view, with the Show pixel grid switch in its title row (`VisualCard` `action`); Coverage;
@@ -68,7 +69,7 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
   `[data-position]`: a stray `top` on the bottom ones stretches them over the page and blocks clicks.
 - Tool list for the sidebar and home grid: `apps/web/tools/tool-registry.ts` (also `FAQ_PAGE`,
   the help menu's FAQ item and its header heading). The header's help button (`HelpButton`) is a
-  menu: FAQ, a divider, then "Clear all calculators" in red, which forgets every tool's saved
+  menu: "Clinton Electronics Support" (support.clintonelectronics.com, new tab), "Tools FAQ" (`FAQ_PAGE.menuTitle`; the page heading stays "FAQ"), a divider, then "Clear all calculators" in red, which forgets every tool's saved
   state and resets the open tool, with Undo (`lib/share/clear-all-calculators.ts`, through window
   events). The sidebar lists only All tools and the calculators.
 - FAQ page (`app/faq/`): each calculator's "How it's calculated" text, one section per tool
@@ -136,7 +137,7 @@ config or routing changes.
   headlines the typical bandwidth estimate (all camera streams plus overhead), labelled
   "Typical camera traffic" (never "peak": the inputs are averages). Above the camera
   configuration card sit an always-open Overhead allowance card (it affects every total), then
-  a collapsible Remote viewing card. The uplink speed is chosen in the results card under
+  a collapsible Optional configuration card ("(Remote viewing)" beside the title). The uplink speed is chosen in the results card under
   Network checks (`LinkChecks`). Remote viewing has an on/off switch (its fields stay visible but disabled while off);
   when on, it is viewers × cameras each × the "Average camera bitrate" across
   groups or a custom per-camera bitrate, with the site upload check. Network checks use the
@@ -215,7 +216,7 @@ config or routing changes.
   something (Scene complexity, uplink, overhead, viewing bitrate). PoE budget's Power source
   and device fields, Voltage drop's Power supply and device fields, and Lens / FOV's Camera
   configuration fields have no info icons, and
-  optional cards (Storage's Drive configuration; Bandwidth's Remote viewing) collapse
+  optional cards (Storage's and Bandwidth's Optional configuration) collapse
   without changing the calculation.
 
 - Check my system (`app/check/`, not in the tool registry): the company website's cart opens

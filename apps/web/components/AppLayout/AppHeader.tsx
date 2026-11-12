@@ -56,8 +56,8 @@ export function AppHeader({ onOpenMobileNav }: AppHeaderProps) {
       </div>
 
       <Group gap="xs" wrap="nowrap" className={classes.actions}>
-        <HelpButton />
         <ColorSchemeToggle />
+        <HelpButton />
       </Group>
     </div>
   );

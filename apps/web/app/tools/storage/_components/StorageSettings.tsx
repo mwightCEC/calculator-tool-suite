@@ -12,8 +12,8 @@ import {
   type RaidLevel,
   type StorageSettings,
 } from '@cctv/calc-core';
-import { IconCalendarEvent, IconServer2 } from '@tabler/icons-react';
-import { Group, Paper, Select, Text } from '@mantine/core';
+import { IconCalendarEvent, IconDatabase, IconServer2 } from '@tabler/icons-react';
+import { Paper, Select, Stack } from '@mantine/core';
 import { Disclosure } from '../../../../components/Disclosure/Disclosure';
 import { FieldLayoutProvider, FieldRow } from '../../../../components/FieldRow/FieldRow';
 import { NumberStepper } from '../../../../components/NumberStepper/NumberStepper';
@@ -48,7 +48,8 @@ interface StorageGoalPanelProps extends SettingsProps {
 
 /**
  * The chosen mode's goal, under the mode choice cards.
- * Storage needed: a Retention goal panel (the drives to size are in DriveConfigurationCard).
+ * Storage needed: a Retention goal panel, then a Drive size panel (RAID level and reserve are
+ * in OptionalConfigurationCard).
  * Days from capacity: one Storage configuration panel with the drives entered.
  */
 export function StorageGoalPanel({ mode, storage, onChange }: StorageGoalPanelProps) {
@@ -70,13 +71,13 @@ export function StorageGoalPanel({ mode, storage, onChange }: StorageGoalPanelPr
   }
 
   return (
-    <SettingsPanel
-      icon={<IconCalendarEvent size={20} stroke={1.75} />}
-      title="Retention goal"
-      titleFor="storage-retention"
-      description="How many days of video do you want to keep?"
-      control={
-        <Group gap="xs" wrap="nowrap">
+    <Stack gap="sm">
+      <SettingsPanel
+        icon={<IconCalendarEvent size={20} stroke={1.75} />}
+        title="Retention goal"
+        titleFor="storage-retention"
+        description="How many days of video do you want to keep?"
+        control={
           <NumberStepper
             id="storage-retention"
             value={storage.retentionDays}
@@ -84,30 +85,31 @@ export function StorageGoalPanel({ mode, storage, onChange }: StorageGoalPanelPr
             min={1}
             max={MAX_RETENTION_DAYS}
           />
-          <Text size="sm">days</Text>
-        </Group>
-      }
-    />
+        }
+      />
+      <SettingsPanel
+        icon={<IconDatabase size={20} stroke={1.75} />}
+        title="Drive size"
+        titleFor="storage-drive-size"
+        description="Which drive size should the recommended drives use?"
+        control={<DriveSizeSelect storage={storage} onChange={onChange} />}
+      />
+    </Stack>
   );
 }
 
 /**
- * Storage needed only: the drives to size, in their own card above the camera groups.
+ * Storage needed only: RAID level and reserve, in their own card above the camera groups.
  * Collapsing it only hides the fields; they still apply.
  */
-export function DriveConfigurationCard({ storage, onChange }: SettingsProps) {
+export function OptionalConfigurationCard({ storage, onChange }: SettingsProps) {
   return (
     <Paper withBorder radius="lg" className={classes.card}>
-      <Disclosure title="Drive configuration" hint="(optional)" divider={false}>
+      <Disclosure title="Optional configuration" hint="(RAID, Recording reserve)" divider={false}>
         <div className={classes.fieldsPanel}>
-          <Text size="sm" className={classes.description}>
-            Sizes the recommended drives for this estimate from the RAID level, drive size and
-            reserve.
-          </Text>
           <FieldLayoutProvider value="stacked">
-            <div className={classes.grid} data-columns={3}>
+            <div className={classes.grid}>
               <RaidField storage={storage} onChange={onChange} />
-              <DriveSizeField storage={storage} onChange={onChange} />
               <ReserveField storage={storage} onChange={onChange} />
             </div>
           </FieldLayoutProvider>
@@ -134,23 +136,33 @@ function DriveCountField({ storage, onChange }: SettingsProps) {
   );
 }
 
-function DriveSizeField({ storage, onChange }: SettingsProps) {
+function DriveSizeField(props: SettingsProps) {
   return (
     <FieldRow label="Drive size" controlId="storage-drive-size">
-      <Select
-        id="storage-drive-size"
-        data={DRIVE_SIZE_SELECT_DATA}
-        value={String(storage.driveSizeTb)}
-        onChange={(value) => {
-          const driveSizeTb = parseOption(DRIVE_SIZES_TB, value);
-          if (driveSizeTb !== undefined) {
-            onChange({ driveSizeTb });
-          }
-        }}
-        allowDeselect={false}
-        className={classes.select}
-      />
+      <DriveSizeSelect {...props} className={classes.select} />
     </FieldRow>
+  );
+}
+
+function DriveSizeSelect({
+  storage,
+  onChange,
+  className = classes.driveSizeControl,
+}: SettingsProps & { className?: string }) {
+  return (
+    <Select
+      id="storage-drive-size"
+      data={DRIVE_SIZE_SELECT_DATA}
+      value={String(storage.driveSizeTb)}
+      onChange={(value) => {
+        const driveSizeTb = parseOption(DRIVE_SIZES_TB, value);
+        if (driveSizeTb !== undefined) {
+          onChange({ driveSizeTb });
+        }
+      }}
+      allowDeselect={false}
+      className={className}
+    />
   );
 }
 

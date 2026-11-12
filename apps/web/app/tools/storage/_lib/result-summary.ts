@@ -78,50 +78,61 @@ export interface SummaryItem {
 const plural = (count: number, word: string) =>
   `${formatNumber(count, 0)} ${count === 1 ? word : `${word}s`}`;
 
+export interface SummarySections {
+  /** What the cameras record: bitrate, footage per day, cameras. */
+  recording: SummaryItem[];
+  /** What the drives hold: recording, usable and raw capacity, below a divider. */
+  capacity: SummaryItem[];
+}
+
 /**
- * The results card's bullet list: what the drives hold (recording, usable and raw
- * capacity), then what the cameras record (bitrate, footage per day, cameras).
+ * The results card's summary rows: what the cameras record, then (below a divider)
+ * what the drives hold.
  */
-export function buildSummaryItems(
+export function buildSummarySections(
   result: StorageCalculationResult,
   state: StorageCalculatorState
-): SummaryItem[] {
+): SummarySections {
   const { drives, breakdown } = result;
   const approx = result.isEstimated ? '~' : '';
   const raid = drives.raidLevel === 'none' ? 'no RAID' : RAID_LABELS[drives.raidLevel];
   const cameras = state.cameraGroups.reduce((sum, group) => sum + group.cameraCount, 0);
   // Shown in decimal GB, as on the camera group cards.
   const dailyGb = scaleRange(result.dailyWriteTb, GB_PER_TB);
-  return [
-    {
-      label: 'Recording capacity',
-      value: formatTb(drives.usableCapacityTb - breakdown.reserveTb),
-      detail: `after ${state.storage.reservePercent}% reserve`,
-    },
-    {
-      label: 'Usable capacity',
-      value: formatTb(drives.usableCapacityTb),
-      detail: `${raid}, ${plural(drives.driveCount, 'drive')}`,
-    },
-    {
-      label: 'Raw capacity',
-      value: formatTb(drives.rawCapacityTb),
-      detail: `${formatNumber(drives.driveCount, 0)} × ${drives.driveSizeTb} TB`,
-    },
-    {
-      label: 'Total bitrate',
-      value: `${approx}${formatMbps(result.totalBitrateMbps.typical)}`,
-      detail: formatApproxRange(result.totalBitrateMbps, 'Mbps'),
-    },
-    {
-      label: 'Daily recording',
-      value: `${approx}${formatGb(dailyGb.typical)}/day`,
-      detail: formatApproxRange(dailyGb, 'GB/day'),
-    },
-    {
-      label: 'Cameras',
-      value: formatNumber(cameras, 0),
-      detail: `in ${plural(state.cameraGroups.length, 'group')}`,
-    },
-  ];
+  return {
+    recording: [
+      {
+        label: 'Total bitrate',
+        value: `${approx}${formatMbps(result.totalBitrateMbps.typical)}`,
+        detail: formatApproxRange(result.totalBitrateMbps, 'Mbps'),
+      },
+      {
+        label: 'Daily recording',
+        value: `${approx}${formatGb(dailyGb.typical)}/day`,
+        detail: formatApproxRange(dailyGb, 'GB/day'),
+      },
+      {
+        label: 'Cameras',
+        value: formatNumber(cameras, 0),
+        detail: `in ${plural(state.cameraGroups.length, 'group')}`,
+      },
+    ],
+    capacity: [
+      {
+        label: 'Recording capacity',
+        value: formatTb(drives.usableCapacityTb - breakdown.reserveTb),
+        detail: `after ${state.storage.reservePercent}% reserve`,
+      },
+      {
+        label: 'Usable capacity',
+        value: formatTb(drives.usableCapacityTb),
+        detail: `${raid}, ${plural(drives.driveCount, 'drive')}`,
+      },
+      {
+        label: 'Raw capacity',
+        value: formatTb(drives.rawCapacityTb),
+        detail: `${formatNumber(drives.driveCount, 0)} × ${drives.driveSizeTb} TB`,
+      },
+    ],
+  };
 }

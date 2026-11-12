@@ -12,7 +12,7 @@ import {
   ResultsPanel,
   SummaryRows,
 } from '../../../../../components/ResultsCard/ResultsPanel';
-import { buildSummaryItems, describeHeadline, describeWarning } from '../../_lib/result-summary';
+import { buildSummarySections, describeHeadline, describeWarning } from '../../_lib/result-summary';
 import { buildShareUrl } from '../../_state/share-link';
 import type { StorageCalculatorState } from '../../_state/storage-calculator-state';
 import { CapacityBar } from './CapacityBar';
@@ -33,6 +33,7 @@ const RESULTS_TITLES = {
 } as const;
 
 export function ResultsCard({ result, state }: ResultsCardProps) {
+  const summary = buildSummarySections(result, state);
   const headline = describeHeadline(result);
   const warning = describeWarning(result);
 
@@ -58,7 +59,10 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         </Group>
       )}
 
-      <SummaryRows rows={buildSummaryItems(result, state)} />
+      <SummaryRows rows={summary.recording} />
+      <div className={classes.capacityRows}>
+        <SummaryRows rows={summary.capacity} />
+      </div>
 
       <Disclosure title="Capacity breakdown">
         <CapacityBar

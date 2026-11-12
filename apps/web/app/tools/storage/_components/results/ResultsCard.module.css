@@ -33,3 +33,9 @@
 .warning {
   color: var(--app-status-warn);
 }
+
+/* Drive capacity rows, below the recording rows and a divider. */
+.capacityRows {
+  padding-top: var(--mantine-spacing-sm);
+  border-top: 1px solid var(--mantine-color-default-border);
+}

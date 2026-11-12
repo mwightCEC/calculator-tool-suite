@@ -6,7 +6,7 @@
   padding: var(--mantine-spacing-lg);
 }
 
-/* Tinted panel inside the Remote viewing card, as in Storage's Drive configuration. */
+/* Tinted panel inside the Remote viewing card, as in Storage's Optional configuration. */
 
 .panel {
   display: flex;
