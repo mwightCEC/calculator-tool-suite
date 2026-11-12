@@ -7,6 +7,7 @@ import {
   type PoeResult,
 } from '@cctv/calc-core';
 import type { MetricTile } from '../../../../components/ResultsCard/ResultsPanel';
+import { combineGroupSegments } from '../../../../components/SegmentBar/combine-group-segments';
 import type { BarSegment } from '../../../../components/SegmentBar/SegmentBar';
 import { formatNumber, formatWatts } from '../../../../lib/format';
 import { remainingDetail, remainingLabel } from '../../../../lib/reserve-tile';
@@ -134,7 +135,11 @@ export function describeProblem(
  * The budget split into each group's load, the usable watts left and what is
  * left of the reserve. Over budget, the groups fill the bar.
  */
-export function budgetSegments(state: PoeCalculatorState, result: PoeResult): BarSegment[] {
+export function budgetSegments(
+  state: PoeCalculatorState,
+  result: PoeResult,
+  simplified = false
+): BarSegment[] {
   const groupSegments = result.groups.map((usage) => {
     const group = state.deviceGroups.find((candidate) => candidate.id === usage.groupId);
     return {
@@ -145,7 +150,9 @@ export function budgetSegments(state: PoeCalculatorState, result: PoeResult): Ba
     };
   });
   return [
-    ...groupSegments,
+    ...(simplified
+      ? [combineGroupSegments(groupSegments, { key: 'devices', label: 'Devices' })]
+      : groupSegments),
     {
       key: 'free',
       label: 'Free',

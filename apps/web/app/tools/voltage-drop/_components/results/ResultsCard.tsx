@@ -13,6 +13,10 @@ import {
 } from '../../../../../components/ResultsCard/ResultsPanel';
 import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
 import {
+  SegmentBarHeader,
+  useSimplifiedBreakdown,
+} from '../../../../../components/SegmentBar/SegmentBarHeader';
+import {
   buildMetricTiles,
   describeLimit,
   describeProblem,
@@ -31,6 +35,8 @@ import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'voltage-drop-results';
 
+const SIMPLIFIED_STORAGE_KEY = 'cctv-tool-suite:voltage-drop-breakdown-simplified';
+
 interface ResultsCardProps {
   result: VoltageDropResult;
   /** The inputs behind the result: group names, colours, supply, limit and units. */
@@ -41,6 +47,9 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
   const drop = describeWorstRun(state, result);
   const usesWatts = state.deviceGroups.some((group) => group.load.input === 'watts');
   const problems = visibleProblems(result);
+  const [simplified, setSimplified] = useSimplifiedBreakdown(SIMPLIFIED_STORAGE_KEY);
+  const loadKnown = isSupplyLoadKnown(result);
+  const severalGroups = state.deviceGroups.length > 1;
 
   return (
     <ResultsPanel
@@ -85,13 +94,20 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
         <Stack gap="md">
           <RunBreakdown state={state} result={result} />
           <div>
-            <Text component="h3" className={classes.sectionTitle}>
-              Supply load
-            </Text>
-            {isSupplyLoadKnown(result) ? (
+            <SegmentBarHeader
+              caption={
+                <Text component="h3" className={classes.barTitle}>
+                  Supply load
+                </Text>
+              }
+              showSwitch={loadKnown && severalGroups}
+              simplified={simplified}
+              onSimplifiedChange={setSimplified}
+            />
+            {loadKnown ? (
               <SegmentBar
                 detailed
-                segments={supplySegments(state, result)}
+                segments={supplySegments(state, result, simplified && severalGroups)}
                 formatValue={(amps) => formatSupplyAmps(state.powerSupply, amps)}
               />
             ) : (

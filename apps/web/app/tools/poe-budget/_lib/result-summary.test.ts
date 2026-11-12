@@ -168,6 +168,15 @@ describe('budgetSegments', () => {
     expect(segments[0]?.color).toBe('var(--group-color-0)');
   });
 
+  it('combines the groups into one Devices segment when simplified', () => {
+    const state = stateAfter({ type: 'add-group' });
+    const result = calculatePoe(state);
+    const segments = budgetSegments(state, result, true);
+    expect(segments.map((segment) => segment.label)).toEqual(['Devices', 'Free', 'Reserve']);
+    expect(segments[0]?.value).toBeCloseTo(result.totalWatts);
+    expect(segments[0]?.color).toBe('var(--mantine-color-brand-6)');
+  });
+
   it('shrinks the reserve as the load runs into it', () => {
     const state = stateAfter(...CLASS_4, {
       type: 'update-group',

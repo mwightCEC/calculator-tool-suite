@@ -9,6 +9,7 @@ import {
   type WireGauge,
 } from '@cctv/calc-core';
 import type { MetricTile } from '../../../../components/ResultsCard/ResultsPanel';
+import { combineGroupSegments } from '../../../../components/SegmentBar/combine-group-segments';
 import type { BarSegment } from '../../../../components/SegmentBar/SegmentBar';
 import {
   formatAmps,
@@ -265,7 +266,8 @@ export function describeProblem(
  */
 export function supplySegments(
   state: VoltageDropCalculatorState,
-  result: VoltageDropResult
+  result: VoltageDropResult,
+  simplified = false
 ): BarSegment[] {
   const groupSegments = result.groups.map((usage) => {
     const group = state.deviceGroups.find((candidate) => candidate.id === usage.groupId);
@@ -277,7 +279,9 @@ export function supplySegments(
     };
   });
   return [
-    ...groupSegments,
+    ...(simplified
+      ? [combineGroupSegments(groupSegments, { key: 'devices', label: 'Devices' })]
+      : groupSegments),
     {
       key: 'free',
       label: 'Free',
