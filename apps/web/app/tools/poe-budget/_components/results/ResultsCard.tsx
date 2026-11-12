@@ -12,6 +12,10 @@ import {
   SummaryRows,
 } from '../../../../../components/ResultsCard/ResultsPanel';
 import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
+import {
+  SegmentBarHeader,
+  useSimplifiedBreakdown,
+} from '../../../../../components/SegmentBar/SegmentBarHeader';
 import { formatWatts } from '../../../../../lib/format';
 import { buildChecks } from '../../_lib/checks';
 import {
@@ -29,6 +33,8 @@ import classes from './ResultsCard.module.css';
 
 export const RESULTS_CARD_ID = 'poe-results';
 
+const SIMPLIFIED_STORAGE_KEY = 'cctv-tool-suite:poe-budget-breakdown-simplified';
+
 interface ResultsCardProps {
   result: PoeResult;
   /** The inputs behind the result: group names, colours and the switch's reserve. */
@@ -38,6 +44,8 @@ interface ResultsCardProps {
 export function ResultsCard({ result, state }: ResultsCardProps) {
   const usage = describeUsage(result);
   const checks = buildChecks(state, result);
+  const [simplified, setSimplified] = useSimplifiedBreakdown(SIMPLIFIED_STORAGE_KEY);
+  const severalGroups = state.deviceGroups.length > 1;
 
   return (
     <ResultsPanel
@@ -81,7 +89,18 @@ export function ResultsCard({ result, state }: ResultsCardProps) {
 
       <Disclosure title="Power breakdown">
         <Stack gap="md">
-          <SegmentBar detailed segments={budgetSegments(state, result)} formatValue={formatWatts} />
+          <div>
+            <SegmentBarHeader
+              showSwitch={severalGroups}
+              simplified={simplified}
+              onSimplifiedChange={setSimplified}
+            />
+            <SegmentBar
+              detailed
+              segments={budgetSegments(state, result, simplified && severalGroups)}
+              formatValue={formatWatts}
+            />
+          </div>
           <GroupBreakdown state={state} result={result} />
         </Stack>
       </Disclosure>

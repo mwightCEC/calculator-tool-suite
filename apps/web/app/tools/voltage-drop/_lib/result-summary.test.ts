@@ -292,6 +292,15 @@ describe('supplySegments', () => {
     ]);
   });
 
+  it('combines the groups into one Devices segment when simplified', () => {
+    const state = stateAfter({ type: 'add-group' });
+    const result = calculateVoltageDrop(state);
+    const segments = supplySegments(state, result, true);
+    expect(segments.map((segment) => segment.label)).toEqual(['Devices', 'Free', 'Reserve']);
+    expect(segments[0]?.value).toBeCloseTo(result.totalAmps);
+    expect(segments[0]?.color).toBe('var(--mantine-color-brand-6)');
+  });
+
   it('lets the groups fill the bar when over the rating', () => {
     const state = stateAfter({ type: 'update-group', id: 'g1', changes: { deviceCount: 12 } });
     const segments = supplySegments(state, calculateVoltageDrop(state));

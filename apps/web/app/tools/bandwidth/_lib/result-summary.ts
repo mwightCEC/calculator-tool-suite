@@ -6,6 +6,8 @@ import {
   type RemoteViewingUsage,
 } from '@cctv/calc-core';
 import type { MetricTile } from '../../../../components/ResultsCard/ResultsPanel';
+import { combineGroupSegments } from '../../../../components/SegmentBar/combine-group-segments';
+import type { BarSegment } from '../../../../components/SegmentBar/SegmentBar';
 import { formatApproxRange, formatMbps, formatNumber } from '../../../../lib/format';
 import type { BandwidthCalculatorState } from '../_state/bandwidth-calculator-state';
 import {
@@ -99,36 +101,34 @@ export function describeWarning(result: BandwidthResult): string | null {
   return `${parts.join(' ')} Allow headroom for bursts and other traffic.`;
 }
 
-export interface TrafficSegment {
-  key: string;
-  label: string;
-  mbps: number;
-  /** Camera group palette index; null for the overhead allowance. */
-  colorIndex: number | null;
-}
-
-/** Typical bandwidth estimate split by camera group, with the overhead allowance as its own segment. */
+/**
+ * Typical bandwidth estimate split by camera group, with the overhead allowance as its own
+ * segment. Simplified combines the groups into one "Camera streams" segment.
+ */
 export function bandwidthSegments(
   state: BandwidthCalculatorState,
-  result: BandwidthResult
-): TrafficSegment[] {
+  result: BandwidthResult,
+  simplified = false
+): BarSegment[] {
   const groupSegments = result.groups.map((usage) => {
     const group = state.cameraGroups.find((candidate) => candidate.id === usage.groupId);
     return {
       key: usage.groupId,
       label: group?.name ?? usage.groupId,
-      mbps: usage.totalMbps.typical,
-      colorIndex: group?.colorIndex ?? 0,
+      value: usage.totalMbps.typical,
+      color: `var(--group-color-${group?.colorIndex ?? 0})`,
     };
   });
-  const streamsMbps = groupSegments.reduce((sum, segment) => sum + segment.mbps, 0);
+  const streamsMbps = groupSegments.reduce((sum, segment) => sum + segment.value, 0);
   return [
-    ...groupSegments,
+    ...(simplified
+      ? [combineGroupSegments(groupSegments, { key: 'streams', label: 'Camera streams' })]
+      : groupSegments),
     {
       key: 'overhead',
       label: 'Overhead',
-      mbps: result.bandwidthMbps.typical - streamsMbps,
-      colorIndex: null,
+      value: result.bandwidthMbps.typical - streamsMbps,
+      color: 'var(--app-capacity-reserve)',
     },
   ];
 }

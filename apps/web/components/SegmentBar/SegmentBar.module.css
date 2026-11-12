@@ -71,3 +71,21 @@
   font-variant-numeric: tabular-nums;
   text-align: end;
 }
+
+/* SegmentBarHeader: caption on the left, the Simplified switch on the right. */
+.header {
+  margin-bottom: 6px;
+  min-height: 22px;
+}
+
+.caption {
+  min-width: 0;
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.switchLabel {
+  color: var(--app-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+  padding-inline-start: 6px;
+}

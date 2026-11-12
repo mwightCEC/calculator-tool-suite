@@ -165,16 +165,32 @@ describe('bandwidthSegments', () => {
 
     // New groups are added at the top.
     expect(segments.map((segment) => segment.key)).toEqual(['g2', 'g1', 'overhead']);
-    expect(segments[1]).toEqual({ key: 'g1', label: 'Camera group 1', mbps: 40, colorIndex: 0 });
-    expect(segments[2]).toMatchObject({ label: 'Overhead', colorIndex: null });
-    const total = segments.reduce((sum, segment) => sum + segment.mbps, 0);
+    expect(segments[1]).toEqual({
+      key: 'g1',
+      label: 'Camera group 1',
+      value: 40,
+      color: 'var(--group-color-0)',
+    });
+    expect(segments[2]).toMatchObject({ label: 'Overhead', color: 'var(--app-capacity-reserve)' });
+    const total = segments.reduce((sum, segment) => sum + segment.value, 0);
     expect(total).toBeCloseTo(result.bandwidthMbps.typical);
+  });
+
+  it('combines the groups into one segment when simplified', () => {
+    const state = stateAfter(...KNOWN_4_MBPS, { type: 'add-group' });
+    const result = calculateBandwidth(state);
+    const segments = bandwidthSegments(state, result, true);
+    expect(segments.map((segment) => segment.label)).toEqual(['Camera streams', 'Overhead']);
+    expect(segments[0]?.value).toBeCloseTo(
+      result.groups.reduce((sum, g) => sum + g.totalMbps.typical, 0)
+    );
+    expect(segments[0]?.color).toBe('var(--mantine-color-brand-6)');
   });
 
   it('gives a zero overhead segment at 0% overhead', () => {
     const state = stateAfter(...KNOWN_4_MBPS, { type: 'set-overhead', overheadPercent: 0 });
     const segments = bandwidthSegments(state, calculateBandwidth(state));
-    expect(segments.at(-1)?.mbps).toBeCloseTo(0);
+    expect(segments.at(-1)?.value).toBeCloseTo(0);
   });
 });
 

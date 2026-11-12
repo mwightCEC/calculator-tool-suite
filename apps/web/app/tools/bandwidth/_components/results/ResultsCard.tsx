@@ -11,6 +11,10 @@ import {
   SummaryRows,
 } from '../../../../../components/ResultsCard/ResultsPanel';
 import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
+import {
+  SegmentBarHeader,
+  useSimplifiedBreakdown,
+} from '../../../../../components/SegmentBar/SegmentBarHeader';
 import { formatMbps, formatNumber } from '../../../../../lib/format';
 import { bandwidthSegments, buildMetricTiles, describeBandwidth } from '../../_lib/result-summary';
 import type { BandwidthCalculatorState } from '../../_state/bandwidth-calculator-state';
@@ -18,6 +22,8 @@ import { buildShareUrl } from '../../_state/share-link';
 import { LinkChecks } from './LinkChecks';
 
 export const RESULTS_CARD_ID = 'bandwidth-results';
+
+const SIMPLIFIED_STORAGE_KEY = 'cctv-tool-suite:bandwidth-breakdown-simplified';
 
 const plural = (count: number, noun: string) =>
   `${formatNumber(count, 0)} ${count === 1 ? noun : `${noun}s`}`;
@@ -32,6 +38,8 @@ interface ResultsCardProps {
 
 export function ResultsCard({ result, state, onUplinkChange }: ResultsCardProps) {
   const bandwidth = describeBandwidth(result);
+  const [simplified, setSimplified] = useSimplifiedBreakdown(SIMPLIFIED_STORAGE_KEY);
+  const severalGroups = state.cameraGroups.length > 1;
 
   return (
     <ResultsPanel
@@ -57,17 +65,14 @@ export function ResultsCard({ result, state, onUplinkChange }: ResultsCardProps)
       />
 
       <Disclosure title="Traffic breakdown">
+        <SegmentBarHeader
+          showSwitch={severalGroups}
+          simplified={simplified}
+          onSimplifiedChange={setSimplified}
+        />
         <SegmentBar
           detailed
-          segments={bandwidthSegments(state, result).map((segment) => ({
-            key: segment.key,
-            label: segment.label,
-            value: segment.mbps,
-            color:
-              segment.colorIndex === null
-                ? 'var(--app-capacity-reserve)'
-                : `var(--group-color-${segment.colorIndex})`,
-          }))}
+          segments={bandwidthSegments(state, result, simplified && severalGroups)}
           formatValue={formatMbps}
         />
       </Disclosure>

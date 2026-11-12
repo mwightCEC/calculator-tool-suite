@@ -31,7 +31,8 @@ Bandwidth, PoE budget, Voltage drop and Lens / FOV calculators are built.
 - Shared UI: `apps/web/components/` (`OptionButtons`, `FieldRow`, `NumberStepper`, `AppLayout`,
   `CameraGroupCard`, `Disclosure`, `ResultsCard` (results card shell, headline tile, `SummaryRows`),
   `MobileResultBar`, `CopyLinkButton`, `FaqLink`, `PrintLayout` for Export, `UnitInput`, `UnitSelect`
-  (ft / m, AWG / mm² picker inside an input), `SegmentBar`,
+  (ft / m, AWG / mm² picker inside an input), `SegmentBar` (breakdown bars; `SegmentBarHeader` adds the Simplified switch,
+  shown with two or more groups, that combines the groups into one segment, remembered per tool),
   `SettingsPanel` (tinted icon panel for settings below the groups)).
   The "⋯" menu beside the configuration title (`CameraGroupMenu`) holds Expand / Collapse all
   and, in red, "Clear camera configuration" (rotate icon; internally "clear"), which goes back to

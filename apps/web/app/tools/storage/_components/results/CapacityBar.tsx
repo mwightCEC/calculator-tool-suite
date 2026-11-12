@@ -1,12 +1,13 @@
 'use client';
 
 import type { CapacityBreakdown } from '@cctv/calc-core';
-import { Group, Switch, Text } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
 import { SegmentBar } from '../../../../../components/SegmentBar/SegmentBar';
+import {
+  SegmentBarHeader,
+  useSimplifiedBreakdown,
+} from '../../../../../components/SegmentBar/SegmentBarHeader';
 import { formatTb } from '../../../../../lib/format';
 import type { CameraGroupState } from '../../_state/storage-calculator-state';
-import classes from './ResultsCard.module.css';
 
 const SIMPLIFIED_STORAGE_KEY = 'cctv-tool-suite:capacity-bar-simplified';
 
@@ -82,34 +83,17 @@ interface CapacityBarProps {
  * is remembered per browser.
  */
 export function CapacityBar({ breakdown, groups, singleGroup }: CapacityBarProps) {
-  const [simplified, setSimplified] = useLocalStorage({
-    key: SIMPLIFIED_STORAGE_KEY,
-    defaultValue: false,
-  });
+  const [simplified, setSimplified] = useSimplifiedBreakdown(SIMPLIFIED_STORAGE_KEY);
   const segments = buildSegments(breakdown, groups, simplified && !singleGroup);
 
   return (
     <div>
-      <Group
-        justify="space-between"
-        align="center"
-        wrap="nowrap"
-        gap="sm"
-        className={classes.labelRow}
-      >
-        <Text className={classes.barCaption}>
-          Based on {formatTb(breakdown.rawTb)} raw capacity
-        </Text>
-        {!singleGroup && (
-          <Switch
-            size="xs"
-            label="Simplified"
-            checked={simplified}
-            onChange={(event) => setSimplified(event.currentTarget.checked)}
-            classNames={{ label: classes.switchLabel }}
-          />
-        )}
-      </Group>
+      <SegmentBarHeader
+        caption={`Based on ${formatTb(breakdown.rawTb)} raw capacity`}
+        showSwitch={!singleGroup}
+        simplified={simplified}
+        onSimplifiedChange={setSimplified}
+      />
       <SegmentBar
         detailed
         segments={segments.map(({ key, label, tb, color }) => ({ key, label, value: tb, color }))}

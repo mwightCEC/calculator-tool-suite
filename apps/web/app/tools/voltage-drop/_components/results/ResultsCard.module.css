@@ -6,6 +6,14 @@
   font-weight: 700;
 }
 
+/* Supply load's title, in the row with the Simplified switch (SegmentBarHeader). */
+.barTitle {
+  margin: 0;
+  color: var(--mantine-color-text);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 700;
+}
+
 .note {
   color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-xs);

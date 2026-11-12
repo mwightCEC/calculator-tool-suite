@@ -4,12 +4,6 @@
   color: var(--app-text-secondary);
 }
 
-.switchLabel {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-xs);
-  padding-inline-start: 6px;
-}
-
 /* Drives */
 
 .drivesBox {
@@ -30,18 +24,6 @@
 }
 
 .drivesDetail {
-  color: var(--app-text-secondary);
-  font-size: var(--mantine-font-size-sm);
-}
-
-/* Capacity bar */
-
-.labelRow {
-  margin-bottom: 6px;
-  min-height: 22px;
-}
-
-.barCaption {
   color: var(--app-text-secondary);
   font-size: var(--mantine-font-size-sm);
 }
