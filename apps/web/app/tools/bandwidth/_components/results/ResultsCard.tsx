@@ -44,7 +44,7 @@ export function ResultsCard({ result, state, onUplinkChange }: ResultsCardProps)
   return (
     <ResultsPanel
       id={RESULTS_CARD_ID}
-      title="Bandwidth estimate"
+      title="Estimated bandwidth"
       actions={<ResultsActions getShareUrl={() => buildShareUrl(state, window.location.href)} />}
     >
       {result.isEstimated && !isBitrateModelValidated && <PreliminaryBitrateNote />}

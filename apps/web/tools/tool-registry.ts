@@ -33,7 +33,15 @@ export const SUITE_HEADING = {
 export const FAQ_PAGE = {
   route: '/faq',
   title: 'FAQ',
+  /** The help menu's label for the page. */
+  menuTitle: 'Tools FAQ',
   subtitle: 'How the calculators work out their results, and what they assume.',
+} as const;
+
+/** Clinton Electronics' support site, the first item in the header's help menu. */
+export const SUPPORT_SITE = {
+  href: 'https://support.clintonelectronics.com/',
+  title: 'Clinton Electronics Support',
 } as const;
 
 /** Header bar heading for a path: the open tool's, the FAQ page's, or the suite's. */

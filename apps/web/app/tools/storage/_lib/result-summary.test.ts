@@ -6,25 +6,30 @@ import {
   type StorageCalculatorAction,
   type StorageCalculatorState,
 } from '../_state/storage-calculator-state';
-import { buildSummaryItems } from './result-summary';
+import { buildSummarySections } from './result-summary';
 
 function stateAfter(...actions: StorageCalculatorAction[]): StorageCalculatorState {
   return actions.reduce(storageCalculatorReducer, createInitialStorageCalculatorState());
 }
 
 function summaryFor(state: StorageCalculatorState) {
-  return buildSummaryItems(calculateStorage(state), state);
+  const { recording, capacity } = buildSummarySections(calculateStorage(state), state);
+  return [...recording, ...capacity];
 }
 
-describe('buildSummaryItems', () => {
-  it('lists drive capacity, then what the cameras record', () => {
-    expect(summaryFor(createInitialStorageCalculatorState()).map((item) => item.label)).toEqual([
-      'Recording capacity',
-      'Usable capacity',
-      'Raw capacity',
+describe('buildSummarySections', () => {
+  it('lists what the cameras record, then drive capacity in its own section', () => {
+    const state = createInitialStorageCalculatorState();
+    const { recording, capacity } = buildSummarySections(calculateStorage(state), state);
+    expect(recording.map((item) => item.label)).toEqual([
       'Total bitrate',
       'Daily recording',
       'Cameras',
+    ]);
+    expect(capacity.map((item) => item.label)).toEqual([
+      'Recording capacity',
+      'Usable capacity',
+      'Raw capacity',
     ]);
   });
 

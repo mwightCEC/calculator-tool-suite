@@ -78,7 +78,7 @@ export function BandwidthCalculator() {
         </div>
 
         <MobileResultBar
-          label="Bandwidth estimate"
+          label="Estimated bandwidth"
           value={bandwidth.value}
           detail={bandwidth.likelyRange}
           resultsId={RESULTS_CARD_ID}
